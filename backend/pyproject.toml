@@ -1,0 +1,45 @@
+[project]
+name = "oluto-backend"
+version = "0.1.0"
+description = "Financial Co-Pilot Backend for Oluto"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.128.1",
+    "uvicorn>=0.34.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.0.0",
+    "pandas>=2.2.3",
+    "sqlalchemy>=2.0.46",
+    "greenlet>=3.0.0",
+    "python-multipart>=0.0.20",
+    "email-validator>=2.2.0",
+    "httpx>=0.28.0",
+    "openai>=1.60.0",
+    "numpy>=2.2.0",
+    "pdf2image>=1.17.0",
+    "alembic>=1.14.0",
+    "asyncpg>=0.30.0",
+    "celery>=5.3.6",
+    "redis>=5.0.1",
+    "psycopg2-binary>=2.9.9",
+    "flower>=2.0.1",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.9",
+    "passlib[argon2]>=1.7.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.6.9",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+filterwarnings = [
+    # Ignore passlib's internal argon2 deprecation warning (not our code)
+    "ignore::DeprecationWarning:passlib.handlers.argon2",
+]
+
