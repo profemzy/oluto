@@ -45,5 +45,7 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: SECRET_KEY
+            - name: DATABASE_SSL
+              value: "true"
       restartPolicy: OnFailure
   backoffLimit: 3

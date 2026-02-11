@@ -92,6 +92,8 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: AZURE_OCR_MODEL
+            - name: DATABASE_SSL
+              value: "true"
             - name: CORS_ORIGINS
               value: "https://oluto.app"
           ports:

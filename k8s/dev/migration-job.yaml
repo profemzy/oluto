@@ -13,7 +13,7 @@ spec:
         - name: migration
           image: wackopscoachdevacr.azurecr.io/oluto-backend:latest
           imagePullPolicy: Always
-          command: ["sh", "-c", "echo 'Testing DB connection...' && python -c 'from app.core.config import settings; print(f\"DB: {settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}\")' && alembic upgrade head"]
+          command: ["alembic", "upgrade", "head"]
           env:
             - name: POSTGRES_SERVER
               valueFrom:
@@ -45,5 +45,7 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: SECRET_KEY
+            - name: DATABASE_SSL
+              value: "true"
       restartPolicy: OnFailure
   backoffLimit: 3

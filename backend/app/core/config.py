@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "oluto_db"
+    DATABASE_SSL: bool = False
 
     # CELERY / REDIS CONFIG
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
@@ -43,7 +44,7 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
-        return str(
+        url = str(
             PostgresDsn.build(
                 scheme="postgresql+asyncpg",
                 username=self.POSTGRES_USER,
@@ -53,6 +54,9 @@ class Settings(BaseSettings):
                 path=self.POSTGRES_DB,
             )
         )
+        if self.DATABASE_SSL:
+            url += "?ssl=require"
+        return url
 
 
 settings = Settings()

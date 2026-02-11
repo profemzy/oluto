@@ -101,6 +101,8 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: AZURE_OCR_MODEL
+            - name: DATABASE_SSL
+              value: "true"
           resources:
             requests:
               cpu: 200m
