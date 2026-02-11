@@ -54,8 +54,15 @@ Transition small business owners from reactive record-keeping to proactive finan
 | Component | Technology |
 |-----------|------------|
 | Containerization | Docker + Docker Compose |
+| Orchestration | Azure Kubernetes Service (AKS) |
+| CI/CD | Azure DevOps Pipelines |
+| Container Registry | Azure Container Registry (ACR) — dev + prod |
+| Secrets | Azure Key Vault + ExternalSecrets Operator |
+| TLS | cert-manager + Let's Encrypt |
+| Ingress | ingress-nginx (path-based routing) |
+| IaC | Terraform (separate repo: `infotitans-azure/terraform/oluto/`) |
 | Cache/Queue | Redis 8.4.0-alpine |
-| Task Monitor | Flower (port 5555) |
+| Task Monitor | Flower (port 5555, dev only) |
 
 ---
 
@@ -171,7 +178,36 @@ oluto/
 │   ├── package.json            # Root monorepo config
 │   └── package-lock.json
 │
-├── docker-compose.yml          # Full stack orchestration
+├── k8s/                           # Kubernetes manifests
+│   ├── dev/                       # DEV environment (1 replica, flower)
+│   │   ├── namespace.yaml
+│   │   ├── redis.yaml
+│   │   ├── migration-job.yaml     # Alembic migration K8s Job
+│   │   ├── backend-deployment.yaml
+│   │   ├── worker-deployment.yaml
+│   │   ├── flower-deployment.yaml # Dev only
+│   │   ├── frontend-deployment.yaml
+│   │   ├── services.yaml
+│   │   └── ingress.yaml           # dev.oluto.app
+│   ├── prod/                      # PROD environment (2 replicas, no flower)
+│   │   ├── namespace.yaml
+│   │   ├── redis.yaml
+│   │   ├── migration-job.yaml
+│   │   ├── backend-deployment.yaml
+│   │   ├── worker-deployment.yaml
+│   │   ├── frontend-deployment.yaml
+│   │   ├── services.yaml
+│   │   └── ingress.yaml           # oluto.app
+│   └── external-secrets/
+│       ├── dev/external-secret.yaml
+│       └── prod/external-secret.yaml
+│
+├── azure-pipelines/               # Azure DevOps CI/CD
+│   ├── 01-app-ci.yml             # Build + push images to DEV ACR
+│   ├── 02-app-cd.yml             # Deploy DEV → approve → PROD
+│   └── 03-secrets-setup.yml      # One-time Key Vault population
+│
+├── docker-compose.yml          # Full stack orchestration (local dev)
 ├── concept.md                  # Product specification
 ├── CLAUDE.md                   # Project guide for Claude Code
 └── AGENTS.md                   # This file
@@ -488,6 +524,71 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 8. **Use existing frontend patterns** - `useAuth` hook for auth, shared UI components, constants from `lib/constants.ts`
 9. **Follow existing comment style** - docstrings for functions, inline for complex logic
 10. **Keep concept.md in sync** - if implementing features from the spec, note progress
+
+---
+
+## Deployment & Infrastructure
+
+### Environments
+
+| Env | Domain | AKS Cluster | ACR | Ingress IP |
+|-----|--------|-------------|-----|------------|
+| DEV | `dev.oluto.app` | `wackopscoach-dev-aks` | `wackopscoachdevacr` | `20.245.222.212` |
+| PROD | `oluto.app` | `wackopscoach-prod-aks` | `wackopscoachprodacr` | `23.100.46.173` |
+
+### Kubernetes Architecture
+- **Namespace:** `oluto` on each cluster
+- **Path-based ingress:** `/api/*`, `/health`, `/docs`, `/redoc`, `/up` → `oluto-backend:80`; `/*` → `oluto-frontend:80`
+- **TLS:** cert-manager + Let's Encrypt `letsencrypt-prod` ClusterIssuer (HTTP-01 solver via nginx)
+- **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret` (14 env vars)
+- **Redis:** In-cluster deployment per namespace, accessed at `redis://redis:6379/0`
+- **Migrations:** K8s Job `oluto-migration` runs `uv run alembic upgrade head` — Jobs are immutable, CD deletes old job before redeploying
+- **Flower:** DEV only — Celery monitoring UI at `/flower`
+
+### CI/CD Flow (Azure DevOps)
+1. **CI** (`01-app-ci.yml`): Triggered by code push to `backend/**` or `frontend/**`. Builds 2 Docker images (`oluto-backend`, `oluto-frontend`) and pushes to DEV ACR
+2. **CD** (`02-app-cd.yml`): Triggered by CI success. Deploys to DEV, then (after manual approval) promotes images from DEV ACR → PROD ACR via `az acr import` and deploys to PROD
+3. **Secrets** (`03-secrets-setup.yml`): Manual pipeline to populate Key Vault with app secrets
+
+### Terraform (separate repo)
+Located at `infotitans-azure/terraform/oluto/`:
+- `database.tf` — Creates `oluto_db` on existing WackOps-Coach PostgreSQL Flexible Server
+- `keyvault-secrets.tf` — Stores DB connection info (host, port, user, db name) in Key Vault
+- `locals.tf` — Naming conventions (`wackopscoach-${env}-*`)
+- DB password reuses existing `postgres-password` from wackops-coach Terraform (same server, same admin user)
+
+### Deployment Gotchas
+1. **`DATABASE_SSL=true`** must be set for Azure PostgreSQL (rejects unencrypted connections)
+2. **DB password URL-encoding:** `config.py` uses `urllib.parse.quote(password, safe="")` because `PostgresDsn.build()` doesn't escape `?`, `!`, `)`, `=` in passwords
+3. **Celery sync URL:** `psycopg2` needs `?sslmode=require` not `?ssl=require` — handled in `import_tasks.py`
+4. **Alembic configparser:** `env.py` must escape `%` as `%%` in database URL
+5. **K8s Jobs are immutable:** Must delete old job before redeploying
+6. **Ingress-nginx health probe:** Requires `service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path=/healthz` annotation
+7. **Namespace ordering:** Namespace must be created before ExternalSecret in CD pipeline
+8. **Azure DevOps free tier:** 1 parallel job across all projects — queued runs wait
+
+### Environment Variables (K8s / Key Vault)
+
+All env vars are synced from Azure Key Vault via ExternalSecrets:
+
+| Key Vault Secret | K8s Env Var | Source |
+|-----------------|-------------|--------|
+| `oluto-postgres-host` | `POSTGRES_SERVER` | Terraform |
+| `oluto-postgres-port` | `POSTGRES_PORT` | Terraform |
+| `oluto-postgres-user` | `POSTGRES_USER` | Terraform |
+| `postgres-password` | `POSTGRES_PASSWORD` | WackOps-Coach Terraform |
+| `oluto-postgres-db` | `POSTGRES_DB` | Terraform |
+| `oluto-secret-key` | `SECRET_KEY` | 03-secrets-setup pipeline |
+| `oluto-celery-broker-url` | `CELERY_BROKER_URL` | 03-secrets-setup pipeline |
+| `oluto-celery-result-backend` | `CELERY_RESULT_BACKEND` | 03-secrets-setup pipeline |
+| `oluto-fuelix-api-key` | `FUELIX_API_KEY` | 03-secrets-setup pipeline |
+| `oluto-fuelix-base-url` | `FUELIX_BASE_URL` | 03-secrets-setup pipeline |
+| `oluto-fuelix-model` | `FUELIX_MODEL` | 03-secrets-setup pipeline |
+| `oluto-azure-api-key` | `AZURE_API_KEY` | 03-secrets-setup pipeline |
+| `oluto-azure-ocr-url` | `AZURE_OCR_URL` | 03-secrets-setup pipeline |
+| `oluto-azure-ocr-model` | `AZURE_OCR_MODEL` | 03-secrets-setup pipeline |
+
+`DATABASE_SSL=true` is set directly in K8s deployment manifests (not from Key Vault).
 
 ---
 

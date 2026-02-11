@@ -25,15 +25,16 @@ Oluto gives founders proactive control over their finances with automated statem
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Python 3.12+, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2 |
+| Backend | Python 3.14, FastAPI, SQLAlchemy 2.0 (async), Pydantic v2 |
 | Database | PostgreSQL 18, Alembic migrations |
 | Frontend | TypeScript, Next.js 16, React 19, Tailwind CSS 4 |
 | Mobile | React Native / Expo (scaffolded) |
 | Auth | JWT (python-jose), Argon2 (passlib) |
 | Task Queue | Celery 5.6 + Redis 8, Flower monitoring |
+| AI Categorization | Fuelix (OpenAI-compatible) for CRA T2125 expense categories |
 | PDF Processing | Mistral Document AI OCR via Azure |
 | Package Managers | uv (backend), npm (frontend monorepo) |
-| Infrastructure | Docker Compose |
+| Infrastructure | AKS, Azure DevOps CI/CD, Terraform, Docker Compose |
 
 ## Prerequisites
 
@@ -126,6 +127,14 @@ oluto/
 │   │   ├── web/                 # Next.js app (app router)
 │   │   └── mobile/              # Expo / React Native (scaffolded)
 │   └── packages/                # Shared packages (scaffolded)
+├── k8s/                         # Kubernetes manifests
+│   ├── dev/                     # DEV (1 replica, includes Flower)
+│   ├── prod/                    # PROD (2 replicas, no Flower)
+│   └── external-secrets/        # Azure Key Vault → K8s secret sync
+├── azure-pipelines/             # Azure DevOps CI/CD
+│   ├── 01-app-ci.yml           # Build & push Docker images
+│   ├── 02-app-cd.yml           # Deploy DEV → approve → PROD
+│   └── 03-secrets-setup.yml    # One-time Key Vault population
 ├── docker-compose.yml           # Full stack (API, worker, Flower, DB, Redis)
 ├── concept.md                   # Product specification
 ├── CLAUDE.md                    # Developer guide
@@ -162,6 +171,11 @@ Configure via `.env` file in `backend/` or through Docker environment.
 | `SECRET_KEY` | *(must change in production)* | JWT signing key |
 | `CELERY_BROKER_URL` | `redis://localhost:6379/0` | Celery broker |
 | `CELERY_RESULT_BACKEND` | `redis://localhost:6379/0` | Celery results |
+| `POSTGRES_PORT` | `5432` | PostgreSQL port |
+| `DATABASE_SSL` | `false` | Enable SSL for DB connection (`true` for Azure) |
+| `FUELIX_API_KEY` | *(optional)* | AI categorization API key |
+| `FUELIX_BASE_URL` | `https://api.fuelix.ai/v1` | AI API endpoint |
+| `FUELIX_MODEL` | `claude-haiku-4-5` | AI model name |
 | `AZURE_API_KEY` | *(optional)* | Azure API key for PDF import |
 | `AZURE_OCR_URL` | *(set in config)* | Mistral Document AI endpoint |
 | `AZURE_OCR_MODEL` | `mistral-document-ai-2505` | OCR model name |
@@ -183,6 +197,68 @@ Tests require a running PostgreSQL instance. Tables are truncated between test r
 cd frontend/apps/web
 npx tsc --noEmit
 ```
+
+## Deployment
+
+Oluto runs on Azure Kubernetes Service (AKS) with Azure DevOps CI/CD pipelines.
+
+### Environments
+
+| Environment | URL | Cluster |
+|-------------|-----|---------|
+| DEV | https://dev.oluto.app | `wackopscoach-dev-aks` |
+| PROD | https://oluto.app | `wackopscoach-prod-aks` |
+
+### Architecture
+
+```
+                  ┌─────────────────────────────────────────┐
+                  │           AKS Cluster (oluto ns)        │
+┌──────┐         │                                         │
+│ User ├──HTTPS──►  ingress-nginx (path-based routing)     │
+└──────┘         │    │                                    │
+                  │    ├── /api/*, /docs, /up → backend    │
+                  │    └── /*             → frontend       │
+                  │                                         │
+                  │  ┌──────────┐  ┌──────────┐  ┌───────┐│
+                  │  │ backend  │  │ frontend │  │ redis ││
+                  │  │ (FastAPI)│  │ (Next.js)│  │       ││
+                  │  └────┬─────┘  └──────────┘  └───┬───┘│
+                  │       │                          │    │
+                  │  ┌────┴─────┐              ┌─────┴──┐ │
+                  │  │  worker  │              │ flower │ │
+                  │  │ (Celery) │              │(dev only)│
+                  │  └──────────┘              └────────┘ │
+                  └──────────┬──────────────────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Azure PostgreSQL │
+                    │  Flexible Server │
+                    └─────────────────┘
+```
+
+- **TLS:** cert-manager + Let's Encrypt (automatic certificate provisioning)
+- **Secrets:** Azure Key Vault → ExternalSecrets Operator → K8s `oluto-secret`
+- **Migrations:** Run as a K8s Job before each deployment
+- **Infrastructure as Code:** Terraform (in separate `infotitans-azure` repo)
+
+### CI/CD Pipelines (Azure DevOps)
+
+| Pipeline | Trigger | What it does |
+|----------|---------|-------------|
+| `01-app-ci.yml` | Push to `backend/**` or `frontend/**` | Build & push `oluto-backend` and `oluto-frontend` images to DEV ACR |
+| `02-app-cd.yml` | CI success or manual | Deploy to DEV; after approval, promote images to PROD ACR and deploy to PROD |
+| `03-secrets-setup.yml` | Manual | One-time population of application secrets in Key Vault |
+
+### Deploying
+
+Code pushed to `master`/`main` that touches `backend/` or `frontend/` automatically triggers the CI/CD pipeline:
+
+1. **CI** builds Docker images and pushes to the DEV container registry
+2. **CD DEV** deploys to the dev cluster and verifies with a health check
+3. **CD PROD** (requires manual approval) promotes images from DEV → PROD registry and deploys
+
+For manual deployments, trigger the CD pipeline in Azure DevOps with a specific image tag.
 
 ## Roadmap
 
