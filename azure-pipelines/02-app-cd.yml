@@ -107,6 +107,18 @@ stages:
                       echo "##vso[task.prependpath]/usr/local/bin"
 
                 - task: KubernetesManifest@1
+                  displayName: "Create Namespace (DEV)"
+                  inputs:
+                    action: "deploy"
+                    connectionType: "azureResourceManager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-dev-rg"
+                    kubernetesCluster: "wackopscoach-dev-aks"
+                    namespace: "default"
+                    manifests: |
+                      k8s/dev/namespace.yaml
+
+                - task: KubernetesManifest@1
                   displayName: "Create ExternalSecret (DEV)"
                   inputs:
                     action: "deploy"
@@ -273,6 +285,18 @@ stages:
                     inlineScript: |
                       az aks install-cli
                       echo "##vso[task.prependpath]/usr/local/bin"
+
+                - task: KubernetesManifest@1
+                  displayName: "Create Namespace (PROD)"
+                  inputs:
+                    action: "deploy"
+                    connectionType: "azureResourceManager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-prod-rg"
+                    kubernetesCluster: "wackopscoach-prod-aks"
+                    namespace: "default"
+                    manifests: |
+                      k8s/prod/namespace.yaml
 
                 - task: KubernetesManifest@1
                   displayName: "Create ExternalSecret (PROD)"
