@@ -37,9 +37,10 @@ app = FastAPI(
 )
 
 # CORS middleware - allow frontend to call API
+cors_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,6 +48,12 @@ app.add_middleware(
 
 # Include API v1 router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.get("/up")
+async def up():
+    """Simple liveness probe for Kubernetes."""
+    return {"status": "ok"}
 
 
 @app.get("/health")

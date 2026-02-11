@@ -1,0 +1,76 @@
+# =============================================================================
+# Ingress for DEV Environment
+# URL: https://dev.oluto.app
+# Path-based routing: /api/* → backend, /* → frontend
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oluto-ingress
+  namespace: oluto
+  annotations:
+    acme.cert-manager.io/http01-ingress-class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/issue-temporary-certificate: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: dev.oluto.app
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /up
+            pathType: Exact
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /docs
+            pathType: Exact
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /redoc
+            pathType: Exact
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: oluto-backend
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: oluto-frontend
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - dev.oluto.app
+      secretName: dev-oluto-app-tls

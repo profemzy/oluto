@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Oluto API"
     API_V1_STR: str = "/api/v1"
 
+    # CORS
+    CORS_ORIGINS: str = "http://localhost:3000"
+
     # DATABASE CONFIG
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

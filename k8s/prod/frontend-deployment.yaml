@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oluto-frontend
+  namespace: oluto
+  labels:
+    app: oluto-frontend
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oluto-frontend
+  template:
+    metadata:
+      labels:
+        app: oluto-frontend
+        environment: production
+    spec:
+      containers:
+        - name: oluto-frontend
+          image: wackopscoachprodacr.azurecr.io/oluto-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
