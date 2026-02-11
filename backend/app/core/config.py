@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import PostgresDsn, computed_field
 from typing import Optional
@@ -48,7 +50,7 @@ class Settings(BaseSettings):
             PostgresDsn.build(
                 scheme="postgresql+asyncpg",
                 username=self.POSTGRES_USER,
-                password=self.POSTGRES_PASSWORD,
+                password=quote(self.POSTGRES_PASSWORD, safe=""),
                 host=self.POSTGRES_SERVER,
                 port=self.POSTGRES_PORT,
                 path=self.POSTGRES_DB,
