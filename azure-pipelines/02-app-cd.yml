@@ -161,6 +161,19 @@ stages:
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/dev/frontend-deployment.yaml
 
+                # Delete old migration job (Jobs are immutable)
+                - task: Kubernetes@1
+                  displayName: "Delete Old Migration Job (DEV)"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-dev-rg"
+                    kubernetesCluster: "wackopscoach-dev-aks"
+                    namespace: "oluto"
+                    command: "delete"
+                    arguments: "job/oluto-migration --ignore-not-found"
+                  continueOnError: true
+
                 # Deploy to DEV AKS
                 - task: KubernetesManifest@1
                   displayName: "Deploy to DEV AKS"
@@ -339,6 +352,19 @@ stages:
                       grep "image:" k8s/prod/backend-deployment.yaml
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/prod/frontend-deployment.yaml
+
+                # Delete old migration job (Jobs are immutable)
+                - task: Kubernetes@1
+                  displayName: "Delete Old Migration Job (PROD)"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-prod-rg"
+                    kubernetesCluster: "wackopscoach-prod-aks"
+                    namespace: "oluto"
+                    command: "delete"
+                    arguments: "job/oluto-migration --ignore-not-found"
+                  continueOnError: true
 
                 # Deploy to PROD AKS
                 - task: KubernetesManifest@1
