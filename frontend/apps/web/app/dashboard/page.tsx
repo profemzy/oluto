@@ -136,7 +136,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="text-2xl font-black text-gray-900 mb-3">No transactions yet</h3>
               <p className="text-sm text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-                Start by adding your first transaction. Oluto will <span className="relative inline-block font-semibold text-highlight-animated">automatically calculate taxes</span> based on your province.
+                Start by adding your first transaction. Oluto will <span className="font-semibold">automatically calculate taxes</span> based on your province.
               </p>
               <Link
                 href="/transactions/new"

@@ -31,7 +31,7 @@ def _get_sync_session() -> Session:
     """
     sync_url = settings.DATABASE_URL.replace(
         "postgresql+asyncpg", "postgresql+psycopg2"
-    )
+    ).replace("?ssl=require", "?sslmode=require")
     engine = create_engine(sync_url, pool_pre_ping=True)
     session_factory = sessionmaker(bind=engine, expire_on_commit=False)
     return session_factory()

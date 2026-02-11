@@ -97,7 +97,7 @@ export function HeroSection({
           {/* Subheadline with animated highlight */}
           <p className="mt-8 text-lg leading-relaxed text-gray-600 sm:text-xl max-w-3xl mx-auto font-medium">
             Oluto helps Canadian small business owners transition from reactive record-keeping to{" "}
-            <span className="relative inline-block font-bold text-gray-900 text-highlight-animated">
+            <span className="font-bold text-gray-900">
               proactive financial mastery
             </span>. 
             Voice-enabled, AI-powered, and built for how you actually work.

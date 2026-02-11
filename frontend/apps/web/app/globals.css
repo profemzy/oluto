@@ -335,24 +335,6 @@ body {
   border-radius: 4px;
 }
 
-.text-highlight-animated {
-  position: relative;
-  display: inline-block;
-}
-
-.text-highlight-animated::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: -2px;
-  right: -2px;
-  height: 8px;
-  background: linear-gradient(135deg, var(--color-accent-orange) 0%, var(--color-accent-amber) 100%);
-  opacity: 0.3;
-  z-index: -1;
-  border-radius: 4px;
-  animation: pulse-slow 2s ease-in-out infinite;
-}
 
 /* ============================================
    GRADIENT UNDERLINE - Pulsing Effect
