@@ -299,6 +299,28 @@ stages:
                       az aks install-cli
                       echo "##vso[task.prependpath]/usr/local/bin"
 
+                # Promote images from DEV ACR to PROD ACR
+                - task: AzureCLI@2
+                  displayName: "Promote Images to PROD ACR"
+                  inputs:
+                    azureSubscription: $(aksServiceConnection)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      echo "Promoting images from $(acrLoginServer) to $(acrLoginServerProd)"
+                      echo "Tag: $(tag)"
+                      az acr import \
+                        --name wackopscoachprodacr \
+                        --source $(acrLoginServer)/$(backendImageRepository):$(tag) \
+                        --image $(backendImageRepository):$(tag) \
+                        --force
+                      az acr import \
+                        --name wackopscoachprodacr \
+                        --source $(acrLoginServer)/$(frontendImageRepository):$(tag) \
+                        --image $(frontendImageRepository):$(tag) \
+                        --force
+                      echo "Images promoted to PROD ACR"
+
                 - task: KubernetesManifest@1
                   displayName: "Create Namespace (PROD)"
                   inputs:
