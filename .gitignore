@@ -56,3 +56,6 @@ tsconfig.tsbuildinfo
 
 # Test artifacts (binary files)
 test_artifacts/
+
+# Generated docs (presentations, PDFs, etc.)
+docs/
