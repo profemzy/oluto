@@ -34,50 +34,101 @@ export function HeroSection({
 }: Partial<HeroSectionProps>) {
   return (
     <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/40 via-white to-white" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-cyan-100/30 to-emerald-100/20 rounded-full blur-3xl" />
+      {/* Animated Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/50 via-white to-emerald-50/30" />
+      
+      {/* Floating Background Orbs */}
+      <div className="absolute top-20 left-[10%] w-72 h-72 bg-cyan-200 rounded-full opacity-40 blur-3xl animate-float-slow" />
+      <div className="absolute top-40 right-[15%] w-96 h-96 bg-green-200 rounded-full opacity-35 blur-3xl animate-float" />
+      <div className="absolute bottom-20 left-[30%] w-56 h-56 bg-teal-200 rounded-full opacity-30 blur-2xl animate-float-reverse" />
+      <div className="absolute top-1/2 right-[5%] w-40 h-40 bg-cyan-300 rounded-full opacity-25 blur-2xl animate-float-fast" />
+      
+      {/* Small Bouncing Decorative Circles */}
+      <div className="absolute top-32 left-[20%] w-4 h-4 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle shadow-lg shadow-cyan-500/30" />
+      <div className="absolute top-48 right-[25%] w-3 h-3 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle shadow-lg shadow-green-500/30" />
+      <div className="absolute bottom-40 left-[15%] w-5 h-5 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full animate-bounce-subtle shadow-lg shadow-teal-500/30" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute top-1/3 right-[10%] w-2 h-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full animate-bounce-gentle shadow-lg" style={{ animationDelay: '1s' }} />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-4 py-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-xs font-medium text-cyan-700">
+        <div className="mx-auto max-w-4xl text-center">
+          {/* Badge with glow effect */}
+          <div className="mb-8 inline-flex items-center gap-2.5 rounded-full badge-gradient px-5 py-2.5 shadow-lg shadow-cyan-500/10 animate-bounce-subtle">
+            <svg className="w-4 h-4 text-cyan-600 hover-icon-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="text-sm font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
               {badge}
             </span>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
+          {/* Headline with animated underline */}
+          <h1 className="text-5xl font-black tracking-tight text-gray-900 sm:text-7xl lg:text-8xl leading-tight">
             {headline}{" "}
-            <span className="gradient-text">{headlineHighlight}</span>
+            <span className="relative inline-block">
+              <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-green-600 bg-clip-text text-transparent">
+                {headlineHighlight}
+              </span>
+              {/* Animated Gradient Underline */}
+              <svg 
+                className="absolute -bottom-2 left-0 w-full opacity-90 animate-pulse-slow" 
+                height="12" 
+                viewBox="0 0 300 12" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M2 10C50 5 100 2 150 3C200 4 250 7 298 10" 
+                  stroke="url(#gradientUnderline)" 
+                  strokeWidth="4" 
+                  strokeLinecap="round"
+                  className="animate-pulse-glow"
+                />
+                <defs>
+                  <linearGradient id="gradientUnderline" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#06b6d4"/>
+                    <stop offset="50%" stopColor="#14b8a6"/>
+                    <stop offset="100%" stopColor="#10b981"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </span>
           </h1>
 
-          {/* Subheadline */}
-          <p className="mt-6 text-lg leading-8 text-gray-600 sm:text-xl max-w-2xl mx-auto">
-            {subheadline}
+          {/* Subheadline with animated highlight */}
+          <p className="mt-8 text-lg leading-relaxed text-gray-600 sm:text-xl max-w-3xl mx-auto font-medium">
+            Oluto helps Canadian small business owners transition from reactive record-keeping to{" "}
+            <span className="relative inline-block font-bold text-gray-900 text-highlight-animated">
+              proactive financial mastery
+            </span>. 
+            Voice-enabled, AI-powered, and built for how you actually work.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* CTA Buttons with enhanced hover effects */}
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
             <Link
               href={primaryCta.href}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30 hover:-translate-y-0.5 transition-all"
+              className="group relative inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-8 py-4 text-base font-bold text-white shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden btn-glow"
             >
-              {primaryCta.text}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              <span className="relative z-10">{primaryCta.text}</span>
+              <svg 
+                className="w-5 h-5 relative z-10 group-hover:translate-x-1.5 transition-transform duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
             <Link
               href={secondaryCta.href}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:-translate-y-0.5 transition-all"
+              className="group inline-flex items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-8 py-4 text-base font-bold text-gray-700 shadow-lg hover:bg-white hover:border-cyan-300 hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300"
             >
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className="w-5 h-5 text-cyan-600 group-hover:scale-110 transition-transform duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -85,17 +136,28 @@ export function HeroSection({
             </Link>
           </div>
 
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-x-8 border-t border-gray-200/60 pt-10 max-w-lg mx-auto">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl font-bold gradient-text sm:text-3xl">{stat.value}</div>
-                <div className="mt-1 text-xs text-gray-500 sm:text-sm">{stat.label}</div>
+          {/* Stats with hover scale animation */}
+          <div className="mt-20 grid grid-cols-3 gap-x-10 border-t-2 border-gray-200/80 pt-12 max-w-2xl mx-auto">
+            {stats.map((stat, index) => (
+              <div 
+                key={stat.label} 
+                className="text-center group stat-card cursor-default"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-green-600 bg-clip-text text-transparent sm:text-4xl transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-lg">
+                  {stat.value}
+                </div>
+                <div className="mt-2 text-xs text-gray-600 font-semibold sm:text-sm uppercase tracking-wide group-hover:text-cyan-600 transition-colors">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Bottom wave decoration */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
     </section>
   );
 }

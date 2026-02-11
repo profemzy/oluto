@@ -8,7 +8,7 @@ export function ErrorAlert({ error, className = "mb-4" }: ErrorAlertProps) {
 
   return (
     <div
-      className={`rounded-lg bg-red-50 border border-red-200 p-4 ${className}`}
+      className={`rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 p-4 shadow-sm animate-pulse-slow ${className}`}
     >
       <div className="flex">
         <div className="flex-shrink-0">
@@ -25,7 +25,7 @@ export function ErrorAlert({ error, className = "mb-4" }: ErrorAlertProps) {
           </svg>
         </div>
         <div className="ml-3">
-          <p className="text-sm text-red-700">{error}</p>
+          <p className="text-sm font-bold text-red-700">{error}</p>
         </div>
       </div>
     </div>

@@ -128,30 +128,34 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+      {/* Decorative background elements */}
+      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
+      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
+
       <PageHeader
         title="Transactions"
         subtitle={`${transactions.length} transaction${transactions.length === 1 ? "" : "s"}${statusFilter ? ` (${statusFilter})` : ""}`}
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Filters */}
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <select
             value={statusFilter}
             onChange={(e) => handleFilterChange(e.target.value)}
-            className="rounded-lg border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm"
+            className="rounded-xl border-0 py-2.5 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-white hover:ring-gray-400 transition-all"
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {draftTransactions.length > 0 && (
               <button
                 onClick={handlePostAllDrafts}
                 disabled={bulkPosting}
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {bulkPosting ? (
                   <>
@@ -160,7 +164,7 @@ export default function TransactionsPage() {
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     Post {draftTransactions.length} Draft{draftTransactions.length === 1 ? "" : "s"}
@@ -170,18 +174,18 @@ export default function TransactionsPage() {
             )}
             <Link
               href="/transactions/import"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-all"
+              className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
               Import Statements
             </Link>
             <Link
               href="/transactions/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all"
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Add Transaction
@@ -191,13 +195,13 @@ export default function TransactionsPage() {
 
         {/* Transaction List */}
         {transactions.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 flex items-center justify-center mb-4">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 flex items-center justify-center mb-4 group hover:scale-110 transition-transform">
               <svg className="h-8 w-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
               {statusFilter ? "No transactions with this status" : "No transactions yet"}
             </h3>
             <p className="text-sm text-gray-500 mb-6">
@@ -205,15 +209,15 @@ export default function TransactionsPage() {
             </p>
             <Link
               href="/transactions/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all"
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Add Transaction
             </Link>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             {/* Table Header */}
-            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
               <div className="col-span-3">Vendor</div>
               <div className="col-span-2">Amount</div>
               <div className="col-span-2">Date</div>
@@ -225,15 +229,15 @@ export default function TransactionsPage() {
             {/* Table Body */}
             <div className="divide-y divide-gray-100">
               {transactions.map((txn) => (
-                <div key={txn.id} className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-gray-50 transition-colors items-center">
+                <div key={txn.id} className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-teal-50/50 transition-all duration-200 items-center">
                   <div className="col-span-3">
-                    <p className="text-sm font-medium text-gray-900">{txn.vendor_name}</p>
+                    <p className="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">{txn.vendor_name}</p>
                     {txn.description && (
                       <p className="text-xs text-gray-500 truncate">{txn.description}</p>
                     )}
                   </div>
                   <div className="col-span-2">
-                    <p className={`text-sm font-semibold ${parseFloat(txn.amount) < 0 ? "text-red-600" : "text-gray-900"}`}>
+                    <p className={`text-sm font-bold ${parseFloat(txn.amount) < 0 ? "text-red-600" : "text-emerald-600"}`}>
                       {formatCurrency(txn.amount)}
                     </p>
                     {(parseFloat(txn.gst_amount) > 0 || parseFloat(txn.pst_amount) > 0) && (
@@ -255,7 +259,7 @@ export default function TransactionsPage() {
                         handleStatusUpdate(txn.id, e.target.value)
                       }
                       disabled={updatingStatusId === txn.id}
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 ${STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"} ${updatingStatusId === txn.id ? "opacity-50" : ""}`}
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"} ${updatingStatusId === txn.id ? "opacity-50" : "hover:shadow-md"}`}
                     >
                       {STATUS_OPTIONS.filter((opt) => opt.value !== "").map(
                         (opt) => (
@@ -269,7 +273,7 @@ export default function TransactionsPage() {
                   <div className="col-span-1 flex justify-end">
                     <button
                       onClick={() => handleDelete(txn.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
                       title="Delete transaction"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -62,26 +62,35 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-20 right-[10%] w-64 h-64 bg-cyan-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
+      <div className="absolute bottom-20 left-[10%] w-72 h-72 bg-green-200 rounded-full opacity-20 blur-3xl animate-float" />
+      <div className="absolute top-1/3 right-[5%] w-40 h-40 bg-teal-200 rounded-full opacity-15 blur-2xl animate-float-reverse" />
+      
+      {/* Bouncing decorative dots */}
+      <div className="absolute top-40 left-[20%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
+      <div className="absolute bottom-40 right-[15%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.5s' }} />
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-gray-900">
           Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <Link href="/auth/login" className="font-medium text-cyan-600 hover:text-cyan-500">
+          <Link href="/auth/login" className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors">
             Sign in
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-lg shadow-gray-900/5 rounded-xl border border-gray-200 sm:px-10">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-gray-100 sm:px-10">
           <ErrorAlert error={error} />
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="fullName" className="block text-sm font-bold leading-6 text-gray-900">
                 Full name
               </label>
               <div className="mt-2">
@@ -93,13 +102,14 @@ export default function RegisterPage() {
                   required
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  placeholder="John Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="email" className="block text-sm font-bold leading-6 text-gray-900">
                 Email address
               </label>
               <div className="mt-2">
@@ -111,13 +121,14 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="password" className="block text-sm font-bold leading-6 text-gray-900">
                 Password
               </label>
               <div className="mt-2">
@@ -129,14 +140,15 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  placeholder="••••••••"
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="confirmPassword" className="block text-sm font-bold leading-6 text-gray-900">
                 Confirm password
               </label>
               <div className="mt-2">
@@ -148,26 +160,27 @@ export default function RegisterPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-start">
               <input
                 id="terms"
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600"
+                className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600 mt-0.5 cursor-pointer"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="terms" className="ml-2 block text-sm text-gray-600">
                 I agree to the{" "}
-                <Link href="/terms" className="font-medium text-cyan-600 hover:text-cyan-500">
+                <Link href="/terms" className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="font-medium text-cyan-600 hover:text-cyan-500">
+                <Link href="/privacy" className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors">
                   Privacy Policy
                 </Link>
               </label>
@@ -177,9 +190,24 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:shadow-md hover:from-cyan-600 hover:to-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold leading-6 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 btn-glow"
               >
-                {loading ? "Creating account..." : "Create account"}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Creating account...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Create account
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                )}
               </button>
             </div>
           </form>

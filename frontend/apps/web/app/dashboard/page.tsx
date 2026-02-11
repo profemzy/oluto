@@ -30,82 +30,92 @@ export default function DashboardPage() {
   const hasTransactions = summary && summary.transactions_count > 0;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div className="min-h-[calc(100vh-4rem)] relative">
+      {/* Decorative Background Dots with animations */}
+      <div className="absolute top-20 right-10 w-20 h-20 bg-cyan-200 rounded-full opacity-30 blur-2xl animate-bounce-subtle" />
+      <div className="absolute top-40 left-20 w-32 h-32 bg-green-200 rounded-full opacity-30 blur-3xl animate-float" />
+      <div className="absolute bottom-20 right-1/4 w-24 h-24 bg-teal-200 rounded-full opacity-25 blur-2xl animate-float-slow" />
+      <div className="absolute top-1/3 left-[5%] w-16 h-16 bg-cyan-100 rounded-full opacity-40 blur-xl animate-bounce-gentle" />
+
       <PageHeader
         title="Dashboard"
         subtitle={`Welcome back${user?.full_name ? `, ${user.full_name}` : ""}!`}
       />
 
       {/* Dashboard Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <ErrorAlert error={error} className="mb-6" />
 
-        {/* Stats Grid */}
+        {/* Stats Grid with enhanced hover effects */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           {/* Safe to Spend */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Safe to Spend</p>
+          <div className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-lg shadow-green-500/10 hover:shadow-xl hover:shadow-green-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
+            <div className="flex items-center justify-between relative z-10">
+              <p className="text-sm font-semibold text-gray-600">Safe to Spend</p>
               {hasTransactions && (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm animate-pulse-slow">
                   Available
                 </span>
               )}
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+            <p className="mt-3 text-4xl font-black bg-gradient-to-r from-cyan-600 to-green-600 bg-clip-text text-transparent relative z-10 group-hover:scale-105 transition-transform origin-left">
               {summary ? formatCurrency(summary.safe_to_spend) : "$0.00"}
             </p>
-            <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full w-3/4 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full" />
+            <div className="mt-5 h-2.5 bg-gray-100 rounded-full overflow-hidden relative z-10">
+              <div className="h-full w-3/4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full shadow-sm" />
             </div>
           </div>
 
           {/* CRA Lockbox */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">CRA Lockbox</p>
-              <span className="inline-flex items-center rounded-full bg-cyan-50 px-2 py-0.5 text-xs font-medium text-cyan-700">
+          <div className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
+            <div className="flex items-center justify-between relative z-10">
+              <p className="text-sm font-semibold text-gray-600">CRA Lockbox</p>
+              <span className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-600 to-teal-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                 Tax Reserved
               </span>
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+            <p className="mt-3 text-4xl font-black bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent relative z-10 group-hover:scale-105 transition-transform origin-left">
               {summary ? formatCurrency(summary.tax_reserved) : "$0.00"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">GST/HST + PST</p>
+            <p className="mt-2 text-xs font-medium text-gray-500 relative z-10">GST/HST + PST</p>
           </div>
 
           {/* Revenue */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Revenue</p>
+          <div className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-lg shadow-green-500/10 hover:shadow-xl hover:shadow-green-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
+            <div className="flex items-center justify-between relative z-10">
+              <p className="text-sm font-semibold text-gray-600">Revenue</p>
               {hasTransactions && (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                   Posted
                 </span>
               )}
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+            <p className="mt-3 text-4xl font-black text-gray-900 relative z-10 group-hover:scale-105 transition-transform origin-left">
               {summary ? formatCurrency(summary.total_revenue) : "$0.00"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-2 text-xs font-medium text-gray-500 relative z-10">
               {summary ? `${summary.transactions_count} transaction${summary.transactions_count === 1 ? "" : "s"}` : "No transactions yet"}
             </p>
           </div>
 
           {/* Expenses */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">Expenses</p>
+          <div className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-lg shadow-orange-500/10 hover:shadow-xl hover:shadow-orange-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
+            <div className="flex items-center justify-between relative z-10">
+              <p className="text-sm font-semibold text-gray-600">Expenses</p>
               {hasTransactions && (
-                <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                   Posted
                 </span>
               )}
             </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+            <p className="mt-3 text-4xl font-black text-gray-900 relative z-10 group-hover:scale-105 transition-transform origin-left">
               {summary ? formatCurrency(summary.total_expenses) : "$0.00"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-2 text-xs font-medium text-gray-500 relative z-10">
               {hasTransactions && parseFloat(summary!.total_revenue) > 0
                 ? `${Math.round((parseFloat(summary!.total_expenses) / parseFloat(summary!.total_revenue)) * 100)}% of revenue`
                 : ""}
@@ -113,24 +123,31 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Empty State */}
+        {/* Empty State with enhanced animations */}
         {!hasTransactions && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center mb-8">
-            <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 flex items-center justify-center mb-4">
-              <svg className="h-8 w-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+          <div className="relative bg-white rounded-2xl border border-gray-100 shadow-lg p-12 text-center mb-8 overflow-hidden">
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-cyan-200 to-green-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-gradient-to-br from-teal-200 to-emerald-200 rounded-full opacity-20 blur-3xl animate-float" />
+            <div className="relative z-10">
+              <div className="mx-auto h-20 w-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center mb-6 shadow-lg hover:shadow-cyan-500/50 hover:scale-110 transition-all duration-300 cursor-pointer">
+                <svg className="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-3">No transactions yet</h3>
+              <p className="text-sm text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+                Start by adding your first transaction. Oluto will <span className="relative inline-block font-semibold text-highlight-animated">automatically calculate taxes</span> based on your province.
+              </p>
+              <Link
+                href="/transactions/new"
+                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/50 hover:-translate-y-1 transition-all duration-300 btn-glow"
+              >
+                Add Your First Transaction
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions yet</h3>
-            <p className="text-sm text-gray-500 mb-6 max-w-md mx-auto">
-              Start by adding your first transaction. Oluto will automatically calculate taxes based on your province.
-            </p>
-            <Link
-              href="/transactions/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all"
-            >
-              Add Your First Transaction
-            </Link>
           </div>
         )}
 
@@ -156,22 +173,22 @@ export default function DashboardPage() {
               {/* Top row: Cashflow + Status side by side */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Cashflow Breakdown Chart */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900">Cashflow Breakdown</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Cashflow Breakdown</h2>
                   </div>
                   <div className="p-6 space-y-5">
                     {bars.map((bar) => (
-                      <div key={bar.label}>
+                      <div key={bar.label} className="group/bar">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-sm font-medium text-gray-600">{bar.label}</span>
-                          <span className={`text-sm font-semibold ${bar.textColor}`}>
+                          <span className={`text-sm font-bold ${bar.textColor}`}>
                             {formatCurrency(bar.value)}
                           </span>
                         </div>
                         <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${bar.color}`}
+                            className={`h-full rounded-full transition-all duration-700 ${bar.color} group-hover/bar:opacity-80`}
                             style={{ width: `${maxVal > 0 ? Math.max((bar.value / maxVal) * 100, 2) : 0}%` }}
                           />
                         </div>
@@ -180,7 +197,7 @@ export default function DashboardPage() {
                     <div className="pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>Expense ratio</span>
-                        <span className="font-semibold text-gray-700">
+                        <span className="font-bold text-gray-700">
                           {revenue > 0
                             ? `${Math.round((expenses / revenue) * 100)}%`
                             : "N/A"}
@@ -191,11 +208,11 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Transaction Status Overview */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-semibold text-gray-900">Transaction Status</h2>
-                      <span className="text-xs font-medium text-gray-500">{summary!.transactions_count} total</span>
+                      <h2 className="text-lg font-bold text-gray-900">Transaction Status</h2>
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">{summary!.transactions_count} total</span>
                     </div>
                   </div>
                   <div className="p-6 space-y-4">
@@ -235,12 +252,12 @@ export default function DashboardPage() {
               </div>
 
               {/* Exceptions Inbox */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="p-6 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Exceptions Inbox</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Exceptions Inbox</h2>
                     {summary!.exceptions_count > 0 && (
-                      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                      <span className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-xs font-bold text-white shadow-sm animate-pulse-slow">
                         {summary!.exceptions_count}
                       </span>
                     )}
@@ -252,21 +269,21 @@ export default function DashboardPage() {
                       <Link
                         key={txn.id}
                         href={`/transactions?status=${txn.status}`}
-                        className="p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors block"
+                        className="p-4 flex items-start gap-3 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 transition-all block group/item"
                       >
-                        <span className="text-lg flex-shrink-0">
+                        <span className="text-lg flex-shrink-0 group-hover/item:scale-110 transition-transform">
                           {txn.status === "inbox_user" ? "\u{1F9FE}" : "\u{2753}"}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{txn.vendor_name}</p>
+                          <p className="text-sm font-bold text-gray-900 truncate">{txn.vendor_name}</p>
                           <p className="text-xs text-gray-500">
                             {formatCurrency(txn.amount)} &middot; {formatDate(txn.transaction_date)}
                           </p>
                         </div>
                         <span className={`flex-shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                           txn.status === "inbox_user"
-                            ? "text-amber-600 bg-amber-50"
-                            : "text-purple-600 bg-purple-50"
+                            ? "text-amber-600 bg-amber-50 ring-1 ring-amber-200"
+                            : "text-purple-600 bg-purple-50 ring-1 ring-purple-200"
                         }`}>
                           {txn.status === "inbox_user" ? "Needs review" : "Firm review"}
                         </span>
@@ -285,8 +302,11 @@ export default function DashboardPage() {
                 </div>
                 {summary!.exceptions_count > 0 && (
                   <div className="p-4 border-t border-gray-100">
-                    <Link href="/transactions?status=inbox_user" className="text-sm font-medium text-cyan-600 hover:text-cyan-500">
-                      View all items &rarr;
+                    <Link href="/transactions?status=inbox_user" className="text-sm font-bold text-cyan-600 hover:text-cyan-500 flex items-center gap-1 group/link">
+                      View all items
+                      <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </Link>
                   </div>
                 )}
@@ -297,39 +317,39 @@ export default function DashboardPage() {
             <div className="space-y-6">
               {/* User Info Card */}
               {user && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Account</h2>
+                <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Account</h2>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-semibold">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 group-hover:shadow-cyan-500/30 transition-all duration-300">
                       {user.full_name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
+                      <p className="text-sm font-bold text-gray-900">{user.full_name}</p>
                       <p className="text-xs text-gray-500">{user.email}</p>
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <p className="text-xs text-gray-500">
-                      Role: <span className="font-medium capitalize">{user.role}</span>
+                      Role: <span className="font-bold capitalize text-cyan-600">{user.role}</span>
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Recent Activity */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-lg font-semibold text-gray-900">Recent Transactions</h2>
+                  <h2 className="text-lg font-bold text-gray-900">Recent Transactions</h2>
                 </div>
                 <div className="p-4 space-y-4">
                   {summary!.recent_transactions.length > 0 ? (
                     summary!.recent_transactions.map((txn) => (
-                      <div key={txn.id} className="flex items-center gap-3">
-                        <span className="text-lg">
+                      <div key={txn.id} className="flex items-center gap-3 group/txn">
+                        <span className="text-lg group-hover/txn:scale-110 transition-transform">
                           {txn.status === "posted" ? "\u{2705}" : txn.status === "draft" ? "\u{1F4DD}" : "\u{1F4E5}"}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{txn.vendor_name}</p>
+                          <p className="text-sm font-bold text-gray-900 truncate">{txn.vendor_name}</p>
                           <p className="text-xs text-gray-500">
                             {formatCurrency(txn.amount)} &middot; {txn.created_at ? formatRelativeTime(txn.created_at) : ""}
                           </p>
@@ -341,29 +361,42 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div className="p-4 border-t border-gray-100">
-                  <Link href="/transactions" className="text-sm font-medium text-cyan-600 hover:text-cyan-500">
-                    View all transactions &rarr;
+                  <Link href="/transactions" className="text-sm font-bold text-cyan-600 hover:text-cyan-500 flex items-center gap-1 group/link">
+                    View all transactions
+                    <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               </div>
 
               {/* Quick Links */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
                 <div className="space-y-3">
                   <Link
                     href="/transactions/new"
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all"
+                    className="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-cyan-400 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 transition-all duration-300"
                   >
-                    <span className="text-xl">{"\u{1F4E4}"}</span>
-                    <span className="text-sm font-medium text-gray-700">Add transaction</span>
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm group-hover:shadow-cyan-500/30">
+                      <span className="text-xl">{"\u{1F4E4}"}</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-700 group-hover:text-cyan-700">Add transaction</span>
+                    <svg className="w-4 h-4 text-gray-400 ml-auto group-hover:text-cyan-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                   <Link
                     href="/transactions"
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all"
+                    className="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-green-400 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300"
                   >
-                    <span className="text-xl">{"\u{1F4CA}"}</span>
-                    <span className="text-sm font-medium text-gray-700">View transactions</span>
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm group-hover:shadow-green-500/30">
+                      <span className="text-xl">{"\u{1F4CA}"}</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-700 group-hover:text-green-700">View transactions</span>
+                    <svg className="w-4 h-4 text-gray-400 ml-auto group-hover:text-green-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               </div>
