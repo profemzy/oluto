@@ -1,5 +1,5 @@
 # =============================================================================
-# Backend Service
+# Backend Service (LedgerForge — Rust/Axum on port 3000)
 # =============================================================================
 apiVersion: v1
 kind: Service
@@ -9,14 +9,14 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 8000
+      targetPort: 3000
       protocol: TCP
       name: http
   selector:
     app: oluto-backend
 ---
 # =============================================================================
-# Frontend Service
+# Frontend Service (Next.js on port 3000)
 # =============================================================================
 apiVersion: v1
 kind: Service
@@ -31,20 +31,3 @@ spec:
       name: http
   selector:
     app: oluto-frontend
----
-# =============================================================================
-# Flower Service (DEV only)
-# =============================================================================
-apiVersion: v1
-kind: Service
-metadata:
-  name: oluto-flower
-  namespace: oluto
-spec:
-  ports:
-    - port: 80
-      targetPort: 5555
-      protocol: TCP
-      name: http
-  selector:
-    app: oluto-flower

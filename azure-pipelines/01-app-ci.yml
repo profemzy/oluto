@@ -1,7 +1,9 @@
 # =============================================================================
 # Pipeline: 01-app-ci.yml
-# Purpose: Build and push Oluto Docker images (backend + frontend) to ACR
-# Triggers: Changes to application code on master/main
+# Purpose: Build and push Oluto frontend Docker image to ACR
+# Triggers: Changes to frontend code on master/main
+#
+# Note: Backend (LedgerForge) has its own CI pipeline in the ledger-forge repo.
 # =============================================================================
 
 trigger:
@@ -11,8 +13,9 @@ trigger:
       - main
   paths:
     include:
-      - backend/**
-      - frontend/**
+      - apps/**
+      - packages/**
+      - package.json
 
 pr:
   branches:
@@ -21,66 +24,16 @@ pr:
       - main
 
 variables:
-  # Container Registry
   acrLoginServer: "wackopscoachdevacr.azurecr.io"
   azureServiceConnection: "terraformiacdevops1"
-
-  # Image Configuration
-  backendImageRepository: "oluto-backend"
   frontendImageRepository: "oluto-frontend"
-
-  # Build ID as tag
   tag: "$(Build.BuildId)"
   latestTag: "latest"
 
 stages:
-  # ==========================================================================
-  # Stage 1: Build and Push Docker Images
-  # ==========================================================================
   - stage: Build
-    displayName: "Build & Push"
+    displayName: "Build & Push Frontend"
     jobs:
-      - job: Build_Backend
-        displayName: "Build & Push Backend Image"
-        pool:
-          vmImage: "ubuntu-24.04"
-        steps:
-          - checkout: self
-            displayName: "Checkout Source Code"
-
-          # Login to ACR using Azure CLI
-          - task: AzureCLI@2
-            displayName: "Login to ACR"
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              scriptType: "bash"
-              scriptLocation: "inlineScript"
-              inlineScript: |
-                echo "Logging into ACR: $(acrLoginServer)"
-                az acr login --name $(acrLoginServer)
-
-          # Build Backend Docker image
-          - task: Docker@2
-            displayName: "Build Backend Image"
-            inputs:
-              command: "build"
-              repository: "$(acrLoginServer)/$(backendImageRepository)"
-              Dockerfile: "$(Build.SourcesDirectory)/backend/Dockerfile"
-              buildContext: "$(Build.SourcesDirectory)/backend"
-              tags: |
-                $(tag)
-                $(latestTag)
-
-          # Push Backend Docker image
-          - task: Docker@2
-            displayName: "Push Backend Image"
-            inputs:
-              command: "push"
-              repository: "$(acrLoginServer)/$(backendImageRepository)"
-              tags: |
-                $(tag)
-                $(latestTag)
-
       - job: Build_Frontend
         displayName: "Build & Push Frontend Image"
         pool:
@@ -89,7 +42,6 @@ stages:
           - checkout: self
             displayName: "Checkout Source Code"
 
-          # Login to ACR using Azure CLI
           - task: AzureCLI@2
             displayName: "Login to ACR"
             inputs:
@@ -100,20 +52,18 @@ stages:
                 echo "Logging into ACR: $(acrLoginServer)"
                 az acr login --name $(acrLoginServer)
 
-          # Build Frontend Docker image
           - task: Docker@2
             displayName: "Build Frontend Image"
             inputs:
               command: "build"
               repository: "$(acrLoginServer)/$(frontendImageRepository)"
-              Dockerfile: "$(Build.SourcesDirectory)/frontend/apps/web/Dockerfile"
-              buildContext: "$(Build.SourcesDirectory)/frontend"
+              Dockerfile: "$(Build.SourcesDirectory)/apps/web/Dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
               tags: |
                 $(tag)
                 $(latestTag)
               arguments: "--build-arg NEXT_PUBLIC_API_URL=/api/v1"
 
-          # Push Frontend Docker image
           - task: Docker@2
             displayName: "Push Frontend Image"
             inputs:
@@ -125,9 +75,7 @@ stages:
 
       - job: Publish_Build_Info
         displayName: "Publish Build Info"
-        dependsOn:
-          - Build_Backend
-          - Build_Frontend
+        dependsOn: Build_Frontend
         pool:
           vmImage: "ubuntu-24.04"
         steps:
@@ -137,7 +85,6 @@ stages:
               targetType: "inline"
               script: |
                 echo "Image Tag: $(tag)"
-                echo "Backend: $(acrLoginServer)/$(backendImageRepository):$(tag)"
                 echo "Frontend: $(acrLoginServer)/$(frontendImageRepository):$(tag)"
                 echo "$(tag)" > $(Build.ArtifactStagingDirectory)/image-tag.txt
 

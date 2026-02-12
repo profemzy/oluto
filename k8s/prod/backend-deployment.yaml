@@ -1,3 +1,8 @@
+# =============================================================================
+# LedgerForge Backend — Rust/Axum API (PROD)
+# Migrations run on startup. Background job worker runs in-process.
+# Image is built and pushed by the LedgerForge CI pipeline.
+# =============================================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,46 +27,18 @@ spec:
           image: wackopscoachprodacr.azurecr.io/oluto-backend:latest
           imagePullPolicy: Always
           env:
-            - name: POSTGRES_SERVER
+            - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
-                  key: POSTGRES_SERVER
-            - name: POSTGRES_PORT
+                  key: DATABASE_URL
+            - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
-                  key: POSTGRES_PORT
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: POSTGRES_DB
-            - name: CELERY_BROKER_URL
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: CELERY_BROKER_URL
-            - name: CELERY_RESULT_BACKEND
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: CELERY_RESULT_BACKEND
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: SECRET_KEY
+                  key: JWT_SECRET
+            - name: REDIS_URL
+              value: "redis://redis:6379"
             - name: FUELIX_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -92,24 +69,26 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: AZURE_OCR_MODEL
-            - name: DATABASE_SSL
-              value: "true"
-            - name: CORS_ORIGINS
-              value: "https://oluto.app"
+            - name: ENVIRONMENT
+              value: "production"
+            - name: PORT
+              value: "3000"
+            - name: RUST_LOG
+              value: "info"
           ports:
-            - containerPort: 8000
+            - containerPort: 3000
               name: http
           livenessProbe:
             httpGet:
-              path: /up
-              port: 8000
+              path: /health
+              port: 3000
             initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /up
-              port: 8000
+              path: /health
+              port: 3000
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5

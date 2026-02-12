@@ -1,7 +1,7 @@
 # =============================================================================
 # Ingress for DEV Environment
 # URL: https://dev.oluto.app
-# Path-based routing: /api/* → backend, /* → frontend
+# Path-based routing: /api/* → backend (LedgerForge), /* → frontend
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -35,29 +35,15 @@ spec:
                 name: oluto-backend
                 port:
                   number: 80
-          - path: /up
-            pathType: Exact
+          - path: /swagger-ui
+            pathType: Prefix
             backend:
               service:
                 name: oluto-backend
                 port:
                   number: 80
-          - path: /docs
-            pathType: Exact
-            backend:
-              service:
-                name: oluto-backend
-                port:
-                  number: 80
-          - path: /redoc
-            pathType: Exact
-            backend:
-              service:
-                name: oluto-backend
-                port:
-                  number: 80
-          - path: /openapi.json
-            pathType: Exact
+          - path: /api-docs
+            pathType: Prefix
             backend:
               service:
                 name: oluto-backend

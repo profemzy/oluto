@@ -1,7 +1,7 @@
 # =============================================================================
 # Ingress for PROD Environment
 # URL: https://oluto.app
-# Path-based routing: /api/* → backend, /* → frontend
+# Path-based routing: /api/* → backend (LedgerForge), /* → frontend
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -29,13 +29,6 @@ spec:
                 port:
                   number: 80
           - path: /health
-            pathType: Exact
-            backend:
-              service:
-                name: oluto-backend
-                port:
-                  number: 80
-          - path: /up
             pathType: Exact
             backend:
               service:

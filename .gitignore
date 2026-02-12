@@ -3,28 +3,6 @@
 .env.*
 !.env.example
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.venv/
-venv/
-*.egg-info/
-dist/
-build/
-.ruff_cache/
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-coverage/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
 # Node.js
 node_modules/
 .next/
@@ -54,8 +32,5 @@ Thumbs.db
 *.tmp
 tsconfig.tsbuildinfo
 
-# Test artifacts (binary files)
+# Test artifacts
 test_artifacts/
-
-# Generated docs (presentations, PDFs, etc.)
-docs/

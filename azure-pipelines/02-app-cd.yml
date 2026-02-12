@@ -1,7 +1,11 @@
 # =============================================================================
 # Pipeline: 02-app-cd.yml
 # Purpose: Deploy Oluto application to AKS clusters (DEV → PROD)
-# Triggers: Successful CI builds or manual runs
+# Triggers: Successful frontend CI builds or manual runs
+#
+# Note: Backend (LedgerForge) image is built by its own CI pipeline in the
+# ledger-forge repo. This CD deploys all K8s manifests but only updates
+# the frontend image tag. Backend uses the latest image pushed by LedgerForge CI.
 # =============================================================================
 
 trigger: none
@@ -27,14 +31,13 @@ variables:
   # Kubernetes
   aksServiceConnection: "terraformiacdevops1"
 
-  # Image Configuration
-  backendImageRepository: "oluto-backend"
+  # Image Configuration (frontend only — backend is managed by LedgerForge CI/CD)
   frontendImageRepository: "oluto-frontend"
 
 # Parameters for manual runs
 parameters:
   - name: imageTag
-    displayName: "Image Tag to Deploy"
+    displayName: "Frontend Image Tag to Deploy"
     type: string
     default: "latest"
   - name: deployDev
@@ -143,36 +146,16 @@ stages:
                     arguments: "--for=condition=ready externalsecret/oluto-secrets --timeout=120s"
                   continueOnError: true
 
-                # Update DEV manifests with image tag
+                # Update DEV manifests with frontend image tag
                 - task: Bash@3
                   displayName: "Update DEV Manifests"
                   inputs:
                     targetType: "inline"
                     script: |
-                      echo "Deploying backend: $(acrLoginServer)/$(backendImageRepository):$(tag)"
                       echo "Deploying frontend: $(acrLoginServer)/$(frontendImageRepository):$(tag)"
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServer)/$(backendImageRepository):$(tag)|g" k8s/dev/backend-deployment.yaml
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServer)/$(backendImageRepository):$(tag)|g" k8s/dev/worker-deployment.yaml
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServer)/$(backendImageRepository):$(tag)|g" k8s/dev/flower-deployment.yaml
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServer)/$(backendImageRepository):$(tag)|g" k8s/dev/migration-job.yaml
                       sed -i "s|image:.*oluto-frontend:.*|image: $(acrLoginServer)/$(frontendImageRepository):$(tag)|g" k8s/dev/frontend-deployment.yaml
-                      echo "--- Backend deployment image:"
-                      grep "image:" k8s/dev/backend-deployment.yaml
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/dev/frontend-deployment.yaml
-
-                # Delete old migration job (Jobs are immutable)
-                - task: Kubernetes@1
-                  displayName: "Delete Old Migration Job (DEV)"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-dev-rg"
-                    kubernetesCluster: "wackopscoach-dev-aks"
-                    namespace: "oluto"
-                    command: "delete"
-                    arguments: "job/oluto-migration --ignore-not-found"
-                  continueOnError: true
 
                 # Deploy to DEV AKS
                 - task: KubernetesManifest@1
@@ -187,25 +170,10 @@ stages:
                     manifests: |
                       k8s/dev/namespace.yaml
                       k8s/dev/redis.yaml
-                      k8s/dev/migration-job.yaml
                       k8s/dev/backend-deployment.yaml
-                      k8s/dev/worker-deployment.yaml
-                      k8s/dev/flower-deployment.yaml
                       k8s/dev/frontend-deployment.yaml
                       k8s/dev/services.yaml
                       k8s/dev/ingress.yaml
-
-                - task: Kubernetes@1
-                  displayName: "Wait for Migration"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-dev-rg"
-                    kubernetesCluster: "wackopscoach-dev-aks"
-                    namespace: "oluto"
-                    command: "wait"
-                    arguments: "--for=condition=complete --timeout=300s job/oluto-migration"
-                  continueOnError: true
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Backend"
@@ -236,7 +204,7 @@ stages:
                     script: |
                       echo "Verifying DEV at https://dev.oluto.app"
                       sleep 10
-                      curl -sf https://dev.oluto.app/up || exit 1
+                      curl -sf https://dev.oluto.app/health || exit 1
                       echo "DEV deployment verified!"
 
   # ==========================================================================
@@ -299,27 +267,22 @@ stages:
                       az aks install-cli
                       echo "##vso[task.prependpath]/usr/local/bin"
 
-                # Promote images from DEV ACR to PROD ACR
+                # Promote frontend image from DEV ACR to PROD ACR
                 - task: AzureCLI@2
-                  displayName: "Promote Images to PROD ACR"
+                  displayName: "Promote Frontend Image to PROD ACR"
                   inputs:
                     azureSubscription: $(aksServiceConnection)
                     scriptType: "bash"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      echo "Promoting images from $(acrLoginServer) to $(acrLoginServerProd)"
+                      echo "Promoting frontend image from $(acrLoginServer) to $(acrLoginServerProd)"
                       echo "Tag: $(tag)"
-                      az acr import \
-                        --name wackopscoachprodacr \
-                        --source $(acrLoginServer)/$(backendImageRepository):$(tag) \
-                        --image $(backendImageRepository):$(tag) \
-                        --force
                       az acr import \
                         --name wackopscoachprodacr \
                         --source $(acrLoginServer)/$(frontendImageRepository):$(tag) \
                         --image $(frontendImageRepository):$(tag) \
                         --force
-                      echo "Images promoted to PROD ACR"
+                      echo "Frontend image promoted to PROD ACR"
 
                 - task: KubernetesManifest@1
                   displayName: "Create Namespace (PROD)"
@@ -358,35 +321,16 @@ stages:
                     arguments: "--for=condition=ready externalsecret/oluto-secrets --timeout=120s"
                   continueOnError: true
 
-                # Update PROD manifests with image tag
+                # Update PROD manifests with frontend image tag
                 - task: Bash@3
                   displayName: "Update PROD Manifests"
                   inputs:
                     targetType: "inline"
                     script: |
-                      echo "Deploying backend: $(acrLoginServerProd)/$(backendImageRepository):$(tag)"
                       echo "Deploying frontend: $(acrLoginServerProd)/$(frontendImageRepository):$(tag)"
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServerProd)/$(backendImageRepository):$(tag)|g" k8s/prod/backend-deployment.yaml
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServerProd)/$(backendImageRepository):$(tag)|g" k8s/prod/worker-deployment.yaml
-                      sed -i "s|image:.*oluto-backend:.*|image: $(acrLoginServerProd)/$(backendImageRepository):$(tag)|g" k8s/prod/migration-job.yaml
                       sed -i "s|image:.*oluto-frontend:.*|image: $(acrLoginServerProd)/$(frontendImageRepository):$(tag)|g" k8s/prod/frontend-deployment.yaml
-                      echo "--- Backend deployment image:"
-                      grep "image:" k8s/prod/backend-deployment.yaml
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/prod/frontend-deployment.yaml
-
-                # Delete old migration job (Jobs are immutable)
-                - task: Kubernetes@1
-                  displayName: "Delete Old Migration Job (PROD)"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-prod-rg"
-                    kubernetesCluster: "wackopscoach-prod-aks"
-                    namespace: "oluto"
-                    command: "delete"
-                    arguments: "job/oluto-migration --ignore-not-found"
-                  continueOnError: true
 
                 # Deploy to PROD AKS
                 - task: KubernetesManifest@1
@@ -401,24 +345,10 @@ stages:
                     manifests: |
                       k8s/prod/namespace.yaml
                       k8s/prod/redis.yaml
-                      k8s/prod/migration-job.yaml
                       k8s/prod/backend-deployment.yaml
-                      k8s/prod/worker-deployment.yaml
                       k8s/prod/frontend-deployment.yaml
                       k8s/prod/services.yaml
                       k8s/prod/ingress.yaml
-
-                - task: Kubernetes@1
-                  displayName: "Wait for Migration"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-prod-rg"
-                    kubernetesCluster: "wackopscoach-prod-aks"
-                    namespace: "oluto"
-                    command: "wait"
-                    arguments: "--for=condition=complete --timeout=300s job/oluto-migration"
-                  continueOnError: true
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Backend"
@@ -449,5 +379,5 @@ stages:
                     script: |
                       echo "Verifying PROD at https://oluto.app"
                       sleep 10
-                      curl -sf https://oluto.app/up || exit 1
+                      curl -sf https://oluto.app/health || exit 1
                       echo "PROD deployment verified!"
