@@ -204,7 +204,7 @@ stages:
                     script: |
                       echo "Verifying DEV at https://dev.oluto.app"
                       sleep 10
-                      curl -sf https://dev.oluto.app/health || exit 1
+                      curl -sf https://dev.oluto.app/api/v1/health || exit 1
                       echo "DEV deployment verified!"
 
   # ==========================================================================
@@ -379,5 +379,5 @@ stages:
                     script: |
                       echo "Verifying PROD at https://oluto.app"
                       sleep 10
-                      curl -sf https://oluto.app/health || exit 1
+                      curl -sf https://oluto.app/api/v1/health || exit 1
                       echo "PROD deployment verified!"

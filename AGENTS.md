@@ -70,7 +70,7 @@ docker-compose up --build
 # - Web App: http://localhost:3001
 # - Backend API: http://localhost:3000
 # - Swagger UI: http://localhost:3000/swagger-ui/
-# - Health: http://localhost:3000/health
+# - Health: http://localhost:3000/api/v1/health
 ```
 
 ### Frontend (Local Development)
@@ -229,7 +229,7 @@ draft → posted → void
 
 ### Kubernetes Architecture
 - **Namespace:** `oluto` on each cluster
-- **Path-based ingress:** `/api/*`, `/health`, `/swagger-ui/*`, `/api-docs/*` → `oluto-backend:80`; `/*` → `oluto-frontend:80`
+- **Path-based ingress:** `/api/*`, `/swagger-ui/*`, `/api-docs/*` → `oluto-backend:80`; `/*` → `oluto-frontend:80`
 - **TLS:** cert-manager + Let's Encrypt
 - **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret`
 - **Redis:** In-cluster deployment per namespace

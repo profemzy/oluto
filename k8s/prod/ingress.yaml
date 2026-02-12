@@ -28,13 +28,6 @@ spec:
                 name: oluto-backend
                 port:
                   number: 80
-          - path: /health
-            pathType: Exact
-            backend:
-              service:
-                name: oluto-backend
-                port:
-                  number: 80
           - path: /
             pathType: Prefix
             backend:

@@ -50,7 +50,7 @@ Once the stack is running:
 | Web App | http://localhost:3001 |
 | API (LedgerForge) | http://localhost:3000 |
 | Swagger UI | http://localhost:3000/swagger-ui/ |
-| Health Check | http://localhost:3000/health |
+| Health Check | http://localhost:3000/api/v1/health |
 
 > **Data persistence:** `docker-compose down` preserves all data. `docker-compose down -v` **permanently deletes** Redis data. `docker-compose up --build` is always safe.
 

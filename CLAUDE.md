@@ -111,7 +111,7 @@ azure-pipelines/               # Azure DevOps CI/CD
 ### Kubernetes Architecture
 
 - **Namespace:** `oluto` on each cluster
-- **Path-based routing:** Ingress routes `/api/*`, `/health`, `/swagger-ui/*`, `/api-docs/*` → backend; `/*` → frontend
+- **Path-based routing:** Ingress routes `/api/*`, `/swagger-ui/*`, `/api-docs/*` → backend; `/*` → frontend
 - **TLS:** cert-manager with Let's Encrypt (`letsencrypt-prod` ClusterIssuer, HTTP-01 solver)
 - **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret`
 - **Redis:** In-cluster deployment (per-namespace), URL: `redis://redis:6379`
@@ -157,7 +157,7 @@ azure-pipelines/               # Azure DevOps CI/CD
 | API | http://localhost:3000 |
 | Swagger UI | http://localhost:3000/swagger-ui/ |
 | OpenAPI JSON | http://localhost:3000/api-docs/openapi.json |
-| Health | http://localhost:3000/health |
+| Health | http://localhost:3000/api/v1/health |
 
 ### Deployed
 
@@ -166,7 +166,7 @@ azure-pipelines/               # Azure DevOps CI/CD
 | Web App | https://dev.oluto.app | https://oluto.app |
 | API | https://dev.oluto.app/api/v1 | https://oluto.app/api/v1 |
 | Swagger UI | https://dev.oluto.app/swagger-ui/ | https://oluto.app/swagger-ui/ |
-| Health | https://dev.oluto.app/health | https://oluto.app/health |
+| Health | https://dev.oluto.app/api/v1/health | https://oluto.app/api/v1/health |
 
 ## Important Files
 
