@@ -1,11 +1,11 @@
 # =============================================================================
 # Pipeline: 02-app-cd.yml
-# Purpose: Deploy Oluto application to AKS clusters (DEV → PROD)
+# Purpose: Deploy Oluto frontend to AKS clusters (DEV → PROD)
 # Triggers: Successful frontend CI builds or manual runs
 #
-# Note: Backend (LedgerForge) image is built by its own CI pipeline in the
-# ledger-forge repo. This CD deploys all K8s manifests but only updates
-# the frontend image tag. Backend uses the latest image pushed by LedgerForge CI.
+# Note: Backend (LedgerForge) is deployed by its own CI/CD pipeline in the
+# ledger-forge repo. This pipeline only manages frontend, infra (namespace,
+# redis, services, ingress, secrets), and does NOT touch the backend deployment.
 # =============================================================================
 
 trigger: none
@@ -157,7 +157,7 @@ stages:
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/dev/frontend-deployment.yaml
 
-                # Deploy to DEV AKS
+                # Deploy to DEV AKS (frontend + infra only; backend managed by LedgerForge CI/CD)
                 - task: KubernetesManifest@1
                   displayName: "Deploy to DEV AKS"
                   inputs:
@@ -170,21 +170,9 @@ stages:
                     manifests: |
                       k8s/dev/namespace.yaml
                       k8s/dev/redis.yaml
-                      k8s/dev/backend-deployment.yaml
                       k8s/dev/frontend-deployment.yaml
                       k8s/dev/services.yaml
                       k8s/dev/ingress.yaml
-
-                - task: Kubernetes@1
-                  displayName: "Rollout Status - Backend"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-dev-rg"
-                    kubernetesCluster: "wackopscoach-dev-aks"
-                    namespace: "oluto"
-                    command: "rollout"
-                    arguments: "status deployment/oluto-backend --timeout=300s"
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Frontend"
@@ -332,7 +320,7 @@ stages:
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/prod/frontend-deployment.yaml
 
-                # Deploy to PROD AKS
+                # Deploy to PROD AKS (frontend + infra only; backend managed by LedgerForge CI/CD)
                 - task: KubernetesManifest@1
                   displayName: "Deploy to PROD AKS"
                   inputs:
@@ -345,21 +333,9 @@ stages:
                     manifests: |
                       k8s/prod/namespace.yaml
                       k8s/prod/redis.yaml
-                      k8s/prod/backend-deployment.yaml
                       k8s/prod/frontend-deployment.yaml
                       k8s/prod/services.yaml
                       k8s/prod/ingress.yaml
-
-                - task: Kubernetes@1
-                  displayName: "Rollout Status - Backend"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-prod-rg"
-                    kubernetesCluster: "wackopscoach-prod-aks"
-                    namespace: "oluto"
-                    command: "rollout"
-                    arguments: "status deployment/oluto-backend --timeout=300s"
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Frontend"
