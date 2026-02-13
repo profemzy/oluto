@@ -12,9 +12,9 @@ interface CTASectionProps {
 }
 
 export function CTASection({
-  title = "Ready to direct your",
-  titleHighlight = "wealth?",
-  description = "Join Canadian small business owners who are replacing bookkeeping anxiety with financial clarity. Start your free 14-day trial today.",
+  title = "Ready to spend less time on",
+  titleHighlight = "paperwork?",
+  description = "Start your free trial and get back to the work that matters. Invite your accountant when you're ready — they'll love what they find.",
   primaryCta = { text: "Start Free Trial", href: "/auth/register" },
   secondaryCta = { text: "Schedule a Demo", href: "/demo" },
   disclaimer = "No credit card required. Cancel anytime.",

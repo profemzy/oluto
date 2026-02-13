@@ -1,6 +1,6 @@
 "use client";
 
-import { HeroSection, DashboardPreview, FeaturesSection, HowItWorksSection, CTASection } from "./sections";
+import { HeroSection, DashboardPreview, FeaturesSection, AccountantSection, HowItWorksSection, CTASection } from "./sections";
 
 export default function Home() {
   return (
@@ -8,6 +8,7 @@ export default function Home() {
       <HeroSection />
       <DashboardPreview />
       <FeaturesSection />
+      <AccountantSection />
       <HowItWorksSection />
       <CTASection />
     </>

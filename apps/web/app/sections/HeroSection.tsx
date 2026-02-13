@@ -18,16 +18,16 @@ interface HeroSectionProps {
 }
 
 const defaultStats: Stat[] = [
-  { value: "50K+", label: "Transactions" },
   { value: "5 min", label: "Daily bookkeeping" },
-  { value: "100%", label: "CRA compliant" },
+  { value: "100%", label: "CRA ready" },
+  { value: "Zero", label: "Accounting jargon" },
 ];
 
 export function HeroSection({
-  badge = "Now available for Canadian small businesses",
-  headline = "Your Financial",
-  headlineHighlight = "Autopilot",
-  subheadline = "Oluto helps Canadian small business owners transition from reactive record-keeping to proactive financial mastery. Voice-enabled, AI-powered, and built for how you actually work.",
+  badge = "Built for Canadian small businesses",
+  headline = "Run Your Business,",
+  headlineHighlight = "Not Your Books",
+  subheadline = "We handle the bookkeeping, track your cash flow, and keep you tax-ready — so you can focus on what actually makes you money.",
   primaryCta = { text: "Start Free Trial", href: "/auth/register" },
   secondaryCta = { text: "Watch Demo", href: "#demo" },
   stats = defaultStats,
@@ -96,11 +96,7 @@ export function HeroSection({
 
           {/* Subheadline with animated highlight */}
           <p className="mt-8 text-lg leading-relaxed text-gray-600 sm:text-xl max-w-3xl mx-auto font-medium">
-            Oluto helps Canadian small business owners transition from reactive record-keeping to{" "}
-            <span className="font-bold text-gray-900">
-              proactive financial mastery
-            </span>. 
-            Voice-enabled, AI-powered, and built for how you actually work.
+            {subheadline}
           </p>
 
           {/* CTA Buttons with enhanced hover effects */}
