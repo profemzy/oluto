@@ -27,7 +27,7 @@ export function HeroSection({
   badge = "Built for Canadian small businesses",
   headline = "Run Your Business,",
   headlineHighlight = "Not Your Books",
-  subheadline = "We handle the bookkeeping, track your cash flow, and keep you tax-ready — so you can focus on what actually makes you money.",
+  subheadline = "Record expenses by voice, track your cash flow in real time, and stay tax-ready — all while you focus on what actually makes you money.",
   primaryCta = { text: "Start Free Trial", href: "/auth/register" },
   secondaryCta = { text: "Watch Demo", href: "#demo" },
   stats = defaultStats,

@@ -22,8 +22,20 @@ const defaultFeatures: Feature[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
       </svg>
     ),
+    title: "Record Expenses by Voice",
+    description: "Driving to a job site? Just tap and speak. Oluto captures the expense, categorizes it, and files it — completely hands-free.",
+    color: "bg-indigo-50 text-indigo-600 ring-indigo-500/20",
+    gradient: "from-indigo-500 to-purple-500",
+  },
+  {
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+      </svg>
+    ),
     title: "Snap a Receipt, We Do the Rest",
-    description: "Speak or snap — expenses are captured instantly while you're on the go. No data entry, no end-of-month panic.",
+    description: "Take a photo of any receipt or invoice. AI extracts the details, categorizes the expense, and files it — no data entry needed.",
     color: "bg-cyan-50 text-cyan-600 ring-cyan-500/20",
     gradient: "from-cyan-500 to-blue-500",
   },
