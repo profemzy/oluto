@@ -584,6 +584,54 @@ export interface AsyncJobStatusResponse {
   completed_at: string | null;
 }
 
+// --- Reconciliation Types ---
+
+export interface ReconciliationSummary {
+  total_transactions: number;
+  reconciled: number;
+  unreconciled: number;
+  suggested_matches: number;
+}
+
+export interface SuggestedMatch {
+  match_type: "payment" | "bill_payment";
+  match_id: string;
+  amount: string;
+  date: string;
+  reference: string;
+  counterparty: string;
+}
+
+export interface ReconciliationSuggestion {
+  suggestion_id: string;
+  transaction: Transaction;
+  suggested_match: SuggestedMatch;
+  confidence: string;
+  match_reason: string;
+}
+
+export interface ConfirmMatchRequest {
+  transaction_id: string;
+  match_id: string;
+  match_type: "payment" | "bill_payment";
+}
+
+export interface RejectMatchRequest {
+  suggestion_id: string;
+}
+
+export interface UnlinkMatchRequest {
+  transaction_id: string;
+}
+
+export interface AutoReconcileRequest {
+  min_confidence?: number;
+}
+
+export interface AutoReconcileResponse {
+  matched_count: number;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -1088,6 +1136,52 @@ class ApiClient {
   async getArAging(asOfDate?: string): Promise<AccountsReceivableAging> {
     const qs = asOfDate ? `?as_of_date=${asOfDate}` : "";
     return this.request<AccountsReceivableAging>(`/reports/ar-aging${qs}`);
+  }
+
+  // --- Reconciliation endpoints ---
+
+  async getReconciliationSummary(businessId: string): Promise<ReconciliationSummary> {
+    return this.request<ReconciliationSummary>(`/businesses/${businessId}/reconciliation/summary`);
+  }
+
+  async getReconciliationSuggestions(businessId: string): Promise<ReconciliationSuggestion[]> {
+    return this.request<ReconciliationSuggestion[]>(`/businesses/${businessId}/reconciliation/suggestions`);
+  }
+
+  async getUnreconciledTransactions(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    const params = new URLSearchParams();
+    if (limit !== undefined) params.set("limit", String(limit));
+    if (offset !== undefined) params.set("offset", String(offset));
+    const qs = params.toString();
+    return this.request<Transaction[]>(`/businesses/${businessId}/reconciliation/unreconciled${qs ? `?${qs}` : ""}`);
+  }
+
+  async confirmMatch(businessId: string, data: ConfirmMatchRequest): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/reconciliation/confirm`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async rejectMatch(businessId: string, data: RejectMatchRequest): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/reconciliation/reject`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async unlinkMatch(businessId: string, data: UnlinkMatchRequest): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/reconciliation/unlink`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async autoReconcile(businessId: string, minConfidence?: number): Promise<AutoReconcileResponse> {
+    return this.request<AutoReconcileResponse>(`/businesses/${businessId}/reconciliation/auto`, {
+      method: "POST",
+      body: JSON.stringify({ min_confidence: minConfidence ?? 0.9 }),
+    });
   }
 }
 

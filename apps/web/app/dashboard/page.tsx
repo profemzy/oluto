@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging } from "@/app/lib/api";
+import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging, ReconciliationSummary } from "@/app/lib/api";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [overdueInvoices, setOverdueInvoices] = useState<Invoice[]>([]);
   const [overdueBills, setOverdueBills] = useState<Bill[]>([]);
   const [arAging, setArAging] = useState<AccountsReceivableAging | null>(null);
+  const [reconSummary, setReconSummary] = useState<ReconciliationSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,12 +25,14 @@ export default function DashboardPage() {
       api.getOverdueInvoices().catch(() => [] as Invoice[]),
       api.getOverdueBills().catch(() => [] as Bill[]),
       api.getArAging().catch(() => null),
+      api.getReconciliationSummary(user.business_id!).catch(() => null),
     ])
-      .then(([data, invs, bills, aging]) => {
+      .then(([data, invs, bills, aging, recon]) => {
         setSummary(data);
         setOverdueInvoices(invs);
         setOverdueBills(bills);
         setArAging(aging);
+        setReconSummary(recon);
       })
       .catch(() => setError("Failed to load dashboard data"))
       .finally(() => setLoading(false));
@@ -515,6 +518,32 @@ export default function DashboardPage() {
                     </Link>
                   </div>
                 </div>
+              )}
+
+              {/* Reconciliation Status */}
+              {reconSummary && reconSummary.unreconciled > 0 && (
+                <Link href="/reconciliation" className="group block bg-white rounded-2xl border border-amber-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="p-6 flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <svg className="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-amber-800">
+                        {reconSummary.unreconciled} Unreconciled Transaction{reconSummary.unreconciled !== 1 ? "s" : ""}
+                      </p>
+                      {reconSummary.suggested_matches > 0 && (
+                        <p className="text-xs text-amber-600">
+                          {reconSummary.suggested_matches} suggested match{reconSummary.suggested_matches !== 1 ? "es" : ""}
+                        </p>
+                      )}
+                    </div>
+                    <svg className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
               )}
 
               {/* Quick Actions */}

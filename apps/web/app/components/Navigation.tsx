@@ -43,6 +43,7 @@ const appLinks: NavItem[] = [
   },
   { name: "Contacts", href: "/contacts" },
   { name: "Accounts", href: "/accounts" },
+  { name: "Reconciliation", href: "/reconciliation" },
   { name: "Reports", href: "/reports" },
 ];
 
@@ -176,7 +177,8 @@ export function Navigation() {
     pathname.startsWith("/reports") ||
     pathname.startsWith("/invoices") ||
     pathname.startsWith("/bills") ||
-    pathname.startsWith("/payments");
+    pathname.startsWith("/payments") ||
+    pathname.startsWith("/reconciliation");
 
   const navLinks = isAppPage && isAuthenticated ? appLinks : marketingLinks;
   const showAuth = !isAppPage || !isAuthenticated;
