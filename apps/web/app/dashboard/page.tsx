@@ -24,7 +24,7 @@ export default function DashboardPage() {
       api.getDashboardSummary(user.business_id!),
       api.getOverdueInvoices().catch(() => [] as Invoice[]),
       api.getOverdueBills().catch(() => [] as Bill[]),
-      api.getArAging().catch(() => null),
+      api.getArAging(new Date().toISOString().split("T")[0]).catch(() => null),
       api.getReconciliationSummary(user.business_id!).catch(() => null),
     ])
       .then(([data, invs, bills, aging, recon]) => {
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-gray-900 truncate">{txn.vendor_name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500" suppressHydrationWarning>
                             {formatCurrency(txn.amount)} &middot; {txn.created_at ? formatRelativeTime(txn.created_at) : ""}
                           </p>
                         </div>

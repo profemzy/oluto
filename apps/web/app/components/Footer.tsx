@@ -86,7 +86,7 @@ export function Footer({
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-400" suppressHydrationWarning>
             &copy; {currentYear} {companyName}. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-gray-400">
