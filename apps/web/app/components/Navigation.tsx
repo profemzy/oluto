@@ -48,12 +48,22 @@ const appLinks: NavItem[] = [
 ];
 
 function isGroupActive(item: NavItem, pathname: string): boolean {
-  if (item.href) return pathname === item.href || pathname.startsWith(item.href + "/");
-  if (item.children) return item.children.some((c) => pathname === c.href || pathname.startsWith(c.href + "/"));
+  if (item.href)
+    return pathname === item.href || pathname.startsWith(item.href + "/");
+  if (item.children)
+    return item.children.some(
+      (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
+    );
   return false;
 }
 
-function DesktopDropdown({ item, pathname }: { item: NavItem; pathname: string }) {
+function DesktopDropdown({
+  item,
+  pathname,
+}: {
+  item: NavItem;
+  pathname: string;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -70,7 +80,12 @@ function DesktopDropdown({ item, pathname }: { item: NavItem; pathname: string }
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   return (
-    <div ref={ref} className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
       <button
         className={`nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1 ${
           active ? "text-cyan-600" : "text-gray-600 hover:text-cyan-600"
@@ -78,8 +93,18 @@ function DesktopDropdown({ item, pathname }: { item: NavItem; pathname: string }
         onClick={() => setOpen((v) => !v)}
       >
         {item.name}
-        <svg className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg
+          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
       {open && (
@@ -125,8 +150,18 @@ function MobileDropdown({
         onClick={() => setOpen((v) => !v)}
       >
         {item.name}
-        <svg className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg
+          className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
       {open && (
@@ -152,24 +187,31 @@ function MobileDropdown({
 }
 
 export function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    api.isAuthenticated(),
+  );
+  const [authCheckedPath, setAuthCheckedPath] = useState(() => pathname);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    setIsAuthenticated(api.isAuthenticated());
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname]);
+  }, []);
 
-  const isAppPage = pathname.startsWith("/dashboard") ||
+  if (authCheckedPath !== pathname) {
+    setAuthCheckedPath(pathname);
+    setIsAuthenticated(api.isAuthenticated());
+  }
+
+  const isAppPage =
+    pathname.startsWith("/dashboard") ||
     pathname.startsWith("/transactions") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/contacts") ||
@@ -190,11 +232,13 @@ export function Navigation() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled
-        ? "nav-glass shadow-lg"
-        : "bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
-    }`}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "nav-glass shadow-lg"
+          : "bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -216,7 +260,11 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((item) =>
               item.children ? (
-                <DesktopDropdown key={item.name} item={item} pathname={pathname} />
+                <DesktopDropdown
+                  key={item.name}
+                  item={item}
+                  pathname={pathname}
+                />
               ) : (
                 <Link
                   key={item.name}
@@ -229,7 +277,7 @@ export function Navigation() {
                 >
                   {item.name}
                 </Link>
-              )
+              ),
             )}
           </div>
 
@@ -247,8 +295,18 @@ export function Navigation() {
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 btn-glow"
               >
                 Get Started
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
               </Link>
             </div>
@@ -258,8 +316,18 @@ export function Navigation() {
                 href="/transactions/new"
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300"
               >
-                <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-4 h-4 group-hover:scale-110 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Add Transaction
               </Link>
@@ -278,11 +346,26 @@ export function Navigation() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -314,11 +397,14 @@ export function Navigation() {
                 >
                   {item.name}
                 </Link>
-              )
+              ),
             )}
             {showAuth ? (
               <div className="pt-4 mt-4 border-t border-gray-100 space-y-3">
-                <Link href="/auth/login" className="block py-2 text-base font-medium text-gray-700 hover:text-cyan-600">
+                <Link
+                  href="/auth/login"
+                  className="block py-2 text-base font-medium text-gray-700 hover:text-cyan-600"
+                >
                   Sign in
                 </Link>
                 <Link

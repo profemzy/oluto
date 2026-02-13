@@ -69,6 +69,16 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: AZURE_OCR_MODEL
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: AZURE_STORAGE_CONNECTION_STRING
+            - name: AZURE_STORAGE_CONTAINER_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: AZURE_STORAGE_CONTAINER_PREFIX
             - name: ENVIRONMENT
               value: "development"
             - name: PORT

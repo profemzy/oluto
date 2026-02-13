@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navigation, Footer } from "./components";
+import { Navigation, Footer, ErrorBoundary } from "./components";
+import { QueryProvider } from "./components/QueryProvider";
+import { Toast } from "./components/ui/Toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,9 +11,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Oluto - Direct Your Wealth | Financial Autopilot for Canadian Small Business",
-  description: "Oluto is a cashflow-first financial management platform for Canadian small businesses. Features voice-enabled transaction capture, AI-powered categorization, and a bookkeeper console for multi-client operations.",
-  keywords: "small business, accounting, Canadian business, cashflow, bookkeeping, GST, HST, financial management",
+  title:
+    "Oluto - Direct Your Wealth | Financial Autopilot for Canadian Small Business",
+  description:
+    "Oluto is a cashflow-first financial management platform for Canadian small businesses. Features voice-enabled transaction capture, AI-powered categorization, and a bookkeeper console for multi-client operations.",
+  keywords:
+    "small business, accounting, Canadian business, cashflow, bookkeeping, GST, HST, financial management",
 };
 
 export default function RootLayout({
@@ -22,13 +27,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased font-sans">
-        <div className="flex flex-col min-h-screen">
-          <Navigation />
-          <main className="flex-1 pt-16">
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <QueryProvider>
+          <Toast />
+          <div className="flex flex-col min-h-screen">
+            <Navigation />
+            <main className="flex-1 pt-16">
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </main>
+            <Footer />
+          </div>
+        </QueryProvider>
       </body>
     </html>
   );
