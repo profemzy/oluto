@@ -15,6 +15,7 @@ const STATUS_OPTIONS = [
   { value: "inbox_firm", label: "Inbox (Firm)" },
   { value: "ready", label: "Ready" },
   { value: "posted", label: "Posted" },
+  { value: "void", label: "Void" },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -24,6 +25,18 @@ const STATUS_COLORS: Record<string, string> = {
   inbox_firm: "bg-purple-50 text-purple-700",
   ready: "bg-emerald-50 text-emerald-700",
   posted: "bg-cyan-50 text-cyan-700",
+  void: "bg-red-50 text-red-700",
+};
+
+// Valid transitions per the backend StatusTransition impl
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  draft: ["processing", "inbox_user", "inbox_firm", "ready", "posted", "void"],
+  processing: ["inbox_user", "inbox_firm", "ready", "posted", "void"],
+  inbox_user: ["ready", "posted", "void"],
+  inbox_firm: ["ready", "posted", "void"],
+  ready: ["posted", "void"],
+  posted: ["void"],
+  void: [],
 };
 
 export default function TransactionsPage() {
@@ -253,22 +266,29 @@ export default function TransactionsPage() {
                     <p className="text-sm text-gray-600">{txn.category || "Uncategorized"}</p>
                   </div>
                   <div className="col-span-2">
-                    <select
-                      value={txn.status}
-                      onChange={(e) =>
-                        handleStatusUpdate(txn.id, e.target.value)
-                      }
-                      disabled={updatingStatusId === txn.id}
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"} ${updatingStatusId === txn.id ? "opacity-50" : "hover:shadow-md"}`}
-                    >
-                      {STATUS_OPTIONS.filter((opt) => opt.value !== "").map(
-                        (opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
+                    {(VALID_TRANSITIONS[txn.status]?.length ?? 0) > 0 ? (
+                      <select
+                        value={txn.status}
+                        onChange={(e) =>
+                          handleStatusUpdate(txn.id, e.target.value)
+                        }
+                        disabled={updatingStatusId === txn.id}
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"} ${updatingStatusId === txn.id ? "opacity-50" : "hover:shadow-md"}`}
+                      >
+                        <option value={txn.status}>
+                          {STATUS_OPTIONS.find((o) => o.value === txn.status)?.label ?? txn.status}
+                        </option>
+                        {VALID_TRANSITIONS[txn.status]?.map((val) => (
+                          <option key={val} value={val}>
+                            {STATUS_OPTIONS.find((o) => o.value === val)?.label ?? val}
                           </option>
-                        )
-                      )}
-                    </select>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"}`}>
+                        {STATUS_OPTIONS.find((o) => o.value === txn.status)?.label ?? txn.status}
+                      </span>
+                    )}
                   </div>
                   <div className="col-span-1 flex justify-end gap-1">
                     <Link
