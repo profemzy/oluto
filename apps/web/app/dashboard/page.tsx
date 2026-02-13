@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { api, DashboardSummary } from "@/app/lib/api";
+import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging } from "@/app/lib/api";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
@@ -10,15 +10,27 @@ import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [overdueInvoices, setOverdueInvoices] = useState<Invoice[]>([]);
+  const [overdueBills, setOverdueBills] = useState<Bill[]>([]);
+  const [arAging, setArAging] = useState<AccountsReceivableAging | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user) return;
 
-    api
-      .getDashboardSummary(user.business_id!)
-      .then((data) => setSummary(data))
+    Promise.all([
+      api.getDashboardSummary(user.business_id!),
+      api.getOverdueInvoices().catch(() => [] as Invoice[]),
+      api.getOverdueBills().catch(() => [] as Bill[]),
+      api.getArAging().catch(() => null),
+    ])
+      .then(([data, invs, bills, aging]) => {
+        setSummary(data);
+        setOverdueInvoices(invs);
+        setOverdueBills(bills);
+        setArAging(aging);
+      })
       .catch(() => setError("Failed to load dashboard data"))
       .finally(() => setLoading(false));
   }, [user]);
@@ -165,6 +177,52 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500">Unpaid bills you owe (deducted from Safe to Spend)</p>
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Overdue Alerts Banner */}
+        {(overdueInvoices.length > 0 || overdueBills.length > 0) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {overdueInvoices.length > 0 && (
+              <Link href="/invoices?status=overdue" className="group bg-red-50 rounded-2xl border border-red-200 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-4">
+                <div className="h-10 w-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-red-800">
+                    {overdueInvoices.length} Overdue Invoice{overdueInvoices.length !== 1 ? "s" : ""}
+                  </p>
+                  <p className="text-xs text-red-600">
+                    {formatCurrency(overdueInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0))} outstanding
+                  </p>
+                </div>
+                <svg className="w-4 h-4 text-red-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+            {overdueBills.length > 0 && (
+              <Link href="/bills?status=overdue" className="group bg-amber-50 rounded-2xl border border-amber-200 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-4">
+                <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-amber-800">
+                    {overdueBills.length} Overdue Bill{overdueBills.length !== 1 ? "s" : ""}
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    {formatCurrency(overdueBills.reduce((sum, b) => sum + parseFloat(b.balance), 0))} owed
+                  </p>
+                </div>
+                <svg className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             )}
           </div>
         )}
@@ -419,34 +477,73 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Quick Links */}
+              {/* AR Aging Summary */}
+              {arAging && parseFloat(arAging.totals.total) > 0 && (
+                <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="p-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-gray-900">AR Aging</h2>
+                      <span className="text-xs font-medium text-gray-500">as of {formatDate(arAging.as_of_date)}</span>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    {[
+                      { label: "Current", value: arAging.totals.current, color: "text-green-600" },
+                      { label: "1\u201330 days", value: arAging.totals.days_1_30, color: "text-blue-600" },
+                      { label: "31\u201360 days", value: arAging.totals.days_31_60, color: "text-amber-600" },
+                      { label: "61\u201390 days", value: arAging.totals.days_61_90, color: "text-orange-600" },
+                      { label: "90+ days", value: arAging.totals.days_over_90, color: "text-red-600" },
+                    ]
+                      .filter((b) => parseFloat(b.value) > 0)
+                      .map((b) => (
+                        <div key={b.label} className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">{b.label}</span>
+                          <span className={`text-sm font-bold ${b.color}`}>{formatCurrency(b.value)}</span>
+                        </div>
+                      ))}
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-900">Total</span>
+                      <span className="text-sm font-bold text-gray-900">{formatCurrency(arAging.totals.total)}</span>
+                    </div>
+                  </div>
+                  <div className="p-4 border-t border-gray-100">
+                    <Link href="/reports/ar-aging" className="text-sm font-bold text-cyan-600 hover:text-cyan-500 flex items-center gap-1 group/link">
+                      Full aging report
+                      <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Actions */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Link
-                    href="/transactions/new"
-                    className="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-cyan-400 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 transition-all duration-300"
-                  >
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm group-hover:shadow-cyan-500/30">
-                      <span className="text-xl">{"\u{1F4E4}"}</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-700 group-hover:text-cyan-700">Add transaction</span>
-                    <svg className="w-4 h-4 text-gray-400 ml-auto group-hover:text-cyan-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                  <Link
-                    href="/transactions"
-                    className="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-green-400 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300"
-                  >
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm group-hover:shadow-green-500/30">
-                      <span className="text-xl">{"\u{1F4CA}"}</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-700 group-hover:text-green-700">View transactions</span>
-                    <svg className="w-4 h-4 text-gray-400 ml-auto group-hover:text-green-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
+                  {[
+                    { href: "/invoices/new", label: "Create Invoice", gradient: "from-blue-500 to-indigo-500", hoverBorder: "hover:border-blue-400", hoverBg: "hover:from-blue-50 hover:to-indigo-50", hoverText: "group-hover:text-blue-700", hoverShadow: "group-hover:shadow-blue-500/30", hoverChevron: "group-hover:text-blue-500", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+                    { href: "/payments/new", label: "Record Payment", gradient: "from-green-500 to-emerald-500", hoverBorder: "hover:border-green-400", hoverBg: "hover:from-green-50 hover:to-emerald-50", hoverText: "group-hover:text-green-700", hoverShadow: "group-hover:shadow-green-500/30", hoverChevron: "group-hover:text-green-500", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" },
+                    { href: "/bills/new", label: "Create Bill", gradient: "from-amber-500 to-orange-500", hoverBorder: "hover:border-amber-400", hoverBg: "hover:from-amber-50 hover:to-orange-50", hoverText: "group-hover:text-amber-700", hoverShadow: "group-hover:shadow-amber-500/30", hoverChevron: "group-hover:text-amber-500", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+                    { href: "/transactions/new", label: "Add Transaction", gradient: "from-cyan-500 to-teal-500", hoverBorder: "hover:border-cyan-400", hoverBg: "hover:from-cyan-50 hover:to-teal-50", hoverText: "group-hover:text-cyan-700", hoverShadow: "group-hover:shadow-cyan-500/30", hoverChevron: "group-hover:text-cyan-500", icon: "M12 4v16m8-8H4" },
+                    { href: "/reports", label: "View Reports", gradient: "from-purple-500 to-violet-500", hoverBorder: "hover:border-purple-400", hoverBg: "hover:from-purple-50 hover:to-violet-50", hoverText: "group-hover:text-purple-700", hoverShadow: "group-hover:shadow-purple-500/30", hoverChevron: "group-hover:text-purple-500", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+                  ].map((action) => (
+                    <Link
+                      key={action.href}
+                      href={action.href}
+                      className={`group flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 ${action.hoverBorder} hover:bg-gradient-to-r ${action.hoverBg} transition-all duration-300`}
+                    >
+                      <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${action.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm ${action.hoverShadow}`}>
+                        <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={action.icon} />
+                        </svg>
+                      </div>
+                      <span className={`text-sm font-bold text-gray-700 ${action.hoverText}`}>{action.label}</span>
+                      <svg className={`w-4 h-4 text-gray-400 ml-auto ${action.hoverChevron} group-hover:translate-x-1 transition-all`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>

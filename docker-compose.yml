@@ -1,20 +1,6 @@
 services:
-  redis:
-    image: redis:8.4.0-alpine
-    restart: always
-    command: redis-server --appendonly yes --appendfsync everysec
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
   # LedgerForge — Rust/Axum double-entry accounting API
-  # Background job worker runs in-process (no separate worker container needed)
+  # Uses LAN PostgreSQL (10.27.27.66:34155) and Redis (10.27.27.66:37263)
   backend:
     build:
       context: ../ledger-forge
@@ -25,10 +11,7 @@ services:
     env_file:
       - ../ledger-forge/.env
     environment:
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      redis:
-        condition: service_healthy
+      - HOST=0.0.0.0
 
   frontend:
     build:
@@ -41,7 +24,3 @@ services:
       - "3001:3000"
     depends_on:
       - backend
-
-volumes:
-  redis_data:
-    driver: local

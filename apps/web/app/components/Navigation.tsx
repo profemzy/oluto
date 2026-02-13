@@ -2,29 +2,153 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 
-interface NavLink {
+interface NavChild {
   name: string;
   href: string;
 }
 
-const marketingLinks: NavLink[] = [
+interface NavItem {
+  name: string;
+  href?: string;
+  children?: NavChild[];
+}
+
+const marketingLinks: NavItem[] = [
   { name: "Features", href: "#features" },
   { name: "How it Works", href: "#how-it-works" },
   { name: "For Bookkeepers", href: "#bookkeepers" },
   { name: "Pricing", href: "#pricing" },
 ];
 
-const appLinks: NavLink[] = [
+const appLinks: NavItem[] = [
   { name: "Dashboard", href: "/dashboard" },
   { name: "Transactions", href: "/transactions" },
+  {
+    name: "Sales",
+    children: [
+      { name: "Invoices", href: "/invoices" },
+      { name: "Payments Received", href: "/payments" },
+    ],
+  },
+  {
+    name: "Purchases",
+    children: [
+      { name: "Bills", href: "/bills" },
+      { name: "Bill Payments", href: "/payments/new/bill" },
+    ],
+  },
   { name: "Contacts", href: "/contacts" },
   { name: "Accounts", href: "/accounts" },
   { name: "Reports", href: "/reports" },
 ];
+
+function isGroupActive(item: NavItem, pathname: string): boolean {
+  if (item.href) return pathname === item.href || pathname.startsWith(item.href + "/");
+  if (item.children) return item.children.some((c) => pathname === c.href || pathname.startsWith(c.href + "/"));
+  return false;
+}
+
+function DesktopDropdown({ item, pathname }: { item: NavItem; pathname: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const active = isGroupActive(item, pathname);
+
+  const handleEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  return (
+    <div ref={ref} className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button
+        className={`nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1 ${
+          active ? "text-cyan-600" : "text-gray-600 hover:text-cyan-600"
+        }`}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {item.name}
+        <svg className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg py-1 z-50">
+          {item.children!.map((child) => (
+            <Link
+              key={child.href}
+              href={child.href}
+              className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
+                pathname === child.href || pathname.startsWith(child.href + "/")
+                  ? "text-cyan-600 bg-cyan-50/50"
+                  : "text-gray-700 hover:text-cyan-600 hover:bg-gray-50"
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              {child.name}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileDropdown({
+  item,
+  pathname,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = isGroupActive(item, pathname);
+
+  return (
+    <div>
+      <button
+        className={`w-full flex items-center justify-between py-2.5 text-base font-medium transition-colors ${
+          active ? "text-cyan-600" : "text-gray-700 hover:text-cyan-600"
+        }`}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {item.name}
+        <svg className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="pl-4 space-y-1">
+          {item.children!.map((child) => (
+            <Link
+              key={child.href}
+              href={child.href}
+              className={`block py-2 text-sm font-medium transition-colors ${
+                pathname === child.href || pathname.startsWith(child.href + "/")
+                  ? "text-cyan-600"
+                  : "text-gray-500 hover:text-cyan-600"
+              }`}
+              onClick={onNavigate}
+            >
+              {child.name}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,12 +159,11 @@ export function Navigation() {
 
   useEffect(() => {
     setIsAuthenticated(api.isAuthenticated());
-    
-    // Track scroll for nav styling
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
@@ -66,15 +189,15 @@ export function Navigation() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled 
-        ? "nav-glass shadow-lg" 
+      scrolled
+        ? "nav-glass shadow-lg"
         : "bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
     }`}>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo with hover effect */}
-          <Link 
-            href={isAuthenticated && isAppPage ? "/dashboard" : "/"} 
+          {/* Logo */}
+          <Link
+            href={isAuthenticated && isAppPage ? "/dashboard" : "/"}
             className="flex items-center group"
           >
             <Image
@@ -89,19 +212,23 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`nav-link text-sm font-semibold transition-colors ${
-                  pathname === link.href
-                    ? "text-cyan-600"
-                    : "text-gray-600 hover:text-cyan-600"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((item) =>
+              item.children ? (
+                <DesktopDropdown key={item.name} item={item} pathname={pathname} />
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href!}
+                  className={`nav-link text-sm font-semibold transition-colors ${
+                    isGroupActive(item, pathname)
+                      ? "text-cyan-600"
+                      : "text-gray-600 hover:text-cyan-600"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              )
+            )}
           </div>
 
           {/* CTA / User Actions */}
@@ -164,20 +291,29 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl shadow-lg">
           <div className="px-6 py-4 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`block py-2.5 text-base font-medium transition-colors ${
-                  pathname === link.href
-                    ? "text-cyan-600"
-                    : "text-gray-700 hover:text-cyan-600"
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((item) =>
+              item.children ? (
+                <MobileDropdown
+                  key={item.name}
+                  item={item}
+                  pathname={pathname}
+                  onNavigate={() => setMobileMenuOpen(false)}
+                />
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href!}
+                  className={`block py-2.5 text-base font-medium transition-colors ${
+                    isGroupActive(item, pathname)
+                      ? "text-cyan-600"
+                      : "text-gray-700 hover:text-cyan-600"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              )
+            )}
             {showAuth ? (
               <div className="pt-4 mt-4 border-t border-gray-100 space-y-3">
                 <Link href="/auth/login" className="block py-2 text-base font-medium text-gray-700 hover:text-cyan-600">

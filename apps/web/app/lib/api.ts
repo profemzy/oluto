@@ -331,6 +331,235 @@ export interface AccountsReceivableAging {
   };
 }
 
+// --- Invoice Types ---
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  customer_id: string;
+  invoice_date: string;
+  due_date: string;
+  ship_date: string | null;
+  tracking_number: string | null;
+  total_amount: string;
+  balance: string;
+  status: "draft" | "sent" | "paid" | "partial" | "overdue" | "void";
+  customer_memo: string | null;
+  billing_address: string | null;
+  shipping_address: string | null;
+  company_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvoiceLineItem {
+  id: string;
+  invoice_id: string;
+  line_number: number;
+  item_description: string;
+  quantity: string;
+  unit_price: string;
+  amount: string;
+  discount_percent: string | null;
+  discount_amount: string | null;
+  tax_code: string | null;
+  revenue_account_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvoiceWithLineItems extends Invoice {
+  line_items: InvoiceLineItem[];
+}
+
+export interface CreateInvoiceLineItemRequest {
+  line_number: number;
+  item_description: string;
+  quantity: string;
+  unit_price: string;
+  discount_percent?: string;
+  tax_code?: string;
+  revenue_account_id: string;
+}
+
+export interface CreateInvoiceRequest {
+  invoice_number: string;
+  customer_id: string;
+  invoice_date: string;
+  due_date: string;
+  ship_date?: string;
+  customer_memo?: string;
+  billing_address?: string;
+  shipping_address?: string;
+  company_id?: string;
+  line_items: CreateInvoiceLineItemRequest[];
+}
+
+export interface InvoiceListParams {
+  customer_id?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// --- Bill Types ---
+
+export interface Bill {
+  id: string;
+  bill_number: string | null;
+  vendor_id: string;
+  bill_date: string;
+  due_date: string;
+  total_amount: string;
+  balance: string;
+  status: "open" | "paid" | "partial" | "void";
+  memo: string | null;
+  company_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillLineItem {
+  id: string;
+  bill_id: string;
+  line_number: number;
+  description: string | null;
+  amount: string;
+  expense_account_id: string;
+  billable: boolean | null;
+  customer_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillWithLineItems extends Bill {
+  line_items: BillLineItem[];
+}
+
+export interface CreateBillLineItemRequest {
+  line_number: number;
+  description?: string;
+  amount: string;
+  expense_account_id: string;
+  billable?: boolean;
+  customer_id?: string;
+}
+
+export interface CreateBillRequest {
+  bill_number?: string;
+  vendor_id: string;
+  bill_date: string;
+  due_date: string;
+  memo?: string;
+  company_id?: string;
+  line_items: CreateBillLineItemRequest[];
+}
+
+export interface BillListParams {
+  vendor_id?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// --- Payment Types ---
+
+export interface Payment {
+  id: string;
+  payment_number: string | null;
+  customer_id: string;
+  payment_date: string;
+  amount: string;
+  unapplied_amount: string | null;
+  payment_method: string;
+  reference_number: string | null;
+  deposit_to_account_id: string | null;
+  memo: string | null;
+  company_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentApplication {
+  id: string;
+  payment_id: string;
+  invoice_id: string;
+  amount_applied: string;
+  created_at: string;
+}
+
+export interface CreatePaymentApplicationRequest {
+  invoice_id: string;
+  amount_applied: string;
+}
+
+export interface CreatePaymentRequest {
+  payment_number?: string;
+  customer_id: string;
+  payment_date: string;
+  amount: string;
+  payment_method: string;
+  reference_number?: string;
+  deposit_to_account_id?: string;
+  memo?: string;
+  company_id?: string;
+  applications: CreatePaymentApplicationRequest[];
+}
+
+export interface PaymentListParams {
+  customer_id?: string;
+  unapplied_only?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ApplyPaymentRequest {
+  applications: CreatePaymentApplicationRequest[];
+}
+
+// --- Bill Payment Types ---
+
+export interface BillPayment {
+  id: string;
+  payment_number: string | null;
+  vendor_id: string;
+  payment_date: string;
+  amount: string;
+  payment_method: string;
+  reference_number: string | null;
+  bank_account_id: string | null;
+  memo: string | null;
+  company_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillPaymentApplication {
+  id: string;
+  bill_payment_id: string;
+  bill_id: string;
+  amount_applied: string;
+  created_at: string;
+}
+
+export interface CreateBillPaymentApplicationRequest {
+  bill_id: string;
+  amount_applied: string;
+}
+
+export interface CreateBillPaymentRequest {
+  payment_number?: string;
+  vendor_id: string;
+  payment_date: string;
+  amount: string;
+  payment_method: string;
+  reference_number?: string;
+  bank_account_id?: string;
+  memo?: string;
+  company_id?: string;
+  applications: CreateBillPaymentApplicationRequest[];
+}
+
 // --- Async Job Types ---
 
 export interface AsyncJobCreateResponse {
@@ -703,6 +932,136 @@ class ApiClient {
   async deactivateAccount(accountId: string): Promise<void> {
     await this.request<Record<string, never>>(`/accounts/${accountId}`, {
       method: "DELETE",
+    });
+  }
+
+  // --- Invoice endpoints ---
+
+  async listInvoices(params?: InvoiceListParams): Promise<Invoice[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
+    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
+    const qs = searchParams.toString();
+    return this.request<Invoice[]>(`/invoices${qs ? `?${qs}` : ""}`);
+  }
+
+  async getInvoice(invoiceId: string): Promise<InvoiceWithLineItems> {
+    return this.request<InvoiceWithLineItems>(`/invoices/${invoiceId}`);
+  }
+
+  async createInvoice(data: CreateInvoiceRequest): Promise<InvoiceWithLineItems> {
+    return this.request<InvoiceWithLineItems>("/invoices", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateInvoiceStatus(invoiceId: string, status: string): Promise<Invoice> {
+    return this.request<Invoice>(`/invoices/${invoiceId}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getOverdueInvoices(): Promise<Invoice[]> {
+    return this.request<Invoice[]>("/invoices/overdue");
+  }
+
+  async getCustomerInvoices(customerId: string): Promise<Invoice[]> {
+    return this.request<Invoice[]>(`/customers/${customerId}/invoices`);
+  }
+
+  async getInvoicePayments(invoiceId: string): Promise<Payment[]> {
+    return this.request<Payment[]>(`/invoices/${invoiceId}/payments`);
+  }
+
+  // --- Bill endpoints ---
+
+  async listBills(params?: BillListParams): Promise<Bill[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.vendor_id) searchParams.set("vendor_id", params.vendor_id);
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
+    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
+    const qs = searchParams.toString();
+    return this.request<Bill[]>(`/bills${qs ? `?${qs}` : ""}`);
+  }
+
+  async getBill(billId: string): Promise<BillWithLineItems> {
+    return this.request<BillWithLineItems>(`/bills/${billId}`);
+  }
+
+  async createBill(data: CreateBillRequest): Promise<Bill> {
+    return this.request<Bill>("/bills", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateBillStatus(billId: string, status: string): Promise<Bill> {
+    return this.request<Bill>(`/bills/${billId}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async deleteBill(billId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/bills/${billId}`, {
+      method: "DELETE",
+    });
+  }
+
+  async getOverdueBills(): Promise<Bill[]> {
+    return this.request<Bill[]>("/bills/overdue");
+  }
+
+  async getVendorBills(vendorId: string): Promise<Bill[]> {
+    return this.request<Bill[]>(`/vendors/${vendorId}/bills`);
+  }
+
+  // --- Payment endpoints ---
+
+  async listPayments(params?: PaymentListParams): Promise<Payment[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
+    if (params?.unapplied_only) searchParams.set("unapplied_only", "true");
+    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
+    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
+    const qs = searchParams.toString();
+    return this.request<Payment[]>(`/payments${qs ? `?${qs}` : ""}`);
+  }
+
+  async getPayment(paymentId: string): Promise<Payment> {
+    return this.request<Payment>(`/payments/${paymentId}`);
+  }
+
+  async createPayment(data: CreatePaymentRequest): Promise<Payment> {
+    return this.request<Payment>("/payments", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async applyPayment(paymentId: string, data: ApplyPaymentRequest): Promise<void> {
+    await this.request<Record<string, never>>(`/payments/${paymentId}/apply`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getUnappliedPayments(customerId?: string): Promise<Payment[]> {
+    const qs = customerId ? `?customer_id=${customerId}` : "";
+    return this.request<Payment[]>(`/payments/unapplied${qs}`);
+  }
+
+  // --- Bill Payment endpoints ---
+
+  async createBillPayment(data: CreateBillPaymentRequest): Promise<BillPayment> {
+    return this.request<BillPayment>("/bill-payments", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
   }
 
