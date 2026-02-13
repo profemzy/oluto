@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging, ReconciliationSummary } from "@/app/lib/api";
+import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging, ReconciliationSummary, computeAgingTotals } from "@/app/lib/api";
 import { formatCurrency, formatDate, formatRelativeTime } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
@@ -481,7 +481,9 @@ export default function DashboardPage() {
               </div>
 
               {/* AR Aging Summary */}
-              {arAging && parseFloat(arAging.totals.total) > 0 && (
+              {arAging && parseFloat(arAging.total_outstanding) > 0 && (() => {
+                const totals = computeAgingTotals(arAging);
+                return (
                 <div className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
@@ -491,13 +493,13 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-6 space-y-3">
                     {[
-                      { label: "Current", value: arAging.totals.current, color: "text-green-600" },
-                      { label: "1\u201330 days", value: arAging.totals.days_1_30, color: "text-blue-600" },
-                      { label: "31\u201360 days", value: arAging.totals.days_31_60, color: "text-amber-600" },
-                      { label: "61\u201390 days", value: arAging.totals.days_61_90, color: "text-orange-600" },
-                      { label: "90+ days", value: arAging.totals.days_over_90, color: "text-red-600" },
+                      { label: "Current", value: totals.current, color: "text-green-600" },
+                      { label: "1\u201330 days", value: totals.days_1_30, color: "text-blue-600" },
+                      { label: "31\u201360 days", value: totals.days_31_60, color: "text-amber-600" },
+                      { label: "61\u201390 days", value: totals.days_61_90, color: "text-orange-600" },
+                      { label: "90+ days", value: totals.days_91_plus, color: "text-red-600" },
                     ]
-                      .filter((b) => parseFloat(b.value) > 0)
+                      .filter((b) => b.value > 0)
                       .map((b) => (
                         <div key={b.label} className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">{b.label}</span>
@@ -506,7 +508,7 @@ export default function DashboardPage() {
                       ))}
                     <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
                       <span className="text-sm font-bold text-gray-900">Total</span>
-                      <span className="text-sm font-bold text-gray-900">{formatCurrency(arAging.totals.total)}</span>
+                      <span className="text-sm font-bold text-gray-900">{formatCurrency(totals.total)}</span>
                     </div>
                   </div>
                   <div className="p-4 border-t border-gray-100">
@@ -518,7 +520,8 @@ export default function DashboardPage() {
                     </Link>
                   </div>
                 </div>
-              )}
+                );
+              })()}
 
               {/* Reconciliation Status */}
               {reconSummary && reconSummary.unreconciled > 0 && (

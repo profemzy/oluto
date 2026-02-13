@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { api, AccountsReceivableAging } from "@/app/lib/api";
+import { api, AccountsReceivableAging, computeAgingTotals } from "@/app/lib/api";
 import { formatCurrency } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
@@ -80,31 +80,34 @@ export default function ArAgingPage() {
                     </tr>
                   ) : (
                     report.buckets.map((b) => (
-                      <tr key={b.contact_id} className="hover:bg-cyan-50/50 transition-all">
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900">{b.contact_name}</td>
+                      <tr key={b.customer_id} className="hover:bg-cyan-50/50 transition-all">
+                        <td className="px-4 py-3 text-sm font-bold text-gray-900">{b.customer_name}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.current)}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_1_30)}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_31_60)}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_61_90)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-red-600 font-bold">{formatCurrency(b.days_over_90)}</td>
+                        <td className="px-4 py-3 text-sm text-right text-red-600 font-bold">{formatCurrency(b.days_91_plus)}</td>
                         <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(b.total)}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
-                {report.buckets.length > 0 && (
+                {report.buckets.length > 0 && (() => {
+                  const totals = computeAgingTotals(report);
+                  return (
                   <tfoot className="bg-gradient-to-r from-gray-50 to-gray-100 border-t">
                     <tr>
                       <td className="px-4 py-3 text-sm font-bold text-gray-900">Total</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(report.totals.current)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(report.totals.days_1_30)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(report.totals.days_31_60)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(report.totals.days_61_90)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold text-red-600">{formatCurrency(report.totals.days_over_90)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(report.totals.total)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.current)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_1_30)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_31_60)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_61_90)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold text-red-600">{formatCurrency(totals.days_91_plus)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.total)}</td>
                     </tr>
                   </tfoot>
-                )}
+                  );
+                })()}
               </table>
             </div>
           </div>

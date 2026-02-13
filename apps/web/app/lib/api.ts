@@ -308,27 +308,43 @@ export interface BalanceSheet {
 }
 
 export interface AgingBucket {
-  contact_id: string;
-  contact_name: string;
+  customer_id: string;
+  customer_name: string;
   current: string;
   days_1_30: string;
   days_31_60: string;
   days_61_90: string;
-  days_over_90: string;
+  days_91_plus: string;
   total: string;
+}
+
+export interface AgingTotals {
+  current: number;
+  days_1_30: number;
+  days_31_60: number;
+  days_61_90: number;
+  days_91_plus: number;
+  total: number;
 }
 
 export interface AccountsReceivableAging {
   as_of_date: string;
+  total_outstanding: string;
   buckets: AgingBucket[];
-  totals: {
-    current: string;
-    days_1_30: string;
-    days_31_60: string;
-    days_61_90: string;
-    days_over_90: string;
-    total: string;
-  };
+}
+
+/** Compute aggregate totals from AR aging buckets */
+export function computeAgingTotals(aging: AccountsReceivableAging): AgingTotals {
+  const t: AgingTotals = { current: 0, days_1_30: 0, days_31_60: 0, days_61_90: 0, days_91_plus: 0, total: 0 };
+  for (const b of aging.buckets) {
+    t.current += parseFloat(b.current) || 0;
+    t.days_1_30 += parseFloat(b.days_1_30) || 0;
+    t.days_31_60 += parseFloat(b.days_31_60) || 0;
+    t.days_61_90 += parseFloat(b.days_61_90) || 0;
+    t.days_91_plus += parseFloat(b.days_91_plus) || 0;
+    t.total += parseFloat(b.total) || 0;
+  }
+  return t;
 }
 
 // --- Invoice Types ---
