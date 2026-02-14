@@ -27,6 +27,7 @@ function todayStr(): string {
 function NewBillPaymentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const preVendorId = searchParams.get("vendorId") || "";
   const preBillId = searchParams.get("billId") || "";
 
@@ -49,11 +50,12 @@ function NewBillPaymentForm() {
   const [billsLoading, setBillsLoading] = useState(false);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
         const [vends, accts] = await Promise.all([
-          api.getVendors(),
-          api.listAccounts(),
+          api.getVendors(user.business_id!),
+          api.listAccounts(user.business_id!),
         ]);
         setVendors(vends);
         setAssetAccounts(accts.filter((a) => a.account_type === "Asset" && a.is_active));
@@ -64,7 +66,7 @@ function NewBillPaymentForm() {
       }
     };
     load();
-  }, []);
+  }, [user?.business_id]);
 
   // Load outstanding bills when vendor changes
   useEffect(() => {
@@ -75,7 +77,7 @@ function NewBillPaymentForm() {
     const loadBills = async () => {
       setBillsLoading(true);
       try {
-        const bills = await api.getVendorBills(vendorId);
+        const bills = await api.getVendorBills(user.business_id!, vendorId);
         const outstanding = bills.filter(
           (b) => b.status !== "paid" && b.status !== "void" && parseFloat(b.balance) > 0
         );
@@ -148,7 +150,7 @@ function NewBillPaymentForm() {
           amount_applied: app.amount,
         }));
 
-      await api.createBillPayment({
+      await api.createBillPayment(user.business_id!, {
         vendor_id: vendorId,
         payment_date: paymentDate,
         amount,

@@ -50,12 +50,13 @@ export default function BillDetailPage({
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
-        const b = await api.getBill(billId);
+        const b = await api.getBill(user.business_id!, billId);
         setBill(b);
         try {
-          const vendors = await api.getVendors();
+          const vendors = await api.getVendors(user.business_id!);
           const vendor = vendors.find((v: Contact) => v.id === b.vendor_id);
           if (vendor) setVendorName(vendor.name);
         } catch {
@@ -68,14 +69,14 @@ export default function BillDetailPage({
       }
     };
     load();
-  }, [billId]);
+  }, [billId, user?.business_id]);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!bill) return;
     setUpdating(true);
     setError("");
     try {
-      const updated = await api.updateBillStatus(billId, newStatus);
+      const updated = await api.updateBillStatus(user!.business_id!, billId, newStatus);
       setBill({ ...bill, ...updated });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update status");
@@ -87,7 +88,7 @@ export default function BillDetailPage({
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this bill?")) return;
     try {
-      await api.deleteBill(billId);
+      await api.deleteBill(user!.business_id!, billId);
       router.push("/bills");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete bill");
@@ -240,6 +241,7 @@ export default function BillDetailPage({
                 businessId={user.business_id}
                 billId={billId}
                 defaultRunOcr={false}
+                readOnly
               />
             </div>
           </div>

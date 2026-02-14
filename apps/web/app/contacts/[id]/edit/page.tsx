@@ -14,7 +14,7 @@ export default function EditContactPage({
 }) {
   const { id: contactId } = use(params);
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -27,9 +27,10 @@ export default function EditContactPage({
   const [shippingAddress, setShippingAddress] = useState("");
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
-        const contact = await api.getContact(contactId);
+        const contact = await api.getContact(user.business_id!, contactId);
         setContactType(contact.contact_type);
         setName(contact.name);
         setEmail(contact.email || "");
@@ -43,7 +44,7 @@ export default function EditContactPage({
       }
     };
     load();
-  }, [contactId]);
+  }, [contactId, user?.business_id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +52,7 @@ export default function EditContactPage({
     setSaving(true);
 
     try {
-      await api.updateContact(contactId, {
+      await api.updateContact(user.business_id!, contactId, {
         name,
         email: email || undefined,
         phone: phone || undefined,

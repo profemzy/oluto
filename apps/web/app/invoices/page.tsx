@@ -14,7 +14,7 @@ import {
 } from "@/app/lib/status";
 
 export default function InvoicesPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const {
     data: invoices,
     loading,
@@ -24,9 +24,9 @@ export default function InvoicesPage() {
   } = useDataTable<Invoice>({
     queryKey: ["invoices"],
     queryFn: (params) =>
-      api.listInvoices(params?.status ? { status: params.status } : undefined),
+      api.listInvoices(user!.business_id!, params?.status ? { status: params.status } : undefined),
     defaultFilter: "",
-    enabled: !authLoading,
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const {
@@ -35,8 +35,8 @@ export default function InvoicesPage() {
     isLoading: customersLoading,
   } = useQuery({
     queryKey: ["customers"],
-    queryFn: () => api.getCustomers(),
-    enabled: !authLoading,
+    queryFn: () => api.getCustomers(user!.business_id!),
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const {
@@ -45,8 +45,8 @@ export default function InvoicesPage() {
     isLoading: overdueLoading,
   } = useQuery({
     queryKey: ["invoices-overdue"],
-    queryFn: () => api.getOverdueInvoices(),
-    enabled: !authLoading,
+    queryFn: () => api.getOverdueInvoices(user!.business_id!),
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const customerMap = useMemo(() => {

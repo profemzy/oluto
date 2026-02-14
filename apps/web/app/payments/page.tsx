@@ -9,14 +9,14 @@ import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 
 export default function PaymentsPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const {
     data: payments = [],
     error,
     isLoading: paymentsLoading,
   } = useQuery({
     queryKey: ["payments"],
-    queryFn: () => api.listPayments(),
+    queryFn: () => api.listPayments(user.business_id!),
     enabled: !authLoading,
   });
 
@@ -26,7 +26,7 @@ export default function PaymentsPage() {
     isLoading: customersLoading,
   } = useQuery({
     queryKey: ["customers"],
-    queryFn: () => api.getCustomers(),
+    queryFn: () => api.getCustomers(user.business_id!),
     enabled: !authLoading,
   });
 

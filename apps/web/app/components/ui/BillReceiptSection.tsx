@@ -15,7 +15,9 @@ interface BillReceiptSectionProps {
   businessId: string;
   billId: string | null;
   onPendingFilesChange?: (files: PendingReceiptFile[]) => void;
+  onOcrDataExtracted?: (ocrData: ReceiptOcrData) => void;
   defaultRunOcr?: boolean;
+  readOnly?: boolean;
 }
 
 // --- Helpers ---
@@ -66,7 +68,9 @@ export function BillReceiptSection({
   businessId,
   billId,
   onPendingFilesChange,
+  onOcrDataExtracted,
   defaultRunOcr = false,
+  readOnly = false,
 }: BillReceiptSectionProps) {
   const [runOcr, setRunOcr] = useState(defaultRunOcr);
   const [dragActive, setDragActive] = useState(false);
@@ -122,7 +126,7 @@ export function BillReceiptSection({
   }, []);
 
   const addPendingFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       const error = validateFile(file);
       if (error) {
         setFileError(error);
@@ -138,8 +142,28 @@ export function BillReceiptSection({
       }
 
       setPendingFiles((prev) => [...prev, { file, runOcr, previewUrl }]);
+
+      // If OCR is enabled and we're in pending mode (new bill), run OCR immediately
+      if (runOcr && !isAttached && onOcrDataExtracted) {
+        try {
+          // Call OCR extraction endpoint to get structured data without saving
+          const response = await api.extractOcrFromReceipt(businessId, file);
+          console.log("=== OCR RESPONSE DEBUG ===");
+          console.log("Full response:", JSON.stringify(response, null, 2));
+          console.log("OCR data:", response.ocr_data);
+          console.log("Amount:", response.ocr_data?.amount);
+          console.log("Raw text (first 500 chars):", response.ocr_data?.raw_text?.substring(0, 500));
+          console.log("========================");
+          if (response.ocr_data) {
+            onOcrDataExtracted(response.ocr_data);
+          }
+        } catch (err) {
+          console.error("OCR extraction failed:", err);
+          // Don't block the file upload if OCR fails
+        }
+      }
     },
-    [runOcr, validateFile]
+    [runOcr, validateFile, isAttached, businessId, onOcrDataExtracted]
   );
 
   const removePendingFile = useCallback((index: number) => {
@@ -154,10 +178,12 @@ export function BillReceiptSection({
   }, []);
 
   const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (!files || files.length === 0) return;
-      Array.from(files).forEach(addPendingFile);
+      for (const file of Array.from(files)) {
+        await addPendingFile(file);
+      }
       e.target.value = "";
     },
     [addPendingFile]
@@ -174,13 +200,15 @@ export function BillReceiptSection({
   }, []);
 
   const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       setDragActive(false);
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
-        Array.from(files).forEach(addPendingFile);
+        for (const file of Array.from(files)) {
+          await addPendingFile(file);
+        }
       }
     },
     [addPendingFile]
@@ -233,69 +261,73 @@ export function BillReceiptSection({
 
   return (
     <div className="space-y-4">
-      {/* File upload area */}
-      <div
-        onDragEnter={handleDrag}
-        onDragOver={handleDrag}
-        onDragLeave={handleDrag}
-        onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-xl p-6 transition-all ${
-          dragActive
-            ? "border-cyan-500 bg-cyan-50"
-            : "border-gray-300 hover:border-gray-400 bg-gray-50"
-        }`}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept={RECEIPT_ALLOWED_EXTENSIONS}
-          onChange={handleFileInput}
-          className="hidden"
-        />
-        <div className="text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            stroke="currentColor"
-            fill="none"
-            viewBox="0 0 48 48"
+      {/* File upload area — hidden in readOnly mode */}
+      {!readOnly && (
+        <>
+          <div
+            onDragEnter={handleDrag}
+            onDragOver={handleDrag}
+            onDragLeave={handleDrag}
+            onDrop={handleDrop}
+            className={`relative border-2 border-dashed rounded-xl p-6 transition-all ${
+              dragActive
+                ? "border-cyan-500 bg-cyan-50"
+                : "border-gray-300 hover:border-gray-400 bg-gray-50"
+            }`}
           >
-            <path
-              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={RECEIPT_ALLOWED_EXTENSIONS}
+              onChange={handleFileInput}
+              className="hidden"
             />
-          </svg>
-          <p className="mt-2 text-sm text-gray-600">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="font-bold text-cyan-600 hover:text-cyan-500"
-            >
-              Click to upload
-            </button>{" "}
-            or drag and drop
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            JPEG, PNG, or PDF up to 10 MB
-          </p>
-        </div>
-      </div>
+            <div className="text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <p className="mt-2 text-sm text-gray-600">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="font-bold text-cyan-600 hover:text-cyan-500"
+                >
+                  Click to upload
+                </button>{" "}
+                or drag and drop
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                JPEG, PNG, or PDF up to 10 MB
+              </p>
+            </div>
+          </div>
 
-      {/* OCR toggle */}
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="runOcr"
-          checked={runOcr}
-          onChange={(e) => setRunOcr(e.target.checked)}
-          className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
-        />
-        <label htmlFor="runOcr" className="text-sm text-gray-700">
-          Extract text from receipt/invoice (OCR)
-        </label>
-      </div>
+          {/* OCR toggle */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="runOcr"
+              checked={runOcr}
+              onChange={(e) => setRunOcr(e.target.checked)}
+              className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+            />
+            <label htmlFor="runOcr" className="text-sm text-gray-700">
+              Extract text from receipt/invoice (OCR)
+            </label>
+          </div>
+        </>
+      )}
 
       {fileError && (
         <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
@@ -415,20 +447,22 @@ export function BillReceiptSection({
                     />
                   </svg>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(receipt.id)}
-                  className="flex-shrink-0 text-gray-400 hover:text-red-500"
-                  title="Delete"
-                >
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(receipt.id)}
+                    className="flex-shrink-0 text-gray-400 hover:text-red-500"
+                    title="Delete"
+                  >
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
             ))
           )}

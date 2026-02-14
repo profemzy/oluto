@@ -8,17 +8,18 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function TrialBalancePage() {
-  const { loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split("T")[0]);
   const [report, setReport] = useState<TrialBalance | null>(null);
 
   const generate = async () => {
+    if (!user?.business_id) return;
     setError("");
     setLoading(true);
     try {
-      const data = await api.getTrialBalance(asOfDate);
+      const data = await api.getTrialBalance(user.business_id!, asOfDate);
       setReport(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate report");

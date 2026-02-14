@@ -22,9 +22,9 @@ export default function DashboardPage() {
 
     Promise.all([
       api.getDashboardSummary(user.business_id!),
-      api.getOverdueInvoices().catch(() => [] as Invoice[]),
-      api.getOverdueBills().catch(() => [] as Bill[]),
-      api.getArAging(new Date().toISOString().split("T")[0]).catch(() => null),
+      api.getOverdueInvoices(user.business_id!).catch(() => [] as Invoice[]),
+      api.getOverdueBills(user.business_id!).catch(() => [] as Bill[]),
+      api.getArAging(user.business_id!, new Date().toISOString().split("T")[0]).catch(() => null),
       api.getReconciliationSummary(user.business_id!).catch(() => null),
     ])
       .then(([data, invs, bills, aging, recon]) => {

@@ -47,7 +47,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewInvoicePage() {
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -66,12 +66,13 @@ export default function NewInvoicePage() {
   const [lineItems, setLineItems] = useState<LineItemRow[]>([emptyLine()]);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
         const [custs, accts, invoices] = await Promise.all([
-          api.getCustomers(),
-          api.listAccounts(),
-          api.listInvoices(),
+          api.getCustomers(user.business_id!),
+          api.listAccounts(user.business_id!),
+          api.listInvoices(user.business_id!),
         ]);
         setCustomers(custs);
         setRevenueAccounts(accts.filter((a) => a.account_type === "Revenue" && a.is_active));
@@ -90,7 +91,7 @@ export default function NewInvoicePage() {
       }
     };
     load();
-  }, []);
+  }, [user?.business_id]);
 
   // Auto-fill billing/shipping address from selected customer
   useEffect(() => {
@@ -134,7 +135,7 @@ export default function NewInvoicePage() {
     setLoading(true);
 
     try {
-      const result = await api.createInvoice({
+      const result = await api.createInvoice(user!.business_id!, {
         invoice_number: invoiceNumber,
         customer_id: customerId,
         invoice_date: invoiceDate,

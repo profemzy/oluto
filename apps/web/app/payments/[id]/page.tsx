@@ -22,19 +22,20 @@ export default function PaymentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: paymentId } = use(params);
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [customerName, setCustomerName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
-        const pmt = await api.getPayment(paymentId);
+        const pmt = await api.getPayment(user.business_id!, paymentId);
         setPayment(pmt);
         try {
-          const customers = await api.getCustomers();
+          const customers = await api.getCustomers(user.business_id!);
           const customer = customers.find((c: Contact) => c.id === pmt.customer_id);
           if (customer) setCustomerName(customer.name);
         } catch {
@@ -47,7 +48,7 @@ export default function PaymentDetailPage({
       }
     };
     load();
-  }, [paymentId]);
+  }, [paymentId, user?.business_id]);
 
   if (authLoading || loading) return <PageLoader />;
   if (!payment) {

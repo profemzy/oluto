@@ -10,15 +10,15 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { CONTACT_TYPE_COLORS, CONTACT_TYPE_FILTERS } from "@/app/lib/status";
 
 export default function ContactsPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const queryClient = useQueryClient();
 
   const listContacts = (params?: Record<string, string>) => {
     const type = params?.type;
-    if (type === "Customer") return api.getCustomers();
-    if (type === "Vendor") return api.getVendors();
-    if (type === "Employee") return api.getEmployees();
-    return api.listContacts();
+    if (type === "Customer") return api.getCustomers(user.business_id!);
+    if (type === "Vendor") return api.getVendors(user.business_id!);
+    if (type === "Employee") return api.getEmployees(user.business_id!);
+    return api.listContacts(user.business_id!);
   };
 
   const {
@@ -36,7 +36,7 @@ export default function ContactsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteContact(id),
+    mutationFn: (id: string) => api.deleteContact(user.business_id!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       toastSuccess("Contact deleted");

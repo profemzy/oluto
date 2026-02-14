@@ -27,6 +27,7 @@ function todayStr(): string {
 function NewPaymentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const preCustomerId = searchParams.get("customerId") || "";
   const preInvoiceId = searchParams.get("invoiceId") || "";
 
@@ -49,11 +50,12 @@ function NewPaymentForm() {
   const [invoicesLoading, setInvoicesLoading] = useState(false);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
         const [custs, accts] = await Promise.all([
-          api.getCustomers(),
-          api.listAccounts(),
+          api.getCustomers(user.business_id!),
+          api.listAccounts(user.business_id!),
         ]);
         setCustomers(custs);
         setAssetAccounts(accts.filter((a) => a.account_type === "Asset" && a.is_active));
@@ -64,7 +66,7 @@ function NewPaymentForm() {
       }
     };
     load();
-  }, []);
+  }, [user?.business_id]);
 
   // Load outstanding invoices when customer changes
   useEffect(() => {
@@ -75,7 +77,7 @@ function NewPaymentForm() {
     const loadInvoices = async () => {
       setInvoicesLoading(true);
       try {
-        const invoices = await api.getCustomerInvoices(customerId);
+        const invoices = await api.getCustomerInvoices(user.business_id!, customerId);
         const outstanding = invoices.filter(
           (inv) => inv.status !== "paid" && inv.status !== "void" && parseFloat(inv.balance) > 0
         );
@@ -149,7 +151,7 @@ function NewPaymentForm() {
           amount_applied: app.amount,
         }));
 
-      await api.createPayment({
+      await api.createPayment(user.business_id!, {
         customer_id: customerId,
         payment_date: paymentDate,
         amount,

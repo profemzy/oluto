@@ -14,7 +14,7 @@ export default function EditAccountPage({
 }) {
   const { id: accountId } = use(params);
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -25,9 +25,10 @@ export default function EditAccountPage({
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
-        const account = await api.getAccount(accountId);
+        const account = await api.getAccount(user.business_id!, accountId);
         setCode(account.code);
         setName(account.name);
         setAccountType(account.account_type);
@@ -39,7 +40,7 @@ export default function EditAccountPage({
       }
     };
     load();
-  }, [accountId]);
+  }, [accountId, user?.business_id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +48,7 @@ export default function EditAccountPage({
     setSaving(true);
 
     try {
-      await api.updateAccount(accountId, {
+      await api.updateAccount(user.business_id!, accountId, {
         name,
         is_active: isActive,
       });

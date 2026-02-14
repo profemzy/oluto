@@ -34,7 +34,7 @@ export default function InvoiceDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: invoiceId } = use(params);
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [invoice, setInvoice] = useState<InvoiceWithLineItems | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -43,15 +43,16 @@ export default function InvoiceDetailPage({
   const [updating, setUpdating] = useState(false);
 
   const loadInvoice = useCallback(async () => {
+    if (!user?.business_id) return;
     try {
       const [inv, pmts] = await Promise.all([
-        api.getInvoice(invoiceId),
-        api.getInvoicePayments(invoiceId),
+        api.getInvoice(user.business_id!, invoiceId),
+        api.getInvoicePayments(user.business_id!, invoiceId),
       ]);
       setInvoice(inv);
       setPayments(pmts);
       try {
-        const customers = await api.getCustomers();
+        const customers = await api.getCustomers(user.business_id!);
         const customer = customers.find(
           (c: Contact) => c.id === inv.customer_id,
         );
@@ -64,7 +65,7 @@ export default function InvoiceDetailPage({
     } finally {
       setLoading(false);
     }
-  }, [invoiceId]);
+  }, [invoiceId, user?.business_id]);
 
   useEffect(() => {
     loadInvoice();
@@ -75,7 +76,7 @@ export default function InvoiceDetailPage({
     setUpdating(true);
     setError("");
     try {
-      const updated = await api.updateInvoiceStatus(invoiceId, newStatus);
+      const updated = await api.updateInvoiceStatus(user!.business_id!, invoiceId, newStatus);
       setInvoice({ ...invoice, ...updated });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update status");

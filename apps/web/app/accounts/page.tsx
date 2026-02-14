@@ -10,7 +10,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { ACCOUNT_TYPE_COLORS, ACCOUNT_TYPE_FILTERS } from "@/app/lib/status";
 
 export default function AccountsPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const queryClient = useQueryClient();
 
   const {
@@ -21,7 +21,7 @@ export default function AccountsPage() {
     setFilter: setTypeFilter,
   } = useDataTable<Account>({
     queryKey: ["accounts"],
-    queryFn: () => api.listAccounts(),
+    queryFn: () => api.listAccounts(user.business_id!),
     filterParam: "type",
     defaultFilter: "",
     enabled: !authLoading,
@@ -33,7 +33,7 @@ export default function AccountsPage() {
     : accounts;
 
   const deactivateMutation = useMutation({
-    mutationFn: (id: string) => api.deactivateAccount(id),
+    mutationFn: (id: string) => api.deactivateAccount(user.business_id!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toastSuccess("Account deactivated");

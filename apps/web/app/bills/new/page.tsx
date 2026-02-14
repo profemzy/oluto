@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { api, Contact, Account, CreateBillLineItemRequest } from "@/app/lib/api";
+import { api, Contact, Account, CreateBillLineItemRequest, ReceiptOcrData } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
 
@@ -49,11 +49,12 @@ export default function NewBillPage() {
   const [pendingReceipts, setPendingReceipts] = useState<PendingReceiptFile[]>([]);
 
   useEffect(() => {
+    if (!user?.business_id) return;
     const load = async () => {
       try {
         const [vends, accts] = await Promise.all([
-          api.getVendors(),
-          api.listAccounts(),
+          api.getVendors(user.business_id!),
+          api.listAccounts(user.business_id!),
         ]);
         setVendors(vends);
         setExpenseAccounts(accts.filter((a) => a.account_type === "Expense" && a.is_active));
@@ -64,7 +65,7 @@ export default function NewBillPage() {
       }
     };
     load();
-  }, []);
+  }, [user?.business_id]);
 
   const updateLineItem = (index: number, field: keyof LineItemRow, value: string) => {
     setLineItems((prev) => {
@@ -90,6 +91,49 @@ export default function NewBillPage() {
 
   const total = lineItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
 
+  const handleOcrDataExtracted = (ocrData: ReceiptOcrData) => {
+    // Auto-fill amount in first line item if OCR extracted an amount
+    if (ocrData.amount) {
+      const parsedAmount = parseFloat(ocrData.amount);
+      if (!isNaN(parsedAmount) && parsedAmount > 0) {
+        setLineItems((prev) => {
+          const updated = [...prev];
+          updated[0] = { ...updated[0], amount: parsedAmount.toFixed(2) };
+          return updated;
+        });
+      }
+    }
+
+    // Auto-fill bill date if OCR extracted a date
+    if (ocrData.date) {
+      try {
+        const parsedDate = new Date(ocrData.date);
+        if (!isNaN(parsedDate.getTime())) {
+          setBillDate(parsedDate.toISOString().slice(0, 10));
+        }
+      } catch (err) {
+        console.error("Failed to parse OCR date:", err);
+      }
+    }
+
+    // Try to match vendor by name if OCR extracted vendor info
+    if (ocrData.vendor && vendors.length > 0) {
+      const matchedVendor = vendors.find((v) =>
+        v.name.toLowerCase().includes(ocrData.vendor!.toLowerCase()) ||
+        ocrData.vendor!.toLowerCase().includes(v.name.toLowerCase())
+      );
+      if (matchedVendor) {
+        setVendorId(matchedVendor.id);
+      }
+    }
+
+    // Add raw text to memo if available
+    if (ocrData.raw_text) {
+      const excerpt = ocrData.raw_text.substring(0, 200);
+      setMemo(`OCR Extract: ${excerpt}${ocrData.raw_text.length > 200 ? "..." : ""}`);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -98,7 +142,7 @@ export default function NewBillPage() {
     if (!user?.business_id) return;
 
     try {
-      const result = await api.createBill({
+      const result = await api.createBill(user.business_id!, {
         bill_number: billNumber || undefined,
         vendor_id: vendorId,
         bill_date: billDate,
@@ -112,16 +156,27 @@ export default function NewBillPage() {
         })),
       });
 
-      // Upload pending receipts/invoices (non-blocking — failures don't prevent navigation)
+      // Upload pending receipts/invoices (wait for completion before navigation)
       if (pendingReceipts.length > 0) {
-        await Promise.allSettled(
-          pendingReceipts.map((pr) =>
-            api.uploadBillReceipt(user.business_id!, result.id, pr.file, pr.runOcr)
-          )
-        );
+        try {
+          await Promise.all(
+            pendingReceipts.map((pr) =>
+              api.uploadBillReceipt(user.business_id!, result.id, pr.file, pr.runOcr)
+            )
+          );
+        } catch (uploadErr) {
+          console.error("Receipt upload failed:", uploadErr);
+          // Bill was created successfully, but receipts failed to upload
+          // Show warning but still navigate - user can attach receipts later
+          setError(
+            "Bill created successfully, but some receipts failed to upload. You can attach them from the bill detail page."
+          );
+          // Brief delay to show error message before navigating
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
       }
 
-      router.push(`/bills/${result.id}`);
+      router.push("/bills");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create bill");
     } finally {
@@ -191,6 +246,7 @@ export default function NewBillPage() {
                 businessId={user.business_id}
                 billId={null}
                 onPendingFilesChange={setPendingReceipts}
+                onOcrDataExtracted={handleOcrDataExtracted}
                 defaultRunOcr={false}
               />
             )}

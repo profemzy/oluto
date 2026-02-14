@@ -8,7 +8,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function ProfitLossPage() {
-  const { loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const today = new Date().toISOString().split("T")[0];
@@ -18,10 +18,11 @@ export default function ProfitLossPage() {
   const [report, setReport] = useState<ProfitLossStatement | null>(null);
 
   const generate = async () => {
+    if (!user?.business_id) return;
     setError("");
     setLoading(true);
     try {
-      const data = await api.getProfitLoss(startDate, endDate);
+      const data = await api.getProfitLoss(user.business_id!, startDate, endDate);
       setReport(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate report");

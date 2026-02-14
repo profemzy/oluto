@@ -12,7 +12,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { BILL_STATUS_COLORS, BILL_STATUS_OPTIONS } from "@/app/lib/status";
 
 export default function BillsPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const queryClient = useQueryClient();
 
   const {
@@ -24,9 +24,9 @@ export default function BillsPage() {
   } = useDataTable<Bill>({
     queryKey: ["bills"],
     queryFn: (params) =>
-      api.listBills(params?.status ? { status: params.status } : undefined),
+      api.listBills(user!.business_id!, params?.status ? { status: params.status } : undefined),
     defaultFilter: "",
-    enabled: !authLoading,
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const {
@@ -35,8 +35,8 @@ export default function BillsPage() {
     isLoading: vendorsLoading,
   } = useQuery({
     queryKey: ["vendors"],
-    queryFn: () => api.getVendors(),
-    enabled: !authLoading,
+    queryFn: () => api.getVendors(user!.business_id!),
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const {
@@ -45,8 +45,8 @@ export default function BillsPage() {
     isLoading: overdueLoading,
   } = useQuery({
     queryKey: ["bills-overdue"],
-    queryFn: () => api.getOverdueBills(),
-    enabled: !authLoading,
+    queryFn: () => api.getOverdueBills(user!.business_id!),
+    enabled: !authLoading && !!user?.business_id,
   });
 
   const vendorMap = useMemo(() => {
@@ -58,7 +58,7 @@ export default function BillsPage() {
   }, [vendors]);
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteBill(id),
+    mutationFn: (id: string) => api.deleteBill(user!.business_id!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bills"] });
       queryClient.invalidateQueries({ queryKey: ["bills-overdue"] });

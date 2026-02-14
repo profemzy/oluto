@@ -225,7 +225,7 @@ export interface Contact {
   phone: string | null;
   billing_address: string | null;
   shipping_address: string | null;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -256,7 +256,7 @@ export interface Account {
   account_type: "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
   parent_account_id: string | null;
   is_active: boolean;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -365,7 +365,7 @@ export interface Invoice {
   customer_memo: string | null;
   billing_address: string | null;
   shipping_address: string | null;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -409,7 +409,6 @@ export interface CreateInvoiceRequest {
   customer_memo?: string;
   billing_address?: string;
   shipping_address?: string;
-  company_id?: string;
   line_items: CreateInvoiceLineItemRequest[];
 }
 
@@ -432,7 +431,7 @@ export interface Bill {
   balance: string;
   status: "open" | "paid" | "partial" | "void";
   memo: string | null;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -469,7 +468,6 @@ export interface CreateBillRequest {
   bill_date: string;
   due_date: string;
   memo?: string;
-  company_id?: string;
   line_items: CreateBillLineItemRequest[];
 }
 
@@ -493,7 +491,7 @@ export interface Payment {
   reference_number: string | null;
   deposit_to_account_id: string | null;
   memo: string | null;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -520,7 +518,6 @@ export interface CreatePaymentRequest {
   reference_number?: string;
   deposit_to_account_id?: string;
   memo?: string;
-  company_id?: string;
   applications: CreatePaymentApplicationRequest[];
 }
 
@@ -547,7 +544,7 @@ export interface BillPayment {
   reference_number: string | null;
   bank_account_id: string | null;
   memo: string | null;
-  company_id: string | null;
+  business_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -574,7 +571,6 @@ export interface CreateBillPaymentRequest {
   reference_number?: string;
   bank_account_id?: string;
   memo?: string;
-  company_id?: string;
   applications: CreateBillPaymentApplicationRequest[];
 }
 
@@ -979,201 +975,201 @@ class ApiClient {
 
   // --- Contact endpoints ---
 
-  async listContacts(): Promise<Contact[]> {
-    return this.request<Contact[]>("/contacts");
+  async listContacts(businessId: string): Promise<Contact[]> {
+    return this.request<Contact[]>(`/businesses/${businessId}/contacts`);
   }
 
-  async getCustomers(): Promise<Contact[]> {
-    return this.request<Contact[]>("/contacts/customers");
+  async getCustomers(businessId: string): Promise<Contact[]> {
+    return this.request<Contact[]>(`/businesses/${businessId}/contacts/customers`);
   }
 
-  async getVendors(): Promise<Contact[]> {
-    return this.request<Contact[]>("/contacts/vendors");
+  async getVendors(businessId: string): Promise<Contact[]> {
+    return this.request<Contact[]>(`/businesses/${businessId}/contacts/vendors`);
   }
 
-  async getEmployees(): Promise<Contact[]> {
-    return this.request<Contact[]>("/contacts/employees");
+  async getEmployees(businessId: string): Promise<Contact[]> {
+    return this.request<Contact[]>(`/businesses/${businessId}/contacts/employees`);
   }
 
-  async getContact(contactId: string): Promise<Contact> {
-    return this.request<Contact>(`/contacts/${contactId}`);
+  async getContact(businessId: string, contactId: string): Promise<Contact> {
+    return this.request<Contact>(`/businesses/${businessId}/contacts/${contactId}`);
   }
 
-  async createContact(data: ContactCreate): Promise<Contact> {
-    return this.request<Contact>("/contacts", {
+  async createContact(businessId: string, data: ContactCreate): Promise<Contact> {
+    return this.request<Contact>(`/businesses/${businessId}/contacts`, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateContact(contactId: string, data: ContactUpdate): Promise<Contact> {
-    return this.request<Contact>(`/contacts/${contactId}`, {
+  async updateContact(businessId: string, contactId: string, data: ContactUpdate): Promise<Contact> {
+    return this.request<Contact>(`/businesses/${businessId}/contacts/${contactId}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   }
 
-  async deleteContact(contactId: string): Promise<void> {
-    await this.request<Record<string, never>>(`/contacts/${contactId}`, {
+  async deleteContact(businessId: string, contactId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/contacts/${contactId}`, {
       method: "DELETE",
     });
   }
 
   // --- Account endpoints ---
 
-  async listAccounts(): Promise<Account[]> {
-    return this.request<Account[]>("/accounts");
+  async listAccounts(businessId: string): Promise<Account[]> {
+    return this.request<Account[]>(`/businesses/${businessId}/accounts`);
   }
 
-  async getAccount(accountId: string): Promise<Account> {
-    return this.request<Account>(`/accounts/${accountId}`);
+  async getAccount(businessId: string, accountId: string): Promise<Account> {
+    return this.request<Account>(`/businesses/${businessId}/accounts/${accountId}`);
   }
 
-  async createAccount(data: AccountCreate): Promise<Account> {
-    return this.request<Account>("/accounts", {
+  async createAccount(businessId: string, data: AccountCreate): Promise<Account> {
+    return this.request<Account>(`/businesses/${businessId}/accounts`, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateAccount(accountId: string, data: AccountUpdate): Promise<Account> {
-    return this.request<Account>(`/accounts/${accountId}`, {
+  async updateAccount(businessId: string, accountId: string, data: AccountUpdate): Promise<Account> {
+    return this.request<Account>(`/businesses/${businessId}/accounts/${accountId}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   }
 
-  async deactivateAccount(accountId: string): Promise<void> {
-    await this.request<Record<string, never>>(`/accounts/${accountId}`, {
+  async deactivateAccount(businessId: string, accountId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/accounts/${accountId}`, {
       method: "DELETE",
     });
   }
 
   // --- Invoice endpoints ---
 
-  async listInvoices(params?: InvoiceListParams): Promise<Invoice[]> {
+  async listInvoices(businessId: string, params?: InvoiceListParams): Promise<Invoice[]> {
     const searchParams = new URLSearchParams();
     if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
     if (params?.status) searchParams.set("status", params.status);
     if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
     if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
     const qs = searchParams.toString();
-    return this.request<Invoice[]>(`/invoices${qs ? `?${qs}` : ""}`);
+    return this.request<Invoice[]>(`/businesses/${businessId}/invoices${qs ? `?${qs}` : ""}`);
   }
 
-  async getInvoice(invoiceId: string): Promise<InvoiceWithLineItems> {
-    return this.request<InvoiceWithLineItems>(`/invoices/${invoiceId}`);
+  async getInvoice(businessId: string, invoiceId: string): Promise<InvoiceWithLineItems> {
+    return this.request<InvoiceWithLineItems>(`/businesses/${businessId}/invoices/${invoiceId}`);
   }
 
-  async createInvoice(data: CreateInvoiceRequest): Promise<InvoiceWithLineItems> {
-    return this.request<InvoiceWithLineItems>("/invoices", {
+  async createInvoice(businessId: string, data: CreateInvoiceRequest): Promise<InvoiceWithLineItems> {
+    return this.request<InvoiceWithLineItems>(`/businesses/${businessId}/invoices`, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateInvoiceStatus(invoiceId: string, status: string): Promise<Invoice> {
-    return this.request<Invoice>(`/invoices/${invoiceId}/status`, {
+  async updateInvoiceStatus(businessId: string, invoiceId: string, status: string): Promise<Invoice> {
+    return this.request<Invoice>(`/businesses/${businessId}/invoices/${invoiceId}/status`, {
       method: "PUT",
       body: JSON.stringify({ status }),
     });
   }
 
-  async getOverdueInvoices(): Promise<Invoice[]> {
-    return this.request<Invoice[]>("/invoices/overdue");
+  async getOverdueInvoices(businessId: string): Promise<Invoice[]> {
+    return this.request<Invoice[]>(`/businesses/${businessId}/invoices/overdue`);
   }
 
-  async getCustomerInvoices(customerId: string): Promise<Invoice[]> {
-    return this.request<Invoice[]>(`/customers/${customerId}/invoices`);
+  async getCustomerInvoices(businessId: string, customerId: string): Promise<Invoice[]> {
+    return this.request<Invoice[]>(`/businesses/${businessId}/customers/${customerId}/invoices`);
   }
 
-  async getInvoicePayments(invoiceId: string): Promise<Payment[]> {
-    return this.request<Payment[]>(`/invoices/${invoiceId}/payments`);
+  async getInvoicePayments(businessId: string, invoiceId: string): Promise<Payment[]> {
+    return this.request<Payment[]>(`/businesses/${businessId}/invoices/${invoiceId}/payments`);
   }
 
   // --- Bill endpoints ---
 
-  async listBills(params?: BillListParams): Promise<Bill[]> {
+  async listBills(businessId: string, params?: BillListParams): Promise<Bill[]> {
     const searchParams = new URLSearchParams();
     if (params?.vendor_id) searchParams.set("vendor_id", params.vendor_id);
     if (params?.status) searchParams.set("status", params.status);
     if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
     if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
     const qs = searchParams.toString();
-    return this.request<Bill[]>(`/bills${qs ? `?${qs}` : ""}`);
+    return this.request<Bill[]>(`/businesses/${businessId}/bills${qs ? `?${qs}` : ""}`);
   }
 
-  async getBill(billId: string): Promise<BillWithLineItems> {
-    return this.request<BillWithLineItems>(`/bills/${billId}`);
+  async getBill(businessId: string, billId: string): Promise<BillWithLineItems> {
+    return this.request<BillWithLineItems>(`/businesses/${businessId}/bills/${billId}`);
   }
 
-  async createBill(data: CreateBillRequest): Promise<Bill> {
-    return this.request<Bill>("/bills", {
+  async createBill(businessId: string, data: CreateBillRequest): Promise<Bill> {
+    return this.request<Bill>(`/businesses/${businessId}/bills`, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async updateBillStatus(billId: string, status: string): Promise<Bill> {
-    return this.request<Bill>(`/bills/${billId}/status`, {
+  async updateBillStatus(businessId: string, billId: string, status: string): Promise<Bill> {
+    return this.request<Bill>(`/businesses/${businessId}/bills/${billId}/status`, {
       method: "PUT",
       body: JSON.stringify({ status }),
     });
   }
 
-  async deleteBill(billId: string): Promise<void> {
-    await this.request<Record<string, never>>(`/bills/${billId}`, {
+  async deleteBill(businessId: string, billId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/bills/${billId}`, {
       method: "DELETE",
     });
   }
 
-  async getOverdueBills(): Promise<Bill[]> {
-    return this.request<Bill[]>("/bills/overdue");
+  async getOverdueBills(businessId: string): Promise<Bill[]> {
+    return this.request<Bill[]>(`/businesses/${businessId}/bills/overdue`);
   }
 
-  async getVendorBills(vendorId: string): Promise<Bill[]> {
-    return this.request<Bill[]>(`/vendors/${vendorId}/bills`);
+  async getVendorBills(businessId: string, vendorId: string): Promise<Bill[]> {
+    return this.request<Bill[]>(`/businesses/${businessId}/vendors/${vendorId}/bills`);
   }
 
   // --- Payment endpoints ---
 
-  async listPayments(params?: PaymentListParams): Promise<Payment[]> {
+  async listPayments(businessId: string, params?: PaymentListParams): Promise<Payment[]> {
     const searchParams = new URLSearchParams();
     if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
     if (params?.unapplied_only) searchParams.set("unapplied_only", "true");
     if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
     if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
     const qs = searchParams.toString();
-    return this.request<Payment[]>(`/payments${qs ? `?${qs}` : ""}`);
+    return this.request<Payment[]>(`/businesses/${businessId}/payments${qs ? `?${qs}` : ""}`);
   }
 
-  async getPayment(paymentId: string): Promise<Payment> {
-    return this.request<Payment>(`/payments/${paymentId}`);
+  async getPayment(businessId: string, paymentId: string): Promise<Payment> {
+    return this.request<Payment>(`/businesses/${businessId}/payments/${paymentId}`);
   }
 
-  async createPayment(data: CreatePaymentRequest): Promise<Payment> {
-    return this.request<Payment>("/payments", {
+  async createPayment(businessId: string, data: CreatePaymentRequest): Promise<Payment> {
+    return this.request<Payment>(`/businesses/${businessId}/payments`, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async applyPayment(paymentId: string, data: ApplyPaymentRequest): Promise<void> {
-    await this.request<Record<string, never>>(`/payments/${paymentId}/apply`, {
+  async applyPayment(businessId: string, paymentId: string, data: ApplyPaymentRequest): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/payments/${paymentId}/apply`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   }
 
-  async getUnappliedPayments(customerId?: string): Promise<Payment[]> {
+  async getUnappliedPayments(businessId: string, customerId?: string): Promise<Payment[]> {
     const qs = customerId ? `?customer_id=${customerId}` : "";
-    return this.request<Payment[]>(`/payments/unapplied${qs}`);
+    return this.request<Payment[]>(`/businesses/${businessId}/payments/unapplied${qs}`);
   }
 
   // --- Bill Payment endpoints ---
 
-  async createBillPayment(data: CreateBillPaymentRequest): Promise<BillPayment> {
-    return this.request<BillPayment>("/bill-payments", {
+  async createBillPayment(businessId: string, data: CreateBillPaymentRequest): Promise<BillPayment> {
+    return this.request<BillPayment>(`/businesses/${businessId}/bill-payments`, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -1263,29 +1259,41 @@ class ApiClient {
     );
   }
 
-  // --- Report endpoints ---
-
-  async getTrialBalance(asOfDate?: string): Promise<TrialBalance> {
-    const qs = asOfDate ? `?as_of_date=${asOfDate}` : "";
-    return this.request<TrialBalance>(`/reports/trial-balance${qs}`);
+  async extractOcrFromReceipt(
+    businessId: string,
+    file: File
+  ): Promise<{ ocr_data: ReceiptOcrData | null }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.uploadRequest<{ ocr_data: ReceiptOcrData | null }>(
+      `/businesses/${businessId}/receipts/extract-ocr`,
+      formData
+    );
   }
 
-  async getProfitLoss(startDate?: string, endDate?: string): Promise<ProfitLossStatement> {
+  // --- Report endpoints ---
+
+  async getTrialBalance(businessId: string, asOfDate?: string): Promise<TrialBalance> {
+    const qs = asOfDate ? `?as_of_date=${asOfDate}` : "";
+    return this.request<TrialBalance>(`/businesses/${businessId}/reports/trial-balance${qs}`);
+  }
+
+  async getProfitLoss(businessId: string, startDate?: string, endDate?: string): Promise<ProfitLossStatement> {
     const params = new URLSearchParams();
     if (startDate) params.set("start_date", startDate);
     if (endDate) params.set("end_date", endDate);
     const qs = params.toString();
-    return this.request<ProfitLossStatement>(`/reports/profit-loss${qs ? `?${qs}` : ""}`);
+    return this.request<ProfitLossStatement>(`/businesses/${businessId}/reports/profit-loss${qs ? `?${qs}` : ""}`);
   }
 
-  async getBalanceSheet(asOfDate?: string): Promise<BalanceSheet> {
+  async getBalanceSheet(businessId: string, asOfDate?: string): Promise<BalanceSheet> {
     const qs = asOfDate ? `?as_of_date=${asOfDate}` : "";
-    return this.request<BalanceSheet>(`/reports/balance-sheet${qs}`);
+    return this.request<BalanceSheet>(`/businesses/${businessId}/reports/balance-sheet${qs}`);
   }
 
-  async getArAging(asOfDate?: string): Promise<AccountsReceivableAging> {
+  async getArAging(businessId: string, asOfDate?: string): Promise<AccountsReceivableAging> {
     const qs = asOfDate ? `?as_of_date=${asOfDate}` : "";
-    return this.request<AccountsReceivableAging>(`/reports/ar-aging${qs}`);
+    return this.request<AccountsReceivableAging>(`/businesses/${businessId}/reports/ar-aging${qs}`);
   }
 
   // --- Reconciliation endpoints ---

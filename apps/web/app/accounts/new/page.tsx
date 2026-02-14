@@ -11,7 +11,7 @@ const ACCOUNT_TYPES = ["Asset", "Liability", "Equity", "Revenue", "Expense"] as 
 
 export default function NewAccountPage() {
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [existingAccounts, setExistingAccounts] = useState<Account[]>([]);
@@ -22,8 +22,9 @@ export default function NewAccountPage() {
   const [parentAccountId, setParentAccountId] = useState("");
 
   useEffect(() => {
-    api.listAccounts().then(setExistingAccounts).catch(() => {});
-  }, []);
+    if (!user?.business_id) return;
+    api.listAccounts(user.business_id!).then(setExistingAccounts).catch(() => {});
+  }, [user?.business_id]);
 
   const parentOptions = existingAccounts.filter(
     (a) => a.account_type === accountType && a.is_active
@@ -35,7 +36,7 @@ export default function NewAccountPage() {
     setLoading(true);
 
     try {
-      await api.createAccount({
+      await api.createAccount(user.business_id!, {
         code,
         name,
         account_type: accountType,

@@ -9,7 +9,7 @@ import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function NewContactPage() {
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -26,7 +26,7 @@ export default function NewContactPage() {
     setLoading(true);
 
     try {
-      await api.createContact({
+      await api.createContact(user.business_id!, {
         contact_type: contactType,
         name,
         email: email || undefined,
