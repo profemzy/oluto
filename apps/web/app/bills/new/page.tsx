@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api, Contact, Account, CreateBillLineItemRequest } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
 
 interface LineItemRow extends CreateBillLineItemRequest {
   _key: number;
@@ -32,7 +32,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewBillPage() {
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,6 +46,7 @@ export default function NewBillPage() {
   const [dueDate, setDueDate] = useState(plus30());
   const [memo, setMemo] = useState("");
   const [lineItems, setLineItems] = useState<LineItemRow[]>([emptyLine()]);
+  const [pendingReceipts, setPendingReceipts] = useState<PendingReceiptFile[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -94,6 +95,8 @@ export default function NewBillPage() {
     setError("");
     setLoading(true);
 
+    if (!user?.business_id) return;
+
     try {
       const result = await api.createBill({
         bill_number: billNumber || undefined,
@@ -108,6 +111,16 @@ export default function NewBillPage() {
           expense_account_id: item.expense_account_id,
         })),
       });
+
+      // Upload pending receipts/invoices (non-blocking — failures don't prevent navigation)
+      if (pendingReceipts.length > 0) {
+        await Promise.allSettled(
+          pendingReceipts.map((pr) =>
+            api.uploadBillReceipt(user.business_id!, result.id, pr.file, pr.runOcr)
+          )
+        );
+      }
+
       router.push(`/bills/${result.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create bill");
@@ -171,6 +184,16 @@ export default function NewBillPage() {
               <textarea id="memo" rows={2} value={memo} onChange={(e) => setMemo(e.target.value)}
                 className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
             </div>
+
+            {/* Receipt/Invoice Upload */}
+            {user?.business_id && (
+              <BillReceiptSection
+                businessId={user.business_id}
+                billId={null}
+                onPendingFilesChange={setPendingReceipts}
+                defaultRunOcr={false}
+              />
+            )}
 
             {/* Line Items */}
             <div>

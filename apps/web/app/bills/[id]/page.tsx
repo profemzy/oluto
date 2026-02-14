@@ -5,7 +5,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { api, BillWithLineItems, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection } from "@/app/components";
 
 const STATUS_COLORS: Record<string, string> = {
   open: "bg-blue-50 text-blue-700 ring-blue-200",
@@ -42,7 +42,7 @@ export default function BillDetailPage({
 }) {
   const { id: billId } = use(params);
   const router = useRouter();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
   const [bill, setBill] = useState<BillWithLineItems | null>(null);
   const [vendorName, setVendorName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -228,6 +228,22 @@ export default function BillDetailPage({
             </div>
           </div>
         </div>
+
+        {/* Receipts/Invoices Section */}
+        {user?.business_id && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="text-sm font-bold text-gray-900">Attached Receipts/Invoices</h3>
+            </div>
+            <div className="p-6">
+              <BillReceiptSection
+                businessId={user.business_id}
+                billId={billId}
+                defaultRunOcr={false}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

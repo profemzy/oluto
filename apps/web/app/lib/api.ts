@@ -1235,6 +1235,34 @@ class ApiClient {
     );
   }
 
+  // --- Bill Receipt endpoints ---
+
+  async uploadBillReceipt(
+    businessId: string,
+    billId: string,
+    file: File,
+    runOcr: boolean = false
+  ): Promise<ReceiptUploadResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (runOcr) {
+      formData.append("run_ocr", "true");
+    }
+    return this.uploadRequest<ReceiptUploadResponse>(
+      `/businesses/${businessId}/bills/${billId}/receipts`,
+      formData
+    );
+  }
+
+  async listBillReceipts(
+    businessId: string,
+    billId: string
+  ): Promise<ReceiptResponse[]> {
+    return this.request<ReceiptResponse[]>(
+      `/businesses/${businessId}/bills/${billId}/receipts`
+    );
+  }
+
   // --- Report endpoints ---
 
   async getTrialBalance(asOfDate?: string): Promise<TrialBalance> {
