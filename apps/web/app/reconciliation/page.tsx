@@ -143,8 +143,24 @@ export default function ReconciliationPage() {
   });
 
   const markReconciledMutation = useMutation({
-    mutationFn: (ids: string[]) =>
-      api.markReconciled(businessId!, { transaction_ids: ids }),
+    mutationFn: async (ids: string[]) => {
+      // Show confirmation dialog with warning
+      const confirmed = window.confirm(
+        `⚠️ Manual Reconciliation Warning\n\n` +
+        `You are about to mark ${ids.length} transaction${ids.length === 1 ? "" : "s"} as reconciled without matching them to payments.\n\n` +
+        `This should only be done if:\n` +
+        `• You've verified the transaction in your bank statement\n` +
+        `• The transaction doesn't require payment matching (e.g., transfers, adjustments)\n\n` +
+        `For expenses and income, it's better to use "Find Matches" to link them to actual payments.\n\n` +
+        `Continue with manual reconciliation?`
+      );
+
+      if (!confirmed) {
+        throw new Error("Reconciliation cancelled by user");
+      }
+
+      return api.markReconciled(businessId!, { transaction_ids: ids });
+    },
     onSuccess: (result) => {
       invalidateAll(queryClient);
       setSelectedUnreconciled(new Set());
@@ -153,6 +169,10 @@ export default function ReconciliationPage() {
       );
     },
     onError: (err) => {
+      // Don't show error toast if user cancelled
+      if (err instanceof Error && err.message === "Reconciliation cancelled by user") {
+        return;
+      }
       toastError(
         err instanceof Error ? err.message : "Failed to mark reconciled",
       );
@@ -236,10 +256,10 @@ export default function ReconciliationPage() {
               </div>
               <div>
                 <p className="text-sm font-bold text-amber-800">
-                  {duplicates.length} potential duplicate group{duplicates.length === 1 ? "" : "s"} found
+                  ⚠️ {duplicates.length} potential duplicate group{duplicates.length === 1 ? "" : "s"} found
                 </p>
                 <p className="text-xs text-amber-600">
-                  Transactions with the same date, amount, and vendor
+                  Same date, amount, and vendor — keep one and delete the rest to avoid double-counting
                 </p>
               </div>
             </div>
@@ -247,7 +267,7 @@ export default function ReconciliationPage() {
               onClick={() => setShowDuplicates(!showDuplicates)}
               className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-700 hover:bg-amber-200 transition-colors"
             >
-              {showDuplicates ? "Hide" : "Review"}
+              {showDuplicates ? "Hide" : "Review & Delete"}
             </button>
           </div>
 
@@ -427,15 +447,21 @@ export default function ReconciliationPage() {
       {unreconciledOnly.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">
-              Unreconciled Transactions
-              <span className="ml-2 text-sm font-normal text-gray-500">({unreconciledOnly.length})</span>
-            </h2>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-gray-900">
+                Unreconciled Transactions
+                <span className="ml-2 text-sm font-normal text-gray-500">({unreconciledOnly.length})</span>
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                💡 Tip: Use &quot;Find Matches&quot; to auto-match transactions with payments, or manually reconcile if no payment matching is needed
+              </p>
+            </div>
             {selectedUnreconciled.size > 0 && (
               <button
                 onClick={() => markReconciledMutation.mutate(Array.from(selectedUnreconciled))}
                 disabled={markReconciledMutation.isPending}
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                title="Manually mark as reconciled (shows confirmation dialog)"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
