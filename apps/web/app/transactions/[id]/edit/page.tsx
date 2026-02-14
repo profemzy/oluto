@@ -92,6 +92,16 @@ export default function EditTransactionPage({
     loadTransaction();
   }, [user, transactionId]);
 
+  // Scroll to receipts section if hash is #receipts
+  useEffect(() => {
+    if (!loading && window.location.hash === "#receipts") {
+      const el = document.getElementById("receipts");
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+      }
+    }
+  }, [loading]);
+
   // Debounced AI category suggestion for expenses
   useEffect(() => {
     const trimmedVendor = vendorName.trim().toLowerCase();
@@ -401,12 +411,14 @@ export default function EditTransactionPage({
             </div>
 
             {txnType === "expense" && user?.business_id && (
-              <ReceiptUploadSection
-                businessId={user.business_id}
-                transactionId={transactionId}
-                onOcrResult={handleOcrSuggestion}
-                defaultRunOcr={false}
-              />
+              <div id="receipts">
+                <ReceiptUploadSection
+                  businessId={user.business_id}
+                  transactionId={transactionId}
+                  onOcrResult={handleOcrSuggestion}
+                  defaultRunOcr={false}
+                />
+              </div>
             )}
 
             {txnType === "expense" && (

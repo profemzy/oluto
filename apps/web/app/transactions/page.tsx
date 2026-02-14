@@ -295,9 +295,18 @@ function TransactionsContent() {
                 className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-teal-50/50 transition-all duration-200 items-center"
               >
                 <div className="col-span-3">
-                  <p className="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">
-                    {txn.vendor_name}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    {txn.reconciled && (
+                      <span title="Reconciled">
+                        <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </span>
+                    )}
+                    <p className="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors truncate">
+                      {txn.vendor_name}
+                    </p>
+                  </div>
                   {txn.description && (
                     <p className="text-xs text-gray-500 truncate">
                       {txn.description}
@@ -386,6 +395,17 @@ function TransactionsContent() {
                       />
                     </svg>
                   </Link>
+                  {parseFloat(txn.amount) < 0 && (
+                    <Link
+                      href={`/transactions/${txn.id}/edit#receipts`}
+                      className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200"
+                      title="Attach receipt"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                      </svg>
+                    </Link>
+                  )}
                   <button
                     onClick={() => handleDelete(txn.id)}
                     className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200"

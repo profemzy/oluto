@@ -29,6 +29,7 @@ export default function ImportTransactionsPage() {
   >([]);
   const [importing, setImporting] = useState(false);
   const [importedCount, setImportedCount] = useState(0);
+  const [skippedDuplicates, setSkippedDuplicates] = useState(0);
   const [batchId, setBatchId] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const [posted, setPosted] = useState(false);
@@ -240,6 +241,7 @@ export default function ImportTransactionsPage() {
         })),
       });
       setImportedCount(result.imported_count);
+      setSkippedDuplicates(result.skipped_duplicates);
       setBatchId(result.batch_id);
       setStep("success");
     } catch (err) {
@@ -842,10 +844,17 @@ export default function ImportTransactionsPage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
               Import complete!
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-2">
               Successfully imported {importedCount} transaction
               {importedCount === 1 ? "" : "s"} as drafts.
             </p>
+            {skippedDuplicates > 0 && (
+              <p className="text-sm text-amber-600 font-bold mb-6">
+                Skipped {skippedDuplicates} duplicate transaction
+                {skippedDuplicates === 1 ? "" : "s"} (already imported).
+              </p>
+            )}
+            {skippedDuplicates === 0 && <div className="mb-4" />}
 
             {/* Post All Section */}
             {!posted ? (
@@ -908,6 +917,7 @@ export default function ImportTransactionsPage() {
                   setEditedTransactions([]);
                   setSelectedRows(new Set());
                   setImportedCount(0);
+                  setSkippedDuplicates(0);
                   setBatchId(null);
                   setPosted(false);
                   setError("");

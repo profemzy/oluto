@@ -63,6 +63,7 @@ export interface Transaction {
   business_id: string;
   import_source: string | null;
   import_batch_id: string | null;
+  reconciled: boolean;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -182,6 +183,7 @@ export interface ImportConfirmRequest {
 
 export interface ImportConfirmResponse {
   imported_count: number;
+  skipped_duplicates: number;
   batch_id: string;
   transactions: Transaction[];
 }
@@ -645,7 +647,23 @@ export interface AutoReconcileRequest {
 }
 
 export interface AutoReconcileResponse {
-  matched_count: number;
+  suggestions_found: number;
+}
+
+export interface ManualReconcileRequest {
+  transaction_ids: string[];
+}
+
+export interface ManualReconcileResponse {
+  updated_count: number;
+}
+
+export interface DuplicateGroup {
+  transaction_date: string;
+  vendor_name: string;
+  amount: string;
+  count: number;
+  transactions: Transaction[];
 }
 
 // --- Receipt Types ---
@@ -1286,6 +1304,32 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({ min_confidence: minConfidence ?? 0.9 }),
     });
+  }
+
+  async markReconciled(businessId: string, data: ManualReconcileRequest): Promise<ManualReconcileResponse> {
+    return this.request<ManualReconcileResponse>(`/businesses/${businessId}/reconciliation/mark-reconciled`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async markUnreconciled(businessId: string, data: ManualReconcileRequest): Promise<ManualReconcileResponse> {
+    return this.request<ManualReconcileResponse>(`/businesses/${businessId}/reconciliation/mark-unreconciled`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getReconciledTransactions(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    const params = new URLSearchParams();
+    if (limit !== undefined) params.set("limit", String(limit));
+    if (offset !== undefined) params.set("offset", String(offset));
+    const qs = params.toString();
+    return this.request<Transaction[]>(`/businesses/${businessId}/reconciliation/reconciled${qs ? `?${qs}` : ""}`);
+  }
+
+  async findDuplicates(businessId: string): Promise<DuplicateGroup[]> {
+    return this.request<DuplicateGroup[]>(`/businesses/${businessId}/transactions/duplicates`);
   }
 }
 
