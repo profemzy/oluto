@@ -249,7 +249,7 @@ export function BillReceiptSection({
           ref={fileInputRef}
           type="file"
           multiple
-          accept={RECEIPT_ALLOWED_EXTENSIONS.join(",")}
+          accept={RECEIPT_ALLOWED_EXTENSIONS}
           onChange={handleFileInput}
           className="hidden"
         />
