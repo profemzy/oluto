@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
+import { ThemeLogo } from "../../components";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex flex-col justify-center bg-gradient-to-b from-surface-secondary to-surface py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center">
-          <Image src="/logo.png" alt="Oluto" width={160} height={48} className="h-10 w-auto" />
+          <ThemeLogo className="h-10 w-auto" />
         </Link>
         <h2 className="mt-6 text-center text-2xl font-bold text-heading">
           Reset your password
