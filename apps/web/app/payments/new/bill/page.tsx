@@ -70,7 +70,7 @@ function NewBillPaymentForm() {
 
   // Load outstanding bills when vendor changes
   useEffect(() => {
-    if (!vendorId) {
+    if (!vendorId || !user?.business_id) {
       setBillApps([]);
       return;
     }
@@ -79,7 +79,7 @@ function NewBillPaymentForm() {
       try {
         const bills = await api.getVendorBills(user.business_id!, vendorId);
         const outstanding = bills.filter(
-          (b) => b.status !== "paid" && b.status !== "void" && parseFloat(b.balance) > 0
+          (b) => b.status !== "void" && parseFloat(b.balance) > 0
         );
         setBillApps(
           outstanding.map((b) => ({
@@ -95,7 +95,7 @@ function NewBillPaymentForm() {
       }
     };
     loadBills();
-  }, [vendorId, preBillId]);
+  }, [vendorId, preBillId, user?.business_id]);
 
   const autoDistribute = () => {
     let remaining = parseFloat(amount) || 0;
