@@ -648,6 +648,38 @@ export interface AutoReconcileResponse {
   matched_count: number;
 }
 
+// --- Receipt Types ---
+
+export interface ReceiptOcrData {
+  vendor?: string;
+  amount?: string;
+  date?: string;
+  tax_amounts?: { gst?: string; pst?: string };
+  raw_text?: string;
+}
+
+export interface ReceiptResponse {
+  id: string;
+  transaction_id: string;
+  business_id: string;
+  original_filename: string;
+  content_type: string;
+  file_size: number;
+  ocr_status: "none" | "pending" | "completed" | "failed";
+  ocr_data: ReceiptOcrData | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ReceiptUploadResponse {
+  receipt: ReceiptResponse;
+  ocr_data: ReceiptOcrData | null;
+}
+
+export interface ReceiptDownloadResponse {
+  download_url: string;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -1127,6 +1159,62 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify(data),
     });
+  }
+
+  // --- Receipt endpoints ---
+
+  async uploadReceipt(
+    businessId: string,
+    transactionId: string,
+    file: File,
+    runOcr: boolean = false
+  ): Promise<ReceiptUploadResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (runOcr) {
+      formData.append("run_ocr", "true");
+    }
+    return this.uploadRequest<ReceiptUploadResponse>(
+      `/businesses/${businessId}/transactions/${transactionId}/receipts`,
+      formData
+    );
+  }
+
+  async listReceipts(
+    businessId: string,
+    transactionId: string
+  ): Promise<ReceiptResponse[]> {
+    return this.request<ReceiptResponse[]>(
+      `/businesses/${businessId}/transactions/${transactionId}/receipts`
+    );
+  }
+
+  async getReceipt(
+    businessId: string,
+    receiptId: string
+  ): Promise<ReceiptResponse> {
+    return this.request<ReceiptResponse>(
+      `/businesses/${businessId}/receipts/${receiptId}`
+    );
+  }
+
+  async deleteReceipt(
+    businessId: string,
+    receiptId: string
+  ): Promise<void> {
+    await this.request<Record<string, never>>(
+      `/businesses/${businessId}/receipts/${receiptId}`,
+      { method: "DELETE" }
+    );
+  }
+
+  async getReceiptDownloadUrl(
+    businessId: string,
+    receiptId: string
+  ): Promise<ReceiptDownloadResponse> {
+    return this.request<ReceiptDownloadResponse>(
+      `/businesses/${businessId}/receipts/${receiptId}/download`
+    );
   }
 
   // --- Report endpoints ---

@@ -6,3 +6,5 @@ export { PageHeader } from "./ui/PageHeader";
 export { Toast } from "./ui/Toast";
 export { ListPageLayout } from "./ui/ListPageLayout";
 export { ErrorBoundary } from "./ui/ErrorBoundary";
+export { ReceiptUploadSection } from "./ui/ReceiptUploadSection";
+export type { PendingReceiptFile, OcrSuggestion } from "./ui/ReceiptUploadSection";

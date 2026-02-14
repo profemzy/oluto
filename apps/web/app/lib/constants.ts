@@ -46,3 +46,16 @@ export const CLASSIFICATION_OPTIONS = {
     { value: "personal", label: "Personal", description: "Non-business — excluded from calculations" },
   ],
 } as const;
+
+/**
+ * Receipt upload constraints — shared between validation and UI hints.
+ */
+export const RECEIPT_ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+] as const;
+
+export const RECEIPT_ALLOWED_EXTENSIONS = ".jpg,.jpeg,.png,.pdf";
+
+export const RECEIPT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB

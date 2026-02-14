@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { PageLoader, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
+import type { PendingReceiptFile, OcrSuggestion } from "@/app/components";
 import { CRA_CATEGORIES } from "@/app/lib/constants";
 
 export default function NewTransactionPage() {
@@ -98,6 +99,22 @@ export default function NewTransactionPage() {
     return () => clearTimeout(timer);
   }, [vendorName, txnType, user?.business_id, description]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Receipt upload state (pending mode — files collected before txn exists)
+  const [pendingReceipts, setPendingReceipts] = useState<PendingReceiptFile[]>([]);
+
+  const handleOcrSuggestion = useCallback((suggestion: OcrSuggestion) => {
+    if (suggestion.vendor && !vendorName) setVendorName(suggestion.vendor);
+    if (suggestion.amount && !amount) setAmount(suggestion.amount);
+    if (suggestion.date && !transactionDate) setTransactionDate(suggestion.date);
+    if (suggestion.gstAmount || suggestion.pstAmount) {
+      if (!gstAmount && !pstAmount) {
+        setTaxTreatment("custom");
+        if (suggestion.gstAmount) setGstAmount(suggestion.gstAmount);
+        if (suggestion.pstAmount) setPstAmount(suggestion.pstAmount);
+      }
+    }
+  }, [vendorName, amount, transactionDate, gstAmount, pstAmount]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -126,7 +143,7 @@ export default function NewTransactionPage() {
         // "standard" → omit both, backend auto-calculates
       }
 
-      await api.createTransaction(user.business_id, {
+      const txn = await api.createTransaction(user.business_id, {
         vendor_name: vendorName,
         amount: signedAmount,
         transaction_date: transactionDate,
@@ -138,6 +155,16 @@ export default function NewTransactionPage() {
         gst_amount: gstOverride,
         pst_amount: pstOverride,
       });
+
+      // Upload pending receipts (non-blocking — failures don't prevent navigation)
+      if (pendingReceipts.length > 0) {
+        await Promise.allSettled(
+          pendingReceipts.map((pr) =>
+            api.uploadReceipt(user.business_id!, txn.id, pr.file, pr.runOcr)
+          )
+        );
+      }
+
       router.push("/transactions");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create transaction");
@@ -306,6 +333,16 @@ export default function NewTransactionPage() {
                 />
               </div>
             </div>
+
+            {txnType === "expense" && user?.business_id && (
+              <ReceiptUploadSection
+                businessId={user.business_id}
+                transactionId={null}
+                onPendingFilesChange={setPendingReceipts}
+                onOcrResult={handleOcrSuggestion}
+                defaultRunOcr={true}
+              />
+            )}
 
             {txnType === "expense" && (
             <div>
