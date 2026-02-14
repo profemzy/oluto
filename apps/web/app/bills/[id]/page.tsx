@@ -8,19 +8,17 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection } from "@/app/components";
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-blue-50 text-blue-700 ring-blue-200",
-  partial: "bg-amber-50 text-amber-700 ring-amber-200",
-  paid: "bg-green-50 text-green-700 ring-green-200",
-  void: "bg-slate-100 text-slate-500 ring-slate-300",
+  open: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 ring-blue-200 dark:ring-blue-800",
+  partial: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 ring-amber-200 dark:ring-amber-800",
+  paid: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 ring-green-200 dark:ring-green-800",
+  void: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 ring-slate-300 dark:ring-slate-600",
 };
 
 const STATUS_ACTIONS: Record<string, { label: string; status: string; color: string }[]> = {
   open: [
-    { label: "Mark Paid", status: "paid", color: "from-green-500 to-green-600" },
     { label: "Void", status: "void", color: "from-slate-400 to-slate-500" },
   ],
   partial: [
-    { label: "Mark Paid", status: "paid", color: "from-green-500 to-green-600" },
     { label: "Void", status: "void", color: "from-slate-400 to-slate-500" },
   ],
 };
@@ -151,7 +149,7 @@ export default function BillDetailPage({
                   {action.label}
                 </button>
               ))}
-              {bill.status !== "paid" && bill.status !== "void" && (
+              {bill.status !== "void" && parseFloat(bill.balance) > 0 && (
                 <Link
                   href={`/payments/new/bill?billId=${billId}&vendorId=${bill.vendor_id}`}
                   className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
