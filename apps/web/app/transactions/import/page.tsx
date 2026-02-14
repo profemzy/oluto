@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   api,
   ParsedTransaction,
@@ -18,6 +19,7 @@ type ImportStep = "upload" | "processing" | "preview" | "success";
 
 export default function ImportTransactionsPage() {
   const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<ImportStep>("upload");
   const [error, setError] = useState("");
   const [parseResult, setParseResult] = useState<ImportParseResponse | null>(
@@ -243,6 +245,8 @@ export default function ImportTransactionsPage() {
       setImportedCount(result.imported_count);
       setSkippedDuplicates(result.skipped_duplicates);
       setBatchId(result.batch_id);
+      // Invalidate transactions cache so the list shows new drafts immediately
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       setStep("success");
     } catch (err) {
       setError(
@@ -264,6 +268,8 @@ export default function ImportTransactionsPage() {
         batch_id: batchId,
         status: "posted",
       });
+      // Invalidate transactions cache so the list reflects posted status
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
       setPosted(true);
     } catch (err) {
       setError(
