@@ -795,3 +795,11 @@ body {
   background-size: cover;
   background-position: center bottom;
 }
+
+/* Dark mode: tell browser to render native form controls in dark scheme */
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark select {
+  color-scheme: dark;
+}
