@@ -205,8 +205,20 @@ stages:
     variables:
       imageTag: ${{ coalesce(variables['resources.pipeline.app-ci.runName'], parameters.imageTag) }}
     jobs:
+      - job: Approve_PROD
+        displayName: "Approve PROD Deployment"
+        pool: server
+        steps:
+          - task: ManualValidation@1
+            displayName: "Approve deployment to PROD"
+            timeoutInMinutes: 1440
+            inputs:
+              notifyUsers: ""
+              instructions: "DEV deployment succeeded. Please review DEV at https://dev.oluto.app and approve PROD deployment to https://oluto.app."
+
       - deployment: Deploy_AKS_PROD
         displayName: "Deploy to PROD AKS"
+        dependsOn: Approve_PROD
         pool:
           vmImage: "ubuntu-24.04"
         environment: "prod"
