@@ -22,7 +22,7 @@ export function Footer({
         <div className="flex flex-col items-center text-center">
           {/* Logo with hover effect */}
           <Link href="/" className="inline-block group">
-            <ThemeLogo width={160} height={48} className="h-10 w-auto group-hover:scale-105 transition-transform duration-300" />
+            <ThemeLogo className="h-10 w-auto group-hover:scale-105 transition-transform duration-300" />
           </Link>
           
           {/* Tagline with animated highlight */}

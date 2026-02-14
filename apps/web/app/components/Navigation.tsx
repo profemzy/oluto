@@ -247,7 +247,7 @@ export function Navigation() {
             href={isAuthenticated && isAppPage ? "/dashboard" : "/"}
             className="flex items-center group"
           >
-            <ThemeLogo priority />
+            <ThemeLogo />
           </Link>
 
           {/* Desktop Navigation */}
