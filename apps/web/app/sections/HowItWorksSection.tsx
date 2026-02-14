@@ -43,7 +43,7 @@ export function HowItWorksSection({
   steps = defaultSteps,
 }: HowItWorksSectionProps) {
   return (
-    <section id="how-it-works" className="relative py-24 sm:py-32 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
+    <section id="how-it-works" className="relative py-24 sm:py-32 bg-gradient-to-b from-surface-secondary to-surface overflow-hidden">
       {/* Decorative floating orbs */}
       <div className="absolute top-32 left-[3%] w-56 h-56 bg-cyan-100 rounded-full opacity-40 blur-3xl animate-float" />
       <div className="absolute bottom-32 right-[3%] w-64 h-64 bg-teal-100 rounded-full opacity-35 blur-3xl animate-float-slow" />
@@ -58,10 +58,10 @@ export function HowItWorksSection({
           <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
             {title}
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
             {subtitle}
           </h2>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-body">
             {description}
           </p>
         </div>
@@ -79,7 +79,7 @@ export function HowItWorksSection({
                 style={{ animationDelay: `${i * 0.15}s` }}
               >
                 {/* Background number watermark */}
-                <span className="absolute top-4 right-4 text-6xl font-black text-gray-100 select-none leading-none group-hover:text-cyan-50 transition-colors">
+                <span className="absolute top-4 right-4 text-6xl font-black text-gray-100 dark:text-slate-800 select-none leading-none group-hover:text-cyan-50 transition-colors">
                   {step.number}
                 </span>
                 
@@ -92,10 +92,10 @@ export function HowItWorksSection({
                   {/* Connector dot (visible on lg screens) */}
                   <div className="hidden lg:block absolute top-6 left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ top: '-2.5rem' }} />
                   
-                  <h3 className="mt-5 text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">
+                  <h3 className="mt-5 text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">
                     {step.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-6 text-gray-600">
+                  <p className="mt-3 text-sm leading-6 text-body">
                     {step.description}
                   </p>
                 </div>

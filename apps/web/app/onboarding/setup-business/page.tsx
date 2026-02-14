@@ -57,9 +57,9 @@ export default function SetupBusinessPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 rounded-full opacity-20 blur-3xl animate-float" />
-      
+      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
+      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float" />
+
       {/* Bouncing decorative dots */}
       <div className="absolute top-32 right-[25%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
       <div className="absolute bottom-32 left-[20%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.5s' }} />
@@ -76,27 +76,27 @@ export default function SetupBusinessPage() {
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center text-white text-sm font-bold">
             2
           </div>
-          <div className="w-12 h-1 rounded-full bg-gray-200" />
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-bold">
+          <div className="w-12 h-1 rounded-full bg-surface-tertiary" />
+          <div className="w-8 h-8 rounded-full bg-surface-tertiary flex items-center justify-center text-muted text-sm font-bold">
             3
           </div>
         </div>
 
-        <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-gray-900">
+        <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-heading">
           Set up your business
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-body">
           Tell us about your business so we can configure tax calculations and reporting.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-gray-100 sm:px-10">
+        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="name" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="name" className="block text-sm font-bold leading-6 text-heading">
                 Business name
               </label>
               <div className="mt-2">
@@ -108,13 +108,13 @@ export default function SetupBusinessPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Maple Leaf Consulting"
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="province" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="province" className="block text-sm font-bold leading-6 text-heading">
                 Province / Territory
               </label>
               <div className="mt-2">
@@ -123,7 +123,7 @@ export default function SetupBusinessPage() {
                   name="province"
                   value={province}
                   onChange={(e) => setProvince(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 bg-white"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 bg-surface"
                 >
                   <option value="">Select province...</option>
                   {PROVINCES.map((p) => (
@@ -133,15 +133,15 @@ export default function SetupBusinessPage() {
                   ))}
                 </select>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted">
                 Used for GST/HST/PST tax calculations
               </p>
             </div>
 
             <div>
-              <label htmlFor="taxProfile" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="taxProfile" className="block text-sm font-bold leading-6 text-heading">
                 GST/HST Registration Number
-                <span className="text-gray-400 font-normal"> (optional)</span>
+                <span className="text-caption font-normal"> (optional)</span>
               </label>
               <div className="mt-2">
                 <input
@@ -151,7 +151,7 @@ export default function SetupBusinessPage() {
                   value={taxProfile}
                   onChange={(e) => setTaxProfile(e.target.value)}
                   placeholder="e.g. 123456789 RT0001"
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                 />
               </div>
             </div>

@@ -158,7 +158,7 @@ function TransactionsContent() {
         <select
           value={statusFilter}
           onChange={(e) => handleFilterChange(e.target.value)}
-          className="rounded-xl border-0 py-2.5 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-white hover:ring-gray-400 transition-all"
+          className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-surface hover:ring-gray-400 transition-all"
         >
           {TRANSACTION_STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -201,7 +201,7 @@ function TransactionsContent() {
           )}
           <Link
             href="/transactions/import"
-            className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
           >
             <svg
               className="w-4 h-4 group-hover:scale-110 transition-transform"
@@ -242,8 +242,8 @@ function TransactionsContent() {
 
       {/* Transaction List */}
       {transactions.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 flex items-center justify-center mb-4 group hover:scale-110 transition-transform">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
+          <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 dark:bg-cyan-950 flex items-center justify-center mb-4 group hover:scale-110 transition-transform">
             <svg
               className="h-8 w-8 text-cyan-600"
               fill="none"
@@ -258,12 +258,12 @@ function TransactionsContent() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">
+          <h3 className="text-lg font-bold text-heading mb-2">
             {statusFilter
               ? "No transactions with this status"
               : "No transactions yet"}
           </h3>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-muted mb-6">
             {statusFilter
               ? "Try a different filter or add a new transaction."
               : "Start by adding your first transaction."}
@@ -276,9 +276,9 @@ function TransactionsContent() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
           {/* Table Header */}
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
             <div className="col-span-3">Vendor</div>
             <div className="col-span-2">Amount</div>
             <div className="col-span-2">Date</div>
@@ -288,7 +288,7 @@ function TransactionsContent() {
           </div>
 
           {/* Table Body */}
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {transactions.map((txn) => (
               <div
                 key={txn.id}
@@ -303,12 +303,12 @@ function TransactionsContent() {
                         </svg>
                       </span>
                     )}
-                    <p className="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors truncate">
+                    <p className="text-sm font-bold text-heading group-hover:text-cyan-700 transition-colors truncate">
                       {txn.vendor_name}
                     </p>
                   </div>
                   {txn.description && (
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-muted truncate">
                       {txn.description}
                     </p>
                   )}
@@ -321,7 +321,7 @@ function TransactionsContent() {
                   </p>
                   {(parseFloat(txn.gst_amount) > 0 ||
                     parseFloat(txn.pst_amount) > 0) && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-caption">
                       Tax:{" "}
                       {formatCurrency(
                         String(
@@ -333,12 +333,12 @@ function TransactionsContent() {
                   )}
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {formatDate(txn.transaction_date)}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {txn.category || "Uncategorized"}
                   </p>
                 </div>
@@ -350,7 +350,7 @@ function TransactionsContent() {
                         handleStatusUpdate(txn.id, e.target.value)
                       }
                       disabled={updateStatusMutation.isPending}
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${TRANSACTION_STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"} ${updateStatusMutation.isPending ? "opacity-50" : "hover:shadow-md"}`}
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"} ${updateStatusMutation.isPending ? "opacity-50" : "hover:shadow-md"}`}
                     >
                       <option value={txn.status}>
                         {TRANSACTION_STATUS_OPTIONS.find(
@@ -367,7 +367,7 @@ function TransactionsContent() {
                     </select>
                   ) : (
                     <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${TRANSACTION_STATUS_COLORS[txn.status] || "bg-gray-100 text-gray-700"}`}
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"}`}
                     >
                       {TRANSACTION_STATUS_OPTIONS.find(
                         (o) => o.value === txn.status,
@@ -378,7 +378,7 @@ function TransactionsContent() {
                 <div className="col-span-1 flex justify-end gap-1">
                   <Link
                     href={`/transactions/${txn.id}/edit`}
-                    className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200"
+                    className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all duration-200"
                     title="Edit transaction"
                   >
                     <svg
@@ -398,7 +398,7 @@ function TransactionsContent() {
                   {parseFloat(txn.amount) < 0 && (
                     <Link
                       href={`/transactions/${txn.id}/edit#receipts`}
-                      className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200"
+                      className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all duration-200"
                       title="Attach receipt"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,7 +408,7 @@ function TransactionsContent() {
                   )}
                   <button
                     onClick={() => handleDelete(txn.id)}
-                    className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                    className="p-2 rounded-lg text-caption hover:text-red-500 hover:bg-red-50 transition-all duration-200"
                     title="Delete transaction"
                   >
                     <svg

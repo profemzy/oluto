@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ThemeLogo } from "./ThemeLogo";
 
 interface FooterProps {
   companyName?: string;
@@ -13,41 +13,35 @@ export function Footer({
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-gray-200 bg-gradient-to-b from-white to-gray-50/50 overflow-hidden">
+    <footer className="relative border-t border-edge bg-gradient-to-b from-surface to-surface-secondary/50 overflow-hidden">
       {/* Decorative elements */}
-      <div className="absolute top-0 left-[10%] w-32 h-32 bg-cyan-100 rounded-full opacity-30 blur-3xl" />
-      <div className="absolute bottom-0 right-[10%] w-40 h-40 bg-green-100 rounded-full opacity-30 blur-3xl" />
+      <div className="absolute top-0 left-[10%] w-32 h-32 bg-cyan-100 dark:bg-cyan-900 rounded-full opacity-30 blur-3xl" />
+      <div className="absolute bottom-0 right-[10%] w-40 h-40 bg-green-100 dark:bg-green-900 rounded-full opacity-30 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
         <div className="flex flex-col items-center text-center">
           {/* Logo with hover effect */}
           <Link href="/" className="inline-block group">
-            <Image
-              src="/logo.png"
-              alt="Oluto"
-              width={160}
-              height={48}
-              className="h-10 w-auto group-hover:scale-105 transition-transform duration-300"
-            />
+            <ThemeLogo width={160} height={48} className="h-10 w-auto group-hover:scale-105 transition-transform duration-300" />
           </Link>
           
           {/* Tagline with animated highlight */}
-          <p className="mt-4 text-sm leading-6 text-gray-500 max-w-md">
+          <p className="mt-4 text-sm leading-6 text-muted max-w-md">
             {tagline}
           </p>
 
           {/* Quick Links */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm">
-            <Link href="#features" className="text-gray-500 hover:text-cyan-600 transition-colors">
+            <Link href="#features" className="text-muted hover:text-cyan-600 transition-colors">
               Features
             </Link>
-            <Link href="#how-it-works" className="text-gray-500 hover:text-cyan-600 transition-colors">
+            <Link href="#how-it-works" className="text-muted hover:text-cyan-600 transition-colors">
               How it Works
             </Link>
-            <Link href="/auth/login" className="text-gray-500 hover:text-cyan-600 transition-colors">
+            <Link href="/auth/login" className="text-muted hover:text-cyan-600 transition-colors">
               Sign In
             </Link>
-            <Link href="/auth/register" className="text-gray-500 hover:text-cyan-600 transition-colors">
+            <Link href="/auth/register" className="text-muted hover:text-cyan-600 transition-colors">
               Get Started
             </Link>
           </div>
@@ -56,7 +50,7 @@ export function Footer({
           <div className="mt-6 flex items-center gap-4">
             <a 
               href="#" 
-              className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-cyan-100 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
+              className="p-2 rounded-full bg-surface-tertiary text-muted hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
               aria-label="Twitter"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -65,7 +59,7 @@ export function Footer({
             </a>
             <a 
               href="#" 
-              className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-cyan-100 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
+              className="p-2 rounded-full bg-surface-tertiary text-muted hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
               aria-label="LinkedIn"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -74,7 +68,7 @@ export function Footer({
             </a>
             <a 
               href="#" 
-              className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-cyan-100 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
+              className="p-2 rounded-full bg-surface-tertiary text-muted hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:text-cyan-600 transition-all duration-300 hover:scale-110"
               aria-label="GitHub"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -85,15 +79,15 @@ export function Footer({
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-400" suppressHydrationWarning>
+        <div className="mt-8 pt-8 border-t border-edge flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-caption" suppressHydrationWarning>
             &copy; {currentYear} {companyName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-xs text-gray-400">
-            <Link href="/privacy" className="hover:text-gray-600 transition-colors">
+          <div className="flex items-center gap-4 text-xs text-caption">
+            <Link href="/privacy" className="hover:text-body transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-gray-600 transition-colors">
+            <Link href="/terms" className="hover:text-body transition-colors">
               Terms of Service
             </Link>
           </div>

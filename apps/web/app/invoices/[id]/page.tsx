@@ -88,9 +88,9 @@ export default function InvoiceDetailPage({
   if (authLoading || loading) return <PageLoader />;
   if (!invoice) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">
+          <h2 className="text-lg font-bold text-heading mb-2">
             Invoice not found
           </h2>
           <Link
@@ -107,7 +107,7 @@ export default function InvoiceDetailPage({
   const actions = STATUS_ACTIONS[invoice.status] || [];
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title={`Invoice ${invoice.invoice_number}`}
@@ -115,7 +115,7 @@ export default function InvoiceDetailPage({
         actions={
           <Link
             href="/invoices"
-            className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all"
+            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all"
           >
             <svg
               className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
@@ -138,11 +138,11 @@ export default function InvoiceDetailPage({
         <ErrorAlert error={error} className="mb-2" />
 
         {/* Invoice Header Card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-heading">
                   {invoice.invoice_number}
                 </h2>
                 <span
@@ -152,7 +152,7 @@ export default function InvoiceDetailPage({
                 </span>
               </div>
               {customerName && (
-                <p className="text-sm text-gray-600">{customerName}</p>
+                <p className="text-sm text-body">{customerName}</p>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -192,33 +192,33 @@ export default function InvoiceDetailPage({
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">
+              <p className="text-xs font-bold text-muted uppercase">
                 Invoice Date
               </p>
-              <p className="text-sm font-medium text-gray-900 mt-1">
+              <p className="text-sm font-medium text-heading mt-1">
                 {formatDate(invoice.invoice_date)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">
+              <p className="text-xs font-bold text-muted uppercase">
                 Due Date
               </p>
-              <p className="text-sm font-medium text-gray-900 mt-1">
+              <p className="text-sm font-medium text-heading mt-1">
                 {formatDate(invoice.due_date)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">Total</p>
-              <p className="text-sm font-bold text-gray-900 mt-1">
+              <p className="text-xs font-bold text-muted uppercase">Total</p>
+              <p className="text-sm font-bold text-heading mt-1">
                 {formatCurrency(invoice.total_amount)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">
+              <p className="text-xs font-bold text-muted uppercase">
                 Balance Due
               </p>
               <p
-                className={`text-sm font-bold mt-1 ${parseFloat(invoice.balance) > 0 ? "text-amber-600" : "text-green-600"}`}
+                className={`text-sm font-bold mt-1 ${parseFloat(invoice.balance) > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}
               >
                 {formatCurrency(invoice.balance)}
               </p>
@@ -228,33 +228,33 @@ export default function InvoiceDetailPage({
           {(invoice.customer_memo ||
             invoice.billing_address ||
             invoice.shipping_address) && (
-            <div className="mt-6 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="mt-6 pt-6 border-t border-edge-subtle grid grid-cols-1 sm:grid-cols-3 gap-4">
               {invoice.billing_address && (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase">
+                  <p className="text-xs font-bold text-muted uppercase">
                     Billing Address
                   </p>
-                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
+                  <p className="text-sm text-body mt-1 whitespace-pre-line">
                     {invoice.billing_address}
                   </p>
                 </div>
               )}
               {invoice.shipping_address && (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase">
+                  <p className="text-xs font-bold text-muted uppercase">
                     Shipping Address
                   </p>
-                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
+                  <p className="text-sm text-body mt-1 whitespace-pre-line">
                     {invoice.shipping_address}
                   </p>
                 </div>
               )}
               {invoice.customer_memo && (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase">
+                  <p className="text-xs font-bold text-muted uppercase">
                     Memo
                   </p>
-                  <p className="text-sm text-gray-700 mt-1">
+                  <p className="text-sm text-body mt-1">
                     {invoice.customer_memo}
                   </p>
                 </div>
@@ -264,11 +264,11 @@ export default function InvoiceDetailPage({
         </div>
 
         {/* Line Items */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Line Items</h3>
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-edge-subtle">
+            <h3 className="text-sm font-bold text-heading">Line Items</h3>
           </div>
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
             <div className="col-span-1">#</div>
             <div className="col-span-4">Description</div>
             <div className="col-span-1 text-right">Qty</div>
@@ -276,39 +276,39 @@ export default function InvoiceDetailPage({
             <div className="col-span-1 text-right">Disc %</div>
             <div className="col-span-3 text-right">Amount</div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {invoice.line_items.map((item) => (
               <div
                 key={item.id}
                 className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-3 items-center"
               >
-                <div className="col-span-1 text-sm text-gray-500">
+                <div className="col-span-1 text-sm text-muted">
                   {item.line_number}
                 </div>
-                <div className="col-span-4 text-sm text-gray-900 font-medium">
+                <div className="col-span-4 text-sm text-heading font-medium">
                   {item.item_description}
                 </div>
-                <div className="col-span-1 text-sm text-gray-600 text-right">
+                <div className="col-span-1 text-sm text-body text-right">
                   {item.quantity}
                 </div>
-                <div className="col-span-2 text-sm text-gray-600 text-right">
+                <div className="col-span-2 text-sm text-body text-right">
                   {formatCurrency(item.unit_price)}
                 </div>
-                <div className="col-span-1 text-sm text-gray-600 text-right">
+                <div className="col-span-1 text-sm text-body text-right">
                   {item.discount_percent &&
                   parseFloat(item.discount_percent) > 0
                     ? `${item.discount_percent}%`
                     : "\u2014"}
                 </div>
-                <div className="col-span-3 text-sm font-bold text-gray-900 text-right">
+                <div className="col-span-3 text-sm font-bold text-heading text-right">
                   {formatCurrency(item.amount)}
                 </div>
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+          <div className="px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t border-edge">
             <div className="flex justify-end">
-              <div className="text-sm font-bold text-gray-900">
+              <div className="text-sm font-bold text-heading">
                 Total: {formatCurrency(invoice.total_amount)}
               </div>
             </div>
@@ -316,36 +316,36 @@ export default function InvoiceDetailPage({
         </div>
 
         {/* Payment History */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Payment History</h3>
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-edge-subtle">
+            <h3 className="text-sm font-bold text-heading">Payment History</h3>
           </div>
           {payments.length === 0 ? (
             <div className="px-6 py-8 text-center">
-              <p className="text-sm text-gray-500">No payments recorded yet.</p>
+              <p className="text-sm text-muted">No payments recorded yet.</p>
             </div>
           ) : (
             <>
-              <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
                 <div className="col-span-3">Payment #</div>
                 <div className="col-span-2">Date</div>
                 <div className="col-span-2">Method</div>
                 <div className="col-span-3 text-right">Amount</div>
                 <div className="col-span-2"></div>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-edge-subtle">
                 {payments.map((pmt) => (
                   <div
                     key={pmt.id}
                     className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-3 items-center"
                   >
-                    <div className="col-span-3 text-sm font-medium text-gray-900">
+                    <div className="col-span-3 text-sm font-medium text-heading">
                       {pmt.payment_number || "\u2014"}
                     </div>
-                    <div className="col-span-2 text-sm text-gray-600">
+                    <div className="col-span-2 text-sm text-body">
                       {formatDate(pmt.payment_date)}
                     </div>
-                    <div className="col-span-2 text-sm text-gray-600 capitalize">
+                    <div className="col-span-2 text-sm text-body capitalize">
                       {pmt.payment_method}
                     </div>
                     <div className="col-span-3 text-sm font-bold text-green-600 text-right">

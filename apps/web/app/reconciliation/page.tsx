@@ -16,9 +16,9 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import Link from "next/link";
 
 const CONFIDENCE_COLORS: Record<string, string> = {
-  high: "bg-emerald-100 text-emerald-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-red-100 text-red-700",
+  high: "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300",
+  medium: "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300",
+  low: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
 };
 
 function confidenceLevel(confidence: string): "high" | "medium" | "low" {
@@ -146,11 +146,11 @@ export default function ReconciliationPage() {
     mutationFn: async (ids: string[]) => {
       // Show confirmation dialog with warning
       const confirmed = window.confirm(
-        `⚠️ Manual Reconciliation Warning\n\n` +
+        `\u26A0\uFE0F Manual Reconciliation Warning\n\n` +
         `You are about to mark ${ids.length} transaction${ids.length === 1 ? "" : "s"} as reconciled without matching them to payments.\n\n` +
         `This should only be done if:\n` +
-        `• You've verified the transaction in your bank statement\n` +
-        `• The transaction doesn't require payment matching (e.g., transfers, adjustments)\n\n` +
+        `\u2022 You've verified the transaction in your bank statement\n` +
+        `\u2022 The transaction doesn't require payment matching (e.g., transfers, adjustments)\n\n` +
         `For expenses and income, it's better to use "Find Matches" to link them to actual payments.\n\n` +
         `Continue with manual reconciliation?`
       );
@@ -246,26 +246,26 @@ export default function ReconciliationPage() {
     >
       {/* Duplicate Alert Banner */}
       {duplicates.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
+                <svg className="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-amber-800">
-                  ⚠️ {duplicates.length} potential duplicate group{duplicates.length === 1 ? "" : "s"} found
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-200">
+                  {duplicates.length} potential duplicate group{duplicates.length === 1 ? "" : "s"} found
                 </p>
-                <p className="text-xs text-amber-600">
+                <p className="text-xs text-amber-600 dark:text-amber-400">
                   Same date, amount, and vendor — keep one and delete the rest to avoid double-counting
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowDuplicates(!showDuplicates)}
-              className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-700 hover:bg-amber-200 transition-colors"
+              className="rounded-lg bg-amber-100 dark:bg-amber-900 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-800 transition-colors"
             >
               {showDuplicates ? "Hide" : "Review & Delete"}
             </button>
@@ -274,22 +274,22 @@ export default function ReconciliationPage() {
           {showDuplicates && (
             <div className="mt-4 space-y-3">
               {duplicates.map((group, gi) => (
-                <div key={gi} className="rounded-xl bg-white border border-amber-100 p-4">
+                <div key={gi} className="rounded-xl bg-surface border border-amber-100 dark:border-amber-900 p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm font-bold text-gray-900">{group.vendor_name}</span>
-                    <span className="text-xs text-gray-500">{formatDate(group.transaction_date)}</span>
-                    <span className="text-xs font-bold text-amber-600">{formatCurrency(group.amount)}</span>
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                    <span className="text-sm font-bold text-heading">{group.vendor_name}</span>
+                    <span className="text-xs text-muted">{formatDate(group.transaction_date)}</span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{formatCurrency(group.amount)}</span>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
                       {group.count} entries
                     </span>
                   </div>
                   <div className="space-y-2">
                     {group.transactions.map((txn) => (
-                      <div key={txn.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                      <div key={txn.id} className="flex items-center justify-between rounded-lg bg-surface-secondary px-3 py-2">
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500">{txn.id.slice(0, 8)}</span>
-                          <span className="text-xs text-gray-600">{txn.import_source ? `Imported (${txn.import_source})` : "Manual"}</span>
-                          <span className="text-xs text-gray-400">{txn.created_at ? formatDate(txn.created_at) : ""}</span>
+                          <span className="text-xs text-muted">{txn.id.slice(0, 8)}</span>
+                          <span className="text-xs text-body">{txn.import_source ? `Imported (${txn.import_source})` : "Manual"}</span>
+                          <span className="text-xs text-caption">{txn.created_at ? formatDate(txn.created_at) : ""}</span>
                         </div>
                         <button
                           onClick={() => {
@@ -297,7 +297,7 @@ export default function ReconciliationPage() {
                               deleteTransactionMutation.mutate(txn.id);
                           }}
                           disabled={deleteTransactionMutation.isPending}
-                          className="rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+                          className="rounded-lg bg-red-50 dark:bg-red-950 px-2.5 py-1 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition-colors disabled:opacity-50"
                         >
                           Delete
                         </button>
@@ -323,10 +323,10 @@ export default function ReconciliationPage() {
 
       {/* Find Matches Button + Suggested Matches Header */}
       <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">
+        <h2 className="text-lg font-bold text-heading">
           Suggested Matches
           {suggestions.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-gray-500">
+            <span className="ml-2 text-sm font-normal text-muted">
               ({suggestions.length})
             </span>
           )}
@@ -354,14 +354,14 @@ export default function ReconciliationPage() {
 
       {/* Suggestions List */}
       {suggestions.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center mb-8">
-          <div className="mx-auto h-16 w-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center mb-8">
+          <div className="mx-auto h-16 w-16 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center mb-4">
             <svg className="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">No Suggestions</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-lg font-bold text-heading mb-2">No Suggestions</h3>
+          <p className="text-sm text-muted">
             Click &quot;Find Matches&quot; to scan for payment matches, or manually reconcile transactions below.
           </p>
         </div>
@@ -372,42 +372,42 @@ export default function ReconciliationPage() {
             const isProcessing = confirmMutation.isPending || rejectMutation.isPending;
 
             return (
-              <div key={suggestion.suggestion_id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div key={suggestion.suggestion_id} className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                   {/* Left: Bank Transaction */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Bank Transaction</div>
-                    <p className="text-sm font-bold text-gray-900 truncate">{suggestion.transaction.vendor_name}</p>
+                    <div className="text-xs font-bold text-caption uppercase tracking-wider mb-1">Bank Transaction</div>
+                    <p className="text-sm font-bold text-heading truncate">{suggestion.transaction.vendor_name}</p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className={`text-sm font-bold ${parseFloat(suggestion.transaction.amount) < 0 ? "text-red-600" : "text-emerald-600"}`}>
                         {formatCurrency(suggestion.transaction.amount)}
                       </span>
-                      <span className="text-xs text-gray-400">{formatDate(suggestion.transaction.transaction_date)}</span>
+                      <span className="text-xs text-caption">{formatDate(suggestion.transaction.transaction_date)}</span>
                     </div>
                   </div>
 
                   {/* Center: Match Arrow + Confidence */}
                   <div className="flex items-center gap-3 lg:flex-col lg:items-center">
-                    <svg className="w-6 h-6 text-gray-300 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-caption hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${CONFIDENCE_COLORS[level]}`}>
                       {(parseFloat(suggestion.confidence) * 100).toFixed(0)}%
                     </span>
-                    <p className="text-xs text-gray-400 text-center max-w-[200px] hidden lg:block">{suggestion.match_reason}</p>
+                    <p className="text-xs text-caption text-center max-w-[200px] hidden lg:block">{suggestion.match_reason}</p>
                   </div>
 
                   {/* Right: Matched Payment */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    <div className="text-xs font-bold text-caption uppercase tracking-wider mb-1">
                       {suggestion.suggested_match.match_type === "payment" ? "Customer Payment" : "Bill Payment"}
                     </div>
-                    <p className="text-sm font-bold text-gray-900 truncate">{suggestion.suggested_match.counterparty}</p>
+                    <p className="text-sm font-bold text-heading truncate">{suggestion.suggested_match.counterparty}</p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm font-bold text-emerald-600">{formatCurrency(suggestion.suggested_match.amount)}</span>
-                      <span className="text-xs text-gray-400">{formatDate(suggestion.suggested_match.date)}</span>
+                      <span className="text-xs text-caption">{formatDate(suggestion.suggested_match.date)}</span>
                       {suggestion.suggested_match.reference && (
-                        <span className="text-xs text-gray-400">#{suggestion.suggested_match.reference}</span>
+                        <span className="text-xs text-caption">#{suggestion.suggested_match.reference}</span>
                       )}
                     </div>
                   </div>
@@ -417,7 +417,7 @@ export default function ReconciliationPage() {
                     <button
                       onClick={() => confirmMutation.mutate(suggestion)}
                       disabled={isProcessing}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors disabled:opacity-50"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -427,7 +427,7 @@ export default function ReconciliationPage() {
                     <button
                       onClick={() => rejectMutation.mutate(suggestion)}
                       disabled={isProcessing}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 dark:bg-red-950 px-3 py-2 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 transition-colors disabled:opacity-50"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -436,7 +436,7 @@ export default function ReconciliationPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-2 lg:hidden">{suggestion.match_reason}</p>
+                <p className="text-xs text-caption mt-2 lg:hidden">{suggestion.match_reason}</p>
               </div>
             );
           })}
@@ -448,19 +448,19 @@ export default function ReconciliationPage() {
         <>
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-heading">
                 Unreconciled Transactions
-                <span className="ml-2 text-sm font-normal text-gray-500">({unreconciledOnly.length})</span>
+                <span className="ml-2 text-sm font-normal text-muted">({unreconciledOnly.length})</span>
               </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                💡 Tip: Use &quot;Find Matches&quot; to auto-match transactions with payments, or manually reconcile if no payment matching is needed
+              <p className="text-xs text-muted mt-1">
+                Tip: Use &quot;Find Matches&quot; to auto-match transactions with payments, or manually reconcile if no payment matching is needed
               </p>
             </div>
             {selectedUnreconciled.size > 0 && (
               <button
                 onClick={() => markReconciledMutation.mutate(Array.from(selectedUnreconciled))}
                 disabled={markReconciledMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950 px-4 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors disabled:opacity-50"
                 title="Manually mark as reconciled (shows confirmation dialog)"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,14 +470,14 @@ export default function ReconciliationPage() {
               </button>
             )}
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
-            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden mb-8">
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
               <div className="col-span-1">
                 <input
                   type="checkbox"
                   checked={selectedUnreconciled.size === unreconciledOnly.length && unreconciledOnly.length > 0}
                   onChange={toggleSelectAll}
-                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-edge text-emerald-600 focus:ring-emerald-500"
                 />
               </div>
               <div className="col-span-3">Vendor</div>
@@ -486,24 +486,24 @@ export default function ReconciliationPage() {
               <div className="col-span-2">Category</div>
               <div className="col-span-2">Actions</div>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-edge-subtle">
               {unreconciledOnly.map((txn) => (
                 <div
                   key={txn.id}
-                  className={`grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors items-center ${selectedUnreconciled.has(txn.id) ? "bg-emerald-50/30" : ""}`}
+                  className={`grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-surface-hover/50 transition-colors items-center ${selectedUnreconciled.has(txn.id) ? "bg-emerald-50/30 dark:bg-emerald-950/30" : ""}`}
                 >
                   <div className="col-span-1">
                     <input
                       type="checkbox"
                       checked={selectedUnreconciled.has(txn.id)}
                       onChange={() => toggleSelect(txn.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      className="h-4 w-4 rounded border-edge text-emerald-600 focus:ring-emerald-500"
                     />
                   </div>
                   <div className="col-span-3">
-                    <p className="text-sm font-bold text-gray-900">{txn.vendor_name}</p>
+                    <p className="text-sm font-bold text-heading">{txn.vendor_name}</p>
                     {txn.description && (
-                      <p className="text-xs text-gray-500 truncate">{txn.description}</p>
+                      <p className="text-xs text-muted truncate">{txn.description}</p>
                     )}
                   </div>
                   <div className="col-span-2">
@@ -512,16 +512,16 @@ export default function ReconciliationPage() {
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-gray-600">{formatDate(txn.transaction_date)}</p>
+                    <p className="text-sm text-body">{formatDate(txn.transaction_date)}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-gray-600">{txn.category || "Uncategorized"}</p>
+                    <p className="text-sm text-body">{txn.category || "Uncategorized"}</p>
                   </div>
                   <div className="col-span-2 flex items-center gap-1">
                     <button
                       onClick={() => markReconciledMutation.mutate([txn.id])}
                       disabled={markReconciledMutation.isPending}
-                      className="rounded-lg p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                      className="rounded-lg p-1.5 text-caption hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors"
                       title="Mark reconciled"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -530,7 +530,7 @@ export default function ReconciliationPage() {
                     </button>
                     <Link
                       href={`/transactions/${txn.id}/edit#receipts`}
-                      className="rounded-lg p-1.5 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors"
+                      className="rounded-lg p-1.5 text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-colors"
                       title="Attach receipt"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -550,7 +550,7 @@ export default function ReconciliationPage() {
         <div className="mb-8">
           <button
             onClick={() => setShowReconciled(!showReconciled)}
-            className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4 hover:text-gray-700 transition-colors"
+            className="flex items-center gap-2 text-lg font-bold text-heading mb-4 hover:text-body transition-colors"
           >
             <svg
               className={`w-5 h-5 transition-transform ${showReconciled ? "rotate-90" : ""}`}
@@ -561,23 +561,23 @@ export default function ReconciliationPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
             Reconciled Transactions
-            <span className="text-sm font-normal text-gray-500">({summary.reconciled})</span>
+            <span className="text-sm font-normal text-muted">({summary.reconciled})</span>
           </button>
 
           {showReconciled && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+              <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
                 <div className="col-span-4">Vendor</div>
                 <div className="col-span-2">Amount</div>
                 <div className="col-span-2">Date</div>
                 <div className="col-span-2">Category</div>
                 <div className="col-span-2">Actions</div>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-edge-subtle">
                 {reconciled.map((txn) => (
                   <div
                     key={txn.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors items-center"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-surface-hover/50 transition-colors items-center"
                   >
                     <div className="col-span-4">
                       <div className="flex items-center gap-2">
@@ -585,9 +585,9 @@ export default function ReconciliationPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold text-gray-900 truncate">{txn.vendor_name}</p>
+                          <p className="text-sm font-bold text-heading truncate">{txn.vendor_name}</p>
                           {txn.description && (
-                            <p className="text-xs text-gray-500 truncate">{txn.description}</p>
+                            <p className="text-xs text-muted truncate">{txn.description}</p>
                           )}
                         </div>
                       </div>
@@ -598,16 +598,16 @@ export default function ReconciliationPage() {
                       </p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-sm text-gray-600">{formatDate(txn.transaction_date)}</p>
+                      <p className="text-sm text-body">{formatDate(txn.transaction_date)}</p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-sm text-gray-600">{txn.category || "Uncategorized"}</p>
+                      <p className="text-sm text-body">{txn.category || "Uncategorized"}</p>
                     </div>
                     <div className="col-span-2">
                       <button
                         onClick={() => markUnreconciledMutation.mutate([txn.id])}
                         disabled={markUnreconciledMutation.isPending}
-                        className="inline-flex items-center gap-1 rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs font-bold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-lg bg-surface-secondary px-2.5 py-1.5 text-xs font-bold text-body hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 transition-colors disabled:opacity-50"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -629,14 +629,14 @@ export default function ReconciliationPage() {
         summary &&
         summary.total_transactions > 0 &&
         summary.unreconciled === 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-            <div className="mx-auto h-16 w-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+          <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center mb-4">
               <svg className="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">All Reconciled</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-lg font-bold text-heading mb-2">All Reconciled</h3>
+            <p className="text-sm text-muted">
               All transactions have been reconciled. Great job!
             </p>
           </div>
@@ -655,15 +655,15 @@ function SummaryCard({
   color: "gray" | "emerald" | "amber" | "cyan";
 }) {
   const colorMap = {
-    gray: "from-gray-50 to-gray-100 text-gray-900",
-    emerald: "from-emerald-50 to-emerald-100 text-emerald-700",
-    amber: "from-amber-50 to-amber-100 text-amber-700",
-    cyan: "from-cyan-50 to-cyan-100 text-cyan-700",
+    gray: "from-surface-secondary to-surface-tertiary text-heading",
+    emerald: "from-emerald-50 dark:from-emerald-950 to-emerald-100 dark:to-emerald-900 text-emerald-700 dark:text-emerald-300",
+    amber: "from-amber-50 dark:from-amber-950 to-amber-100 dark:to-amber-900 text-amber-700 dark:text-amber-300",
+    cyan: "from-cyan-50 dark:from-cyan-950 to-cyan-100 dark:to-cyan-900 text-cyan-700 dark:text-cyan-300",
   };
 
   return (
     <div
-      className={`rounded-2xl bg-gradient-to-br ${colorMap[color]} p-5 shadow-sm border border-gray-100`}
+      className={`rounded-2xl bg-gradient-to-br ${colorMap[color]} p-5 shadow-sm border border-edge-subtle`}
     >
       <p className="text-xs font-bold uppercase tracking-wider opacity-60">{label}</p>
       <p className="text-2xl font-black mt-1">{value}</p>

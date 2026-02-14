@@ -35,13 +35,13 @@ export function HeroSection({
   return (
     <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
       {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/50 via-white to-emerald-50/30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/50 via-white to-emerald-50/30 dark:from-cyan-950/30 dark:via-slate-900 dark:to-emerald-950/20" />
       
       {/* Floating Background Orbs */}
-      <div className="absolute top-20 left-[10%] w-72 h-72 bg-cyan-200 rounded-full opacity-40 blur-3xl animate-float-slow" />
-      <div className="absolute top-40 right-[15%] w-96 h-96 bg-green-200 rounded-full opacity-35 blur-3xl animate-float" />
-      <div className="absolute bottom-20 left-[30%] w-56 h-56 bg-teal-200 rounded-full opacity-30 blur-2xl animate-float-reverse" />
-      <div className="absolute top-1/2 right-[5%] w-40 h-40 bg-cyan-300 rounded-full opacity-25 blur-2xl animate-float-fast" />
+      <div className="absolute top-20 left-[10%] w-72 h-72 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-40 blur-3xl animate-float-slow" />
+      <div className="absolute top-40 right-[15%] w-96 h-96 bg-green-200 dark:bg-green-800 rounded-full opacity-35 blur-3xl animate-float" />
+      <div className="absolute bottom-20 left-[30%] w-56 h-56 bg-teal-200 dark:bg-teal-800 rounded-full opacity-30 blur-2xl animate-float-reverse" />
+      <div className="absolute top-1/2 right-[5%] w-40 h-40 bg-cyan-300 dark:bg-cyan-700 rounded-full opacity-25 blur-2xl animate-float-fast" />
       
       {/* Small Bouncing Decorative Circles */}
       <div className="absolute top-32 left-[20%] w-4 h-4 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle shadow-lg shadow-cyan-500/30" />
@@ -62,7 +62,7 @@ export function HeroSection({
           </div>
 
           {/* Headline with animated underline */}
-          <h1 className="text-5xl font-black tracking-tight text-gray-900 sm:text-7xl lg:text-8xl leading-tight">
+          <h1 className="text-5xl font-black tracking-tight text-heading sm:text-7xl lg:text-8xl leading-tight">
             {headline}{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-green-600 bg-clip-text text-transparent">
@@ -95,7 +95,7 @@ export function HeroSection({
           </h1>
 
           {/* Subheadline with animated highlight */}
-          <p className="mt-8 text-lg leading-relaxed text-gray-600 sm:text-xl max-w-3xl mx-auto font-medium">
+          <p className="mt-8 text-lg leading-relaxed text-body sm:text-xl max-w-3xl mx-auto font-medium">
             {subheadline}
           </p>
 
@@ -117,7 +117,7 @@ export function HeroSection({
             </Link>
             <Link
               href={secondaryCta.href}
-              className="group inline-flex items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white/80 backdrop-blur-sm px-8 py-4 text-base font-bold text-gray-700 shadow-lg hover:bg-white hover:border-cyan-300 hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300"
+              className="group inline-flex items-center gap-3 rounded-2xl border-2 border-edge bg-surface/80 backdrop-blur-sm px-8 py-4 text-base font-bold text-body shadow-lg hover:bg-surface hover:border-cyan-300 hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300"
             >
               <svg 
                 className="w-5 h-5 text-cyan-600 group-hover:scale-110 transition-transform duration-300" 
@@ -133,7 +133,7 @@ export function HeroSection({
           </div>
 
           {/* Stats with hover scale animation */}
-          <div className="mt-20 grid grid-cols-3 gap-x-10 border-t-2 border-gray-200/80 pt-12 max-w-2xl mx-auto">
+          <div className="mt-20 grid grid-cols-3 gap-x-10 border-t-2 border-edge/80 pt-12 max-w-2xl mx-auto">
             {stats.map((stat, index) => (
               <div 
                 key={stat.label} 
@@ -143,7 +143,7 @@ export function HeroSection({
                 <div className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-green-600 bg-clip-text text-transparent sm:text-4xl transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-lg">
                   {stat.value}
                 </div>
-                <div className="mt-2 text-xs text-gray-600 font-semibold sm:text-sm uppercase tracking-wide group-hover:text-cyan-600 transition-colors">
+                <div className="mt-2 text-xs text-body font-semibold sm:text-sm uppercase tracking-wide group-hover:text-cyan-600 transition-colors">
                   {stat.label}
                 </div>
               </div>
@@ -153,7 +153,7 @@ export function HeroSection({
       </div>
 
       {/* Bottom wave decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-surface to-transparent" />
     </section>
   );
 }

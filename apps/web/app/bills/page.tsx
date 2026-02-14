@@ -91,7 +91,7 @@ export default function BillsPage() {
       <ErrorAlert error={combinedError} className="mb-6" />
 
       {overdueBills.length > 0 && !statusFilter && (
-        <div className="mb-6 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 p-4 shadow-sm">
+        <div className="mb-6 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950 border border-red-200 dark:border-red-800 p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <svg
               className="h-5 w-5 text-red-500 shrink-0"
@@ -106,7 +106,7 @@ export default function BillsPage() {
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
-            <p className="text-sm font-bold text-red-700">
+            <p className="text-sm font-bold text-red-700 dark:text-red-300">
               {overdueBills.length} overdue bill
               {overdueBills.length === 1 ? "" : "s"} require attention
             </p>
@@ -118,7 +118,7 @@ export default function BillsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border-0 py-2.5 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-white"
+          className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-surface"
         >
           {BILL_STATUS_OPTIONS.map((f) => (
             <option key={f.value} value={f.value}>
@@ -148,9 +148,9 @@ export default function BillsPage() {
       </div>
 
       {bills.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">No bills yet</h3>
-          <p className="text-sm text-gray-500 mb-6">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
+          <h3 className="text-lg font-bold text-heading mb-2">No bills yet</h3>
+          <p className="text-sm text-muted mb-6">
             Record bills from your vendors to track payables.
           </p>
           <Link
@@ -161,8 +161,8 @@ export default function BillsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
             <div className="col-span-2">Bill #</div>
             <div className="col-span-2">Vendor</div>
             <div className="col-span-1">Date</div>
@@ -172,47 +172,47 @@ export default function BillsPage() {
             <div className="col-span-1">Status</div>
             <div className="col-span-1"></div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {bills.map((bill) => (
               <div
                 key={bill.id}
-                className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-cyan-50/50 transition-all items-center"
+                className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all items-center"
               >
                 <Link href={`/bills/${bill.id}`} className="col-span-2">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-bold text-heading">
                     {bill.bill_number || "\u2014"}
                   </p>
                 </Link>
                 <div className="col-span-2">
-                  <p className="text-sm text-gray-600 truncate">
+                  <p className="text-sm text-body truncate">
                     {vendorMap[bill.vendor_id] || "\u2014"}
                   </p>
                 </div>
                 <div className="col-span-1">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {formatDate(bill.bill_date)}
                   </p>
                 </div>
                 <div className="col-span-1">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {formatDate(bill.due_date)}
                   </p>
                 </div>
                 <div className="col-span-2 text-right">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-bold text-heading">
                     {formatCurrency(bill.total_amount)}
                   </p>
                 </div>
                 <div className="col-span-2 text-right">
                   <p
-                    className={`text-sm font-bold ${parseFloat(bill.balance) > 0 ? "text-amber-600" : "text-green-600"}`}
+                    className={`text-sm font-bold ${parseFloat(bill.balance) > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}
                   >
                     {formatCurrency(bill.balance)}
                   </p>
                 </div>
                 <div className="col-span-1">
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset capitalize ${BILL_STATUS_COLORS[bill.status] || "bg-gray-100 text-gray-700"}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset capitalize ${BILL_STATUS_COLORS[bill.status] || "bg-surface-tertiary text-body"}`}
                   >
                     {bill.status}
                   </span>
@@ -220,7 +220,7 @@ export default function BillsPage() {
                 <div className="col-span-1 flex justify-end gap-1">
                   <Link
                     href={`/bills/${bill.id}`}
-                    className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all"
+                    className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all"
                     title="View bill"
                   >
                     <svg
@@ -246,7 +246,7 @@ export default function BillsPage() {
                   {bill.balance === bill.total_amount && (
                     <button
                       onClick={() => handleDelete(bill.id)}
-                      className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                      className="p-2 rounded-lg text-caption hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
                       title="Delete bill"
                     >
                       <svg

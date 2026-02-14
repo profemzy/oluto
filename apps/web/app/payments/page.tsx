@@ -54,7 +54,7 @@ export default function PaymentsPage() {
       <ErrorAlert error={combinedError} className="mb-6" />
 
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted">
           Customer payments received. Bill payments can be recorded from
           individual bill pages.
         </p>
@@ -80,11 +80,11 @@ export default function PaymentsPage() {
       </div>
 
       {payments.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
+          <h3 className="text-lg font-bold text-heading mb-2">
             No payments yet
           </h3>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-muted mb-6">
             Record customer payments to track receivables.
           </p>
           <Link
@@ -95,8 +95,8 @@ export default function PaymentsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
             <div className="col-span-2">Payment #</div>
             <div className="col-span-2">Customer</div>
             <div className="col-span-2">Date</div>
@@ -105,42 +105,42 @@ export default function PaymentsPage() {
             <div className="col-span-2 text-right">Unapplied</div>
             <div className="col-span-1"></div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {payments.map((pmt) => (
               <Link
                 key={pmt.id}
                 href={`/payments/${pmt.id}`}
-                className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-cyan-50/50 transition-all items-center"
+                className="group grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-4 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all items-center"
               >
                 <div className="col-span-2">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-bold text-heading">
                     {pmt.payment_number || "\u2014"}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-gray-600 truncate">
+                  <p className="text-sm text-body truncate">
                     {customerMap[pmt.customer_id] || "\u2014"}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-body">
                     {formatDate(pmt.payment_date)}
                   </p>
                 </div>
                 <div className="col-span-2 text-right">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-bold text-heading">
                     {formatCurrency(pmt.amount)}
                   </p>
                 </div>
                 <div className="col-span-1">
-                  <p className="text-sm text-gray-600 capitalize truncate">
+                  <p className="text-sm text-body capitalize truncate">
                     {pmt.payment_method}
                   </p>
                 </div>
                 <div className="col-span-2 text-right">
                   {pmt.unapplied_amount &&
                   parseFloat(pmt.unapplied_amount) > 0 ? (
-                    <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200">
+                    <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 ring-1 ring-inset ring-amber-200 dark:ring-amber-800">
                       {formatCurrency(pmt.unapplied_amount)}
                     </span>
                   ) : (
@@ -150,7 +150,7 @@ export default function PaymentsPage() {
                   )}
                 </div>
                 <div className="col-span-1 flex justify-end">
-                  <span className="p-2 rounded-lg text-gray-400 group-hover:text-cyan-600 transition-all">
+                  <span className="p-2 rounded-lg text-caption group-hover:text-cyan-600 transition-all">
                     <svg
                       className="w-4 h-4"
                       fill="none"

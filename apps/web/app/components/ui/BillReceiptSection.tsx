@@ -49,10 +49,10 @@ function contentTypeIcon(contentType: string) {
 
 function OcrBadge({ status }: { status: ReceiptResponse["ocr_status"] }) {
   const styles = {
-    none: "bg-gray-100 text-gray-600",
-    pending: "bg-amber-50 text-amber-700",
-    completed: "bg-green-50 text-green-700",
-    failed: "bg-red-50 text-red-700",
+    none: "bg-surface-tertiary text-body",
+    pending: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300",
+    completed: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300",
+    failed: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300",
   };
   const labels = { none: "No OCR", pending: "Processing", completed: "OCR Done", failed: "OCR Failed" };
   return (
@@ -271,8 +271,8 @@ export function BillReceiptSection({
             onDrop={handleDrop}
             className={`relative border-2 border-dashed rounded-xl p-6 transition-all ${
               dragActive
-                ? "border-cyan-500 bg-cyan-50"
-                : "border-gray-300 hover:border-gray-400 bg-gray-50"
+                ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950"
+                : "border-edge hover:border-gray-400 bg-surface-secondary"
             }`}
           >
             <input
@@ -285,7 +285,7 @@ export function BillReceiptSection({
             />
             <div className="text-center">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-caption"
                 stroke="currentColor"
                 fill="none"
                 viewBox="0 0 48 48"
@@ -297,7 +297,7 @@ export function BillReceiptSection({
                   strokeLinejoin="round"
                 />
               </svg>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-body">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -307,7 +307,7 @@ export function BillReceiptSection({
                 </button>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 JPEG, PNG, or PDF up to 10 MB
               </p>
             </div>
@@ -320,9 +320,9 @@ export function BillReceiptSection({
               id="runOcr"
               checked={runOcr}
               onChange={(e) => setRunOcr(e.target.checked)}
-              className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+              className="rounded border-edge text-cyan-600 focus:ring-cyan-500"
             />
-            <label htmlFor="runOcr" className="text-sm text-gray-700">
+            <label htmlFor="runOcr" className="text-sm text-body">
               Extract text from receipt/invoice (OCR)
             </label>
           </div>
@@ -330,7 +330,7 @@ export function BillReceiptSection({
       )}
 
       {fileError && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg bg-red-50 dark:bg-red-950 p-3 text-sm text-red-700 dark:text-red-300">
           {fileError}
         </div>
       )}
@@ -339,7 +339,7 @@ export function BillReceiptSection({
       {pendingFiles.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-gray-700">
+            <p className="text-sm font-bold text-body">
               Pending ({pendingFiles.length})
             </p>
             {isAttached && (
@@ -356,10 +356,10 @@ export function BillReceiptSection({
           {pendingFiles.map((pf, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3"
+              className="flex items-center gap-3 rounded-lg border border-edge bg-surface p-3"
             >
               {pf.previewUrl ? (
-                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded border border-gray-200">
+                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded border border-edge">
                   <Image
                     src={pf.previewUrl}
                     alt="Preview"
@@ -368,22 +368,22 @@ export function BillReceiptSection({
                   />
                 </div>
               ) : (
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded border border-gray-200">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded border border-edge">
                   {contentTypeIcon(pf.file.type)}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-heading truncate">
                   {pf.file.name}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted">
                   {formatFileSize(pf.file.size)}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => removePendingFile(idx)}
-                className="flex-shrink-0 text-gray-400 hover:text-red-500"
+                className="flex-shrink-0 text-caption hover:text-red-500"
               >
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -401,7 +401,7 @@ export function BillReceiptSection({
       {/* Attached receipts (existing bill mode) */}
       {isAttached && (
         <div className="space-y-2">
-          <p className="text-sm font-bold text-gray-700">
+          <p className="text-sm font-bold text-body">
             Attached ({loadingReceipts ? "..." : receipts.length})
           </p>
           {loadingReceipts ? (
@@ -409,24 +409,24 @@ export function BillReceiptSection({
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-cyan-600 border-r-transparent"></div>
             </div>
           ) : receipts.length === 0 ? (
-            <p className="text-sm text-gray-500 py-4 text-center">
+            <p className="text-sm text-muted py-4 text-center">
               No receipts attached yet
             </p>
           ) : (
             receipts.map((receipt) => (
               <div
                 key={receipt.id}
-                className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3"
+                className="flex items-center gap-3 rounded-lg border border-edge bg-surface p-3"
               >
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded border border-gray-200">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded border border-edge">
                   {contentTypeIcon(receipt.content_type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-heading truncate">
                     {receipt.original_filename}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted">
                       {formatFileSize(receipt.file_size)}
                     </p>
                     <OcrBadge status={receipt.ocr_status} />
@@ -451,7 +451,7 @@ export function BillReceiptSection({
                   <button
                     type="button"
                     onClick={() => handleDelete(receipt.id)}
-                    className="flex-shrink-0 text-gray-400 hover:text-red-500"
+                    className="flex-shrink-0 text-caption hover:text-red-500"
                     title="Delete"
                   >
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

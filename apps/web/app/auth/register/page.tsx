@@ -64,19 +64,19 @@ export default function RegisterPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-20 right-[10%] w-64 h-64 bg-cyan-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 left-[10%] w-72 h-72 bg-green-200 rounded-full opacity-20 blur-3xl animate-float" />
-      <div className="absolute top-1/3 right-[5%] w-40 h-40 bg-teal-200 rounded-full opacity-15 blur-2xl animate-float-reverse" />
-      
+      <div className="absolute top-20 right-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
+      <div className="absolute bottom-20 left-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float" />
+      <div className="absolute top-1/3 right-[5%] w-40 h-40 bg-teal-200 dark:bg-teal-800 rounded-full opacity-15 blur-2xl animate-float-reverse" />
+
       {/* Bouncing decorative dots */}
       <div className="absolute top-40 left-[20%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
       <div className="absolute bottom-40 right-[15%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.5s' }} />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-heading">
           Create your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-body">
           Already have an account?{" "}
           <Link href="/auth/login" className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors">
             Sign in
@@ -85,12 +85,12 @@ export default function RegisterPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-gray-100 sm:px-10">
+        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} />
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="fullName" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="fullName" className="block text-sm font-bold leading-6 text-heading">
                 Full name
               </label>
               <div className="mt-2">
@@ -102,14 +102,14 @@ export default function RegisterPage() {
                   required
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="John Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="email" className="block text-sm font-bold leading-6 text-heading">
                 Email address
               </label>
               <div className="mt-2">
@@ -121,14 +121,14 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="password" className="block text-sm font-bold leading-6 text-heading">
                 Password
               </label>
               <div className="mt-2">
@@ -140,15 +140,15 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="••••••••"
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+              <p className="mt-1 text-xs text-muted">Must be at least 8 characters</p>
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-bold leading-6 text-gray-900">
+              <label htmlFor="confirmPassword" className="block text-sm font-bold leading-6 text-heading">
                 Confirm password
               </label>
               <div className="mt-2">
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="••••••••"
                 />
               </div>
@@ -172,9 +172,9 @@ export default function RegisterPage() {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600 mt-0.5 cursor-pointer"
+                className="h-4 w-4 rounded border-edge text-cyan-600 focus:ring-cyan-600 mt-0.5 cursor-pointer"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-600">
+              <label htmlFor="terms" className="ml-2 block text-sm text-body">
                 I agree to the{" "}
                 <Link href="/terms" className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors">
                   Terms of Service
@@ -212,7 +212,7 @@ export default function RegisterPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-gray-500">
+          <p className="mt-6 text-center text-xs text-muted">
             By creating an account, you agree to receive occasional product updates and tax deadline reminders.
           </p>
         </div>

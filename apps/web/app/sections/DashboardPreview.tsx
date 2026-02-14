@@ -39,14 +39,14 @@ export function DashboardPreview({
         {/* Dashboard Preview Card with enhanced styling */}
         <div className="dashboard-preview group">
           {/* Browser Chrome */}
-          <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+          <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge">
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-400 hover:scale-110 transition-transform cursor-pointer" />
               <div className="w-3 h-3 rounded-full bg-amber-400 hover:scale-110 transition-transform cursor-pointer" />
               <div className="w-3 h-3 rounded-full bg-green-400 hover:scale-110 transition-transform cursor-pointer" />
             </div>
             <div className="flex-1 flex justify-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white border border-gray-200 text-xs text-gray-500 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-surface border border-edge text-xs text-muted shadow-sm">
                 <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
@@ -56,12 +56,12 @@ export function DashboardPreview({
           </div>
 
           {/* Dashboard Content */}
-          <div className="p-4 sm:p-6 bg-gradient-to-br from-gray-50/80 to-white">
+          <div className="p-4 sm:p-6 bg-gradient-to-br from-surface-secondary/80 to-surface">
             <div className="grid lg:grid-cols-3 gap-5">
               {/* Safe-to-Spend Card */}
-              <div className="rounded-xl bg-white p-5 border border-gray-100 shadow-lg shadow-green-500/10 hover:shadow-green-500/20 hover:-translate-y-1 transition-all duration-300 group/card">
+              <div className="rounded-xl bg-surface p-5 border border-edge-subtle shadow-lg shadow-green-500/10 hover:shadow-green-500/20 hover:-translate-y-1 transition-all duration-300 group/card">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-gray-500">Safe to Spend</span>
+                  <span className="text-sm font-semibold text-muted">Safe to Spend</span>
                   <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm animate-pulse-slow">
                     <span className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse" />
                     Live
@@ -92,33 +92,33 @@ export function DashboardPreview({
               </div>
 
               {/* CRA Lockbox Card */}
-              <div className="rounded-xl bg-white p-5 border border-gray-100 shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all duration-300">
+              <div className="rounded-xl bg-surface p-5 border border-edge-subtle shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-gray-500">CRA Lockbox</span>
-                  <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Q1 2026</span>
+                  <span className="text-sm font-semibold text-muted">CRA Lockbox</span>
+                  <span className="text-xs font-medium text-caption bg-surface-tertiary px-2 py-1 rounded-full">Q1 2026</span>
                 </div>
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs text-gray-500">GST/HST</span>
-                      <span className="text-sm font-bold text-gray-900">{gstHstAmount}</span>
+                      <span className="text-xs text-muted">GST/HST</span>
+                      <span className="text-sm font-bold text-heading">{gstHstAmount}</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
                       <div className="h-full w-3/4 bg-gradient-to-r from-cyan-400 to-teal-400 rounded-full shadow-sm" />
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs text-gray-500">Income Tax Est.</span>
-                      <span className="text-sm font-bold text-gray-900">{incomeTaxAmount}</span>
+                      <span className="text-xs text-muted">Income Tax Est.</span>
+                      <span className="text-sm font-bold text-heading">{incomeTaxAmount}</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
                       <div className="h-full w-1/2 bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full shadow-sm" />
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-500">Total Set Aside</span>
+                <div className="mt-4 pt-3 border-t border-edge-subtle flex justify-between items-center">
+                  <span className="text-sm font-medium text-muted">Total Set Aside</span>
                   <span className="text-lg font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
                     {totalSetAside}
                   </span>
@@ -126,9 +126,9 @@ export function DashboardPreview({
               </div>
 
               {/* Exceptions Inbox Card */}
-              <div className="rounded-xl bg-white p-5 border border-gray-100 shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 hover:-translate-y-1 transition-all duration-300">
+              <div className="rounded-xl bg-surface p-5 border border-edge-subtle shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-gray-500">Exceptions Inbox</span>
+                  <span className="text-sm font-semibold text-muted">Exceptions Inbox</span>
                   <span className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                     {inboxItems.length} items
                   </span>
@@ -137,14 +137,14 @@ export function DashboardPreview({
                   {inboxItems.map((item, i) => (
                     <div 
                       key={i} 
-                      className="flex items-start gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 transition-all cursor-pointer group/item"
+                      className="flex items-start gap-3 p-2.5 rounded-lg bg-surface-secondary hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 dark:hover:from-cyan-950 dark:hover:to-teal-950 transition-all cursor-pointer group/item"
                     >
                       <span className="text-lg mt-0.5 group-hover:scale-110 transition-transform">{item.icon}</span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-gray-800 leading-tight">{item.text}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{item.status}</p>
+                        <p className="text-xs font-semibold text-heading leading-tight">{item.text}</p>
+                        <p className="text-xs text-caption mt-0.5">{item.status}</p>
                       </div>
-                      <svg className="w-4 h-4 text-gray-300 group-hover/item:text-cyan-400 transition-colors opacity-0 group-hover/item:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-caption group-hover/item:text-cyan-400 transition-colors opacity-0 group-hover/item:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>

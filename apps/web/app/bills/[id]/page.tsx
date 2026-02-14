@@ -98,9 +98,9 @@ export default function BillDetailPage({
   if (authLoading || loading) return <PageLoader />;
   if (!bill) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Bill not found</h2>
+          <h2 className="text-lg font-bold text-heading mb-2">Bill not found</h2>
           <Link href="/bills" className="text-sm text-cyan-600 hover:text-cyan-800 font-medium">Back to Bills</Link>
         </div>
       </div>
@@ -111,13 +111,13 @@ export default function BillDetailPage({
   const canDelete = bill.balance === bill.total_amount;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title={`Bill ${bill.bill_number || billId.slice(0, 8)}`}
         subtitle={vendorName || undefined}
         actions={
-          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -129,16 +129,16 @@ export default function BillDetailPage({
         <ErrorAlert error={error} className="mb-2" />
 
         {/* Bill Header Card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-xl font-bold text-gray-900">{bill.bill_number || "Untitled Bill"}</h2>
+                <h2 className="text-xl font-bold text-heading">{bill.bill_number || "Untitled Bill"}</h2>
                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset capitalize ${STATUS_COLORS[bill.status]}`}>
                   {bill.status}
                 </span>
               </div>
-              {vendorName && <p className="text-sm text-gray-600">{vendorName}</p>}
+              {vendorName && <p className="text-sm text-body">{vendorName}</p>}
             </div>
             <div className="flex flex-wrap gap-2">
               {actions.map((action) => (
@@ -165,7 +165,7 @@ export default function BillDetailPage({
               {canDelete && (
                 <button
                   onClick={handleDelete}
-                  className="inline-flex items-center rounded-xl border-2 border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
+                  className="inline-flex items-center rounded-xl border-2 border-red-200 dark:border-red-800 bg-surface px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
                 >
                   Delete
                 </button>
@@ -175,55 +175,55 @@ export default function BillDetailPage({
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">Bill Date</p>
-              <p className="text-sm font-medium text-gray-900 mt-1">{formatDate(bill.bill_date)}</p>
+              <p className="text-xs font-bold text-muted uppercase">Bill Date</p>
+              <p className="text-sm font-medium text-heading mt-1">{formatDate(bill.bill_date)}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">Due Date</p>
-              <p className="text-sm font-medium text-gray-900 mt-1">{formatDate(bill.due_date)}</p>
+              <p className="text-xs font-bold text-muted uppercase">Due Date</p>
+              <p className="text-sm font-medium text-heading mt-1">{formatDate(bill.due_date)}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">Total</p>
-              <p className="text-sm font-bold text-gray-900 mt-1">{formatCurrency(bill.total_amount)}</p>
+              <p className="text-xs font-bold text-muted uppercase">Total</p>
+              <p className="text-sm font-bold text-heading mt-1">{formatCurrency(bill.total_amount)}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase">Balance Due</p>
-              <p className={`text-sm font-bold mt-1 ${parseFloat(bill.balance) > 0 ? "text-amber-600" : "text-green-600"}`}>
+              <p className="text-xs font-bold text-muted uppercase">Balance Due</p>
+              <p className={`text-sm font-bold mt-1 ${parseFloat(bill.balance) > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}>
                 {formatCurrency(bill.balance)}
               </p>
             </div>
           </div>
 
           {bill.memo && (
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-xs font-bold text-gray-500 uppercase">Memo</p>
-              <p className="text-sm text-gray-700 mt-1">{bill.memo}</p>
+            <div className="mt-6 pt-6 border-t border-edge-subtle">
+              <p className="text-xs font-bold text-muted uppercase">Memo</p>
+              <p className="text-sm text-body mt-1">{bill.memo}</p>
             </div>
           )}
         </div>
 
         {/* Line Items */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">Line Items</h3>
+        <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-edge-subtle">
+            <h3 className="text-sm font-bold text-heading">Line Items</h3>
           </div>
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
             <div className="col-span-1">#</div>
             <div className="col-span-7">Description</div>
             <div className="col-span-4 text-right">Amount</div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {bill.line_items.map((item) => (
               <div key={item.id} className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-3 items-center">
-                <div className="col-span-1 text-sm text-gray-500">{item.line_number}</div>
-                <div className="col-span-7 text-sm text-gray-900 font-medium">{item.description || "\u2014"}</div>
-                <div className="col-span-4 text-sm font-bold text-gray-900 text-right">{formatCurrency(item.amount)}</div>
+                <div className="col-span-1 text-sm text-muted">{item.line_number}</div>
+                <div className="col-span-7 text-sm text-heading font-medium">{item.description || "\u2014"}</div>
+                <div className="col-span-4 text-sm font-bold text-heading text-right">{formatCurrency(item.amount)}</div>
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+          <div className="px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t border-edge">
             <div className="flex justify-end">
-              <div className="text-sm font-bold text-gray-900">
+              <div className="text-sm font-bold text-heading">
                 Total: {formatCurrency(bill.total_amount)}
               </div>
             </div>
@@ -232,9 +232,9 @@ export default function BillDetailPage({
 
         {/* Receipts/Invoices Section */}
         {user?.business_id && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-sm font-bold text-gray-900">Attached Receipts/Invoices</h3>
+          <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-edge-subtle">
+              <h3 className="text-sm font-bold text-heading">Attached Receipts/Invoices</h3>
             </div>
             <div className="p-6">
               <BillReceiptSection

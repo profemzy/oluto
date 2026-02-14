@@ -41,7 +41,7 @@ export default function ReportsPage() {
   if (authLoading) return <PageLoader />;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader title="Reports" subtitle="Financial reports and analysis" />
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -50,15 +50,15 @@ export default function ReportsPage() {
             <Link
               key={report.name}
               href={report.href}
-              className="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="group bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${report.color} mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={report.icon} />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">{report.name}</h3>
-              <p className="text-sm text-gray-500 mt-1">{report.description}</p>
+              <h3 className="text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">{report.name}</h3>
+              <p className="text-sm text-muted mt-1">{report.description}</p>
             </Link>
           ))}
         </div>

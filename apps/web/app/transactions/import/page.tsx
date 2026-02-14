@@ -285,10 +285,10 @@ export default function ImportTransactionsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       {/* Decorative background elements */}
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
-      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
+      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-2xl animate-float" />
+      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
 
       <PageHeader
         title="Import Transactions"
@@ -296,7 +296,7 @@ export default function ImportTransactionsPage() {
         actions={
           <Link
             href="/transactions"
-            className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
           >
             <svg
               className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
@@ -329,8 +329,8 @@ export default function ImportTransactionsPage() {
               onClick={() => fileInputRef.current?.click()}
               className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-all duration-300 ${
                 dragActive
-                  ? "border-cyan-500 bg-cyan-50 scale-[1.02] shadow-lg shadow-cyan-500/20"
-                  : "border-gray-300 bg-white hover:border-cyan-400 hover:bg-gray-50 hover:shadow-lg"
+                  ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950 scale-[1.02] shadow-lg shadow-cyan-500/20"
+                  : "border-edge bg-surface hover:border-cyan-400 hover:bg-surface-hover hover:shadow-lg"
               }`}
             >
               <input
@@ -357,12 +357,12 @@ export default function ImportTransactionsPage() {
                 </svg>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-heading mb-2">
                 {dragActive
                   ? "Drop your file here"
                   : "Drag & drop your statement"}
               </h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-muted mb-6">
                 or click to browse files
               </p>
 
@@ -400,16 +400,16 @@ export default function ImportTransactionsPage() {
                   PDF
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-4">
+              <p className="text-xs text-caption mt-4">
                 Maximum file size: 10 MB
               </p>
             </div>
 
-            <div className="mt-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">
+            <div className="mt-6 bg-surface/90 backdrop-blur-sm rounded-2xl border border-edge p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-heading mb-4">
                 Supported formats
               </h3>
-              <ul className="space-y-3 text-sm text-gray-600">
+              <ul className="space-y-3 text-sm text-body">
                 <li className="flex items-start gap-3">
                   <svg
                     className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0"
@@ -471,21 +471,21 @@ export default function ImportTransactionsPage() {
               <div className="absolute inset-0 rounded-full border-4 border-cyan-100" />
               <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-heading mb-2">
               Processing your statement...
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-muted mb-6">
               {jobMessage || "This may take a moment for PDF files using OCR."}
             </p>
 
             {/* Progress bar */}
             {jobProgress > 0 && (
               <div className="w-full max-w-xs mx-auto">
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                <div className="flex items-center justify-between text-xs text-muted mb-2">
                   <span className="font-medium">Progress</span>
                   <span className="font-bold">{jobProgress}%</span>
                 </div>
-                <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-surface-tertiary rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-cyan-500 to-teal-500 rounded-full transition-all duration-500"
                     style={{ width: `${jobProgress}%` }}
@@ -500,7 +500,7 @@ export default function ImportTransactionsPage() {
         {step === "preview" && parseResult && (
           <div>
             {/* File info banner */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 p-4 mb-6 shadow-sm">
+            <div className="bg-surface/90 backdrop-blur-sm rounded-2xl border border-edge p-4 mb-6 shadow-sm">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3">
                   <span
@@ -512,21 +512,21 @@ export default function ImportTransactionsPage() {
                   >
                     {parseResult.file_type.toUpperCase()}
                   </span>
-                  <span className="text-sm font-bold text-gray-900">
+                  <span className="text-sm font-bold text-heading">
                     {parseResult.file_name}
                   </span>
                   {parseResult.statement_period && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted">
                       {parseResult.statement_period}
                     </span>
                   )}
                   {parseResult.account_info && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted">
                       &middot; {parseResult.account_info}
                     </span>
                   )}
                 </div>
-                <span className="text-sm font-bold text-gray-500">
+                <span className="text-sm font-bold text-muted">
                   {parseResult.total_count} transaction
                   {parseResult.total_count === 1 ? "" : "s"} found
                 </span>
@@ -608,41 +608,41 @@ export default function ImportTransactionsPage() {
                 >
                   Select all
                 </button>
-                <span className="text-gray-300">|</span>
+                <span className="text-edge">|</span>
                 <button
                   onClick={() => setSelectedRows(new Set())}
-                  className="text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors"
+                  className="text-sm font-bold text-muted hover:text-body transition-colors"
                 >
                   Deselect all
                 </button>
               </div>
-              <p className="text-sm font-bold text-gray-500">
+              <p className="text-sm font-bold text-muted">
                 <span className="text-cyan-600">{selectedRows.size}</span> of {editedTransactions.length} selected
               </p>
             </div>
 
             {/* Transactions table */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden mb-6">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <table className="min-w-full divide-y divide-edge">
+                  <thead className="bg-gradient-to-r from-surface-secondary to-surface-tertiary">
                     <tr>
                       <th className="px-4 py-3 w-10">
                         <span className="sr-only">Select</span>
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">
                         Vendor
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">
                         Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider hidden lg:table-cell">
                         Category
                       </th>
                       <th className="px-4 py-3 w-10">
@@ -650,23 +650,23 @@ export default function ImportTransactionsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-edge-subtle">
                     {editedTransactions.map((txn, index) => (
                       <tr
                         key={index}
                         className={`${
-                          selectedRows.has(index) ? "bg-white" : "bg-gray-50 opacity-60"
-                        } hover:bg-cyan-50/50 transition-colors`}
+                          selectedRows.has(index) ? "bg-surface" : "bg-surface-secondary opacity-60"
+                        } hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-colors`}
                       >
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
                             checked={selectedRows.has(index)}
                             onChange={() => toggleRow(index)}
-                            className="h-4 w-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500 cursor-pointer"
+                            className="h-4 w-4 text-cyan-600 rounded border-edge focus:ring-cyan-500 cursor-pointer"
                           />
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-heading">
                           {formatDate(txn.transaction_date)}
                         </td>
                         <td className="px-4 py-3">
@@ -680,7 +680,7 @@ export default function ImportTransactionsPage() {
                                 e.target.value
                               )
                             }
-                            className="w-full text-sm text-gray-900 border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 hover:bg-white"
+                            className="w-full text-sm text-heading border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 hover:bg-surface"
                           />
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -708,12 +708,12 @@ export default function ImportTransactionsPage() {
                                     e.target.value
                                   )
                                 }
-                                className={`text-sm border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 max-w-[180px] hover:bg-white cursor-pointer font-medium ${
+                                className={`text-sm border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 max-w-[180px] hover:bg-surface cursor-pointer font-medium ${
                                   (txn.classification || (isCredit ? "business_income" : "business_expense")) === "personal"
-                                    ? "text-gray-400"
+                                    ? "text-caption"
                                     : (txn.classification || "").startsWith("transfer") || (txn.classification || "") === "owner_contribution" || (txn.classification || "") === "owner_draw" || (txn.classification || "") === "refund"
                                     ? "text-purple-600"
-                                    : "text-gray-700"
+                                    : "text-body"
                                 }`}
                               >
                                 {options.map((opt) => (
@@ -736,7 +736,7 @@ export default function ImportTransactionsPage() {
                                   e.target.value
                                 )
                               }
-                              className="text-sm text-gray-700 border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 max-w-[200px] hover:bg-white cursor-pointer"
+                              className="text-sm text-body border-0 bg-transparent focus:ring-1 focus:ring-cyan-500 rounded-lg px-2 py-1 -mx-1 max-w-[200px] hover:bg-surface cursor-pointer"
                             >
                               <option value="">—</option>
                               {CRA_CATEGORIES.map((cat) => (
@@ -782,9 +782,9 @@ export default function ImportTransactionsPage() {
               const expenseCount = selected.filter((t) => (t.classification || (parseFloat(t.amount) >= 0 ? "business_income" : "business_expense")) === "business_expense").length;
               const otherCount = selected.length - incomeCount - expenseCount;
               return (
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
+                <div className="bg-surface/90 backdrop-blur-sm rounded-xl border border-edge p-4 mb-4 shadow-sm">
                   <div className="flex items-center gap-6 text-sm">
-                    <span className="font-bold text-gray-700">Import summary:</span>
+                    <span className="font-bold text-body">Import summary:</span>
                     {incomeCount > 0 && (
                       <span className="text-emerald-600 font-medium">{incomeCount} income</span>
                     )}
@@ -812,7 +812,7 @@ export default function ImportTransactionsPage() {
                   setJobMessage("");
                   setError("");
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
               >
                 Upload different file
               </button>
@@ -847,10 +847,10 @@ export default function ImportTransactionsPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl font-bold text-heading mb-2">
               Import complete!
             </h3>
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-muted mb-2">
               Successfully imported {importedCount} transaction
               {importedCount === 1 ? "" : "s"} as drafts.
             </p>
@@ -928,7 +928,7 @@ export default function ImportTransactionsPage() {
                   setPosted(false);
                   setError("");
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-edge bg-surface px-6 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
               >
                 Import Another
               </button>

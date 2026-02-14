@@ -8,12 +8,12 @@ export function ErrorAlert({ error, className = "mb-4" }: ErrorAlertProps) {
 
   return (
     <div
-      className={`rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 p-4 shadow-sm animate-pulse-slow ${className}`}
+      className={`rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950 border border-red-200 dark:border-red-800 p-4 shadow-sm animate-pulse-slow ${className}`}
     >
       <div className="flex">
         <div className="flex-shrink-0">
           <svg
-            className="h-5 w-5 text-red-400"
+            className="h-5 w-5 text-red-400 dark:text-red-500"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -25,7 +25,7 @@ export function ErrorAlert({ error, className = "mb-4" }: ErrorAlertProps) {
           </svg>
         </div>
         <div className="ml-3">
-          <p className="text-sm font-bold text-red-700">{error}</p>
+          <p className="text-sm font-bold text-red-700 dark:text-red-300">{error}</p>
         </div>
       </div>
     </div>

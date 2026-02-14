@@ -9,3 +9,7 @@ export { ErrorBoundary } from "./ui/ErrorBoundary";
 export { ReceiptUploadSection } from "./ui/ReceiptUploadSection";
 export { BillReceiptSection } from "./ui/BillReceiptSection";
 export type { PendingReceiptFile, OcrSuggestion } from "./ui/ReceiptUploadSection";
+export { ThemeProvider, useTheme } from "./ThemeProvider";
+export type { Theme } from "./ThemeProvider";
+export { ThemeToggle } from "./ThemeToggle";
+export { ThemeLogo } from "./ThemeLogo";

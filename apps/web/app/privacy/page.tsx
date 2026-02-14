@@ -2,18 +2,18 @@ import Link from "next/link";
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-secondary">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        <h1 className="text-3xl font-bold text-heading mb-8">
           Privacy Policy
         </h1>
-        <div className="prose prose-gray max-w-none space-y-6 text-gray-600">
+        <div className="prose prose-gray dark:prose-invert max-w-none space-y-6 text-body">
           <p>
             InfoTitans LTD (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the
             Oluto platform. This policy describes how we collect, use, and
             protect your information.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-heading">
             1. Information We Collect
           </h2>
           <p>
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
             also collect usage data such as page visits and feature usage to
             improve the service.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-heading">
             2. How We Use Your Information
           </h2>
           <p>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             service. We do not sell your personal or financial data to third
             parties.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-heading">
             3. Data Storage &amp; Security
           </h2>
           <p>
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
             in Canada. We use industry-standard security measures including TLS
             encryption, hashed passwords, and role-based access controls.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-heading">
             4. Data Retention
           </h2>
           <p>
@@ -46,12 +46,12 @@ export default function PrivacyPage() {
             request deletion of your account and associated data at any time by
             contacting support.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">5. Cookies</h2>
+          <h2 className="text-xl font-bold text-heading">5. Cookies</h2>
           <p>
             We use essential cookies for authentication and session management.
             No third-party advertising cookies are used.
           </p>
-          <h2 className="text-xl font-bold text-gray-900">6. Contact</h2>
+          <h2 className="text-xl font-bold text-heading">6. Contact</h2>
           <p>
             For questions about this privacy policy, contact us at{" "}
             <a

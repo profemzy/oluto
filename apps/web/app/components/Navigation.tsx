@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
+import { ThemeToggle } from "./ThemeToggle";
+import { ThemeLogo } from "./ThemeLogo";
 
 interface NavChild {
   name: string;
@@ -88,7 +89,7 @@ function DesktopDropdown({
     >
       <button
         className={`nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1 ${
-          active ? "text-cyan-600" : "text-gray-600 hover:text-cyan-600"
+          active ? "text-cyan-600" : "text-body hover:text-cyan-600"
         }`}
         onClick={() => setOpen((v) => !v)}
       >
@@ -108,7 +109,7 @@ function DesktopDropdown({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-white/95 backdrop-blur-xl border border-gray-200 shadow-lg py-1 z-50">
+        <div className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-1 z-50">
           {item.children!.map((child) => (
             <Link
               key={child.href}
@@ -116,7 +117,7 @@ function DesktopDropdown({
               className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
                 pathname === child.href || pathname.startsWith(child.href + "/")
                   ? "text-cyan-600 bg-cyan-50/50"
-                  : "text-gray-700 hover:text-cyan-600 hover:bg-gray-50"
+                  : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
               }`}
               onClick={() => setOpen(false)}
             >
@@ -145,7 +146,7 @@ function MobileDropdown({
     <div>
       <button
         className={`w-full flex items-center justify-between py-2.5 text-base font-medium transition-colors ${
-          active ? "text-cyan-600" : "text-gray-700 hover:text-cyan-600"
+          active ? "text-cyan-600" : "text-heading hover:text-cyan-600"
         }`}
         onClick={() => setOpen((v) => !v)}
       >
@@ -173,7 +174,7 @@ function MobileDropdown({
               className={`block py-2 text-sm font-medium transition-colors ${
                 pathname === child.href || pathname.startsWith(child.href + "/")
                   ? "text-cyan-600"
-                  : "text-gray-500 hover:text-cyan-600"
+                  : "text-muted hover:text-cyan-600"
               }`}
               onClick={onNavigate}
             >
@@ -236,7 +237,7 @@ export function Navigation() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "nav-glass shadow-lg"
-          : "bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
+          : "bg-surface/80 backdrop-blur-xl border-b border-edge/50"
       }`}
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -246,14 +247,7 @@ export function Navigation() {
             href={isAuthenticated && isAppPage ? "/dashboard" : "/"}
             className="flex items-center group"
           >
-            <Image
-              src="/logo.png"
-              alt="Oluto"
-              width={180}
-              height={56}
-              className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
-              priority
-            />
+            <ThemeLogo priority />
           </Link>
 
           {/* Desktop Navigation */}
@@ -272,7 +266,7 @@ export function Navigation() {
                   className={`nav-link text-sm font-semibold transition-colors ${
                     isGroupActive(item, pathname)
                       ? "text-cyan-600"
-                      : "text-gray-600 hover:text-cyan-600"
+                      : "text-body hover:text-cyan-600"
                   }`}
                 >
                   {item.name}
@@ -284,9 +278,10 @@ export function Navigation() {
           {/* CTA / User Actions */}
           {showAuth ? (
             <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
               <Link
                 href="/auth/login"
-                className="text-sm font-bold text-gray-600 hover:text-cyan-600 transition-colors"
+                className="text-sm font-bold text-body hover:text-cyan-600 transition-colors"
               >
                 Sign in
               </Link>
@@ -312,6 +307,7 @@ export function Navigation() {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
               <Link
                 href="/transactions/new"
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300"
@@ -333,7 +329,7 @@ export function Navigation() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm font-bold text-gray-600 hover:text-red-600 transition-colors"
+                className="text-sm font-bold text-body hover:text-red-600 transition-colors"
               >
                 Logout
               </button>
@@ -342,7 +338,7 @@ export function Navigation() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 -mr-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+            className="md:hidden p-2 -mr-2 rounded-lg text-muted hover:bg-surface-hover hover:text-heading transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -374,7 +370,7 @@ export function Navigation() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl shadow-lg">
+        <div className="md:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg">
           <div className="px-6 py-4 space-y-1">
             {navLinks.map((item) =>
               item.children ? (
@@ -391,7 +387,7 @@ export function Navigation() {
                   className={`block py-2.5 text-base font-medium transition-colors ${
                     isGroupActive(item, pathname)
                       ? "text-cyan-600"
-                      : "text-gray-700 hover:text-cyan-600"
+                      : "text-heading hover:text-cyan-600"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -400,10 +396,14 @@ export function Navigation() {
               ),
             )}
             {showAuth ? (
-              <div className="pt-4 mt-4 border-t border-gray-100 space-y-3">
+              <div className="pt-4 mt-4 border-t border-edge-subtle space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted">Theme</span>
+                  <ThemeToggle />
+                </div>
                 <Link
                   href="/auth/login"
-                  className="block py-2 text-base font-medium text-gray-700 hover:text-cyan-600"
+                  className="block py-2 text-base font-medium text-heading hover:text-cyan-600"
                 >
                   Sign in
                 </Link>
@@ -415,7 +415,11 @@ export function Navigation() {
                 </Link>
               </div>
             ) : (
-              <div className="pt-4 mt-4 border-t border-gray-100 space-y-3">
+              <div className="pt-4 mt-4 border-t border-edge-subtle space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted">Theme</span>
+                  <ThemeToggle />
+                </div>
                 <Link
                   href="/transactions/new"
                   className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
@@ -428,7 +432,7 @@ export function Navigation() {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left py-2 text-base font-medium text-gray-700 hover:text-red-600"
+                  className="block w-full text-left py-2 text-base font-medium text-heading hover:text-red-600"
                 >
                   Logout
                 </button>

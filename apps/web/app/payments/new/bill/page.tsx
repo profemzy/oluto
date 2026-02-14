@@ -171,15 +171,15 @@ function NewBillPaymentForm() {
   if (dataLoading) return <PageLoader />;
 
   return (
-    <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-gray-100 sm:px-10">
+    <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-edge-subtle sm:px-10">
       <ErrorAlert error={error} className="mb-6" />
       <form className="space-y-8" onSubmit={handleSubmit}>
         {/* Payment Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="vendorId" className="block text-sm font-bold leading-6 text-gray-900">Vendor</label>
+            <label htmlFor="vendorId" className="block text-sm font-bold leading-6 text-heading">Vendor</label>
             <select id="vendorId" required value={vendorId} onChange={(e) => setVendorId(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-white transition-all hover:ring-gray-400">
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-surface transition-all hover:ring-gray-400">
               <option value="">Select a vendor</option>
               {vendors.map((v) => (
                 <option key={v.id} value={v.id}>{v.name}</option>
@@ -187,20 +187,20 @@ function NewBillPaymentForm() {
             </select>
           </div>
           <div>
-            <label htmlFor="paymentDate" className="block text-sm font-bold leading-6 text-gray-900">Payment Date</label>
+            <label htmlFor="paymentDate" className="block text-sm font-bold leading-6 text-heading">Payment Date</label>
             <input id="paymentDate" type="date" required value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
           </div>
           <div>
-            <label htmlFor="amount" className="block text-sm font-bold leading-6 text-gray-900">Amount</label>
+            <label htmlFor="amount" className="block text-sm font-bold leading-6 text-heading">Amount</label>
             <input id="amount" type="number" required min="0.01" step="0.01" placeholder="0.00"
               value={amount} onChange={(e) => setAmount(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
           </div>
           <div>
-            <label htmlFor="paymentMethod" className="block text-sm font-bold leading-6 text-gray-900">Payment Method</label>
+            <label htmlFor="paymentMethod" className="block text-sm font-bold leading-6 text-heading">Payment Method</label>
             <select id="paymentMethod" required value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-white transition-all hover:ring-gray-400">
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-surface transition-all hover:ring-gray-400">
               <option value="">Select method</option>
               {PAYMENT_METHODS.map((m) => (
                 <option key={m} value={m}>{m}</option>
@@ -208,14 +208,14 @@ function NewBillPaymentForm() {
             </select>
           </div>
           <div>
-            <label htmlFor="referenceNumber" className="block text-sm font-bold leading-6 text-gray-900">Reference # <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label htmlFor="referenceNumber" className="block text-sm font-bold leading-6 text-heading">Reference # <span className="text-caption font-normal">(optional)</span></label>
             <input id="referenceNumber" type="text" value={referenceNumber} onChange={(e) => setReferenceNumber(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
           </div>
           <div>
-            <label htmlFor="bankAccount" className="block text-sm font-bold leading-6 text-gray-900">Bank Account <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label htmlFor="bankAccount" className="block text-sm font-bold leading-6 text-heading">Bank Account <span className="text-caption font-normal">(optional)</span></label>
             <select id="bankAccount" value={bankAccountId} onChange={(e) => setBankAccountId(e.target.value)}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-white transition-all hover:ring-gray-400">
+              className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-surface transition-all hover:ring-gray-400">
               <option value="">Select account</option>
               {assetAccounts.map((a) => (
                 <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
@@ -225,21 +225,21 @@ function NewBillPaymentForm() {
         </div>
 
         <div>
-          <label htmlFor="memo" className="block text-sm font-bold leading-6 text-gray-900">Memo <span className="text-gray-400 font-normal">(optional)</span></label>
+          <label htmlFor="memo" className="block text-sm font-bold leading-6 text-heading">Memo <span className="text-caption font-normal">(optional)</span></label>
           <textarea id="memo" rows={2} value={memo} onChange={(e) => setMemo(e.target.value)}
-            className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
+            className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
         </div>
 
         {/* Apply to Bills */}
         {vendorId && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-gray-900">Apply to Bills</h3>
+              <h3 className="text-sm font-bold text-heading">Apply to Bills</h3>
               {billApps.length > 0 && amount && (
                 <button
                   type="button"
                   onClick={autoDistribute}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 px-3 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950 px-3 py-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-900 transition-colors"
                 >
                   Auto-distribute
                 </button>
@@ -247,14 +247,14 @@ function NewBillPaymentForm() {
             </div>
 
             {billsLoading ? (
-              <p className="text-sm text-gray-500 py-4">Loading bills...</p>
+              <p className="text-sm text-muted py-4">Loading bills...</p>
             ) : billApps.length === 0 ? (
-              <div className="bg-gray-50 rounded-xl p-6 text-center">
-                <p className="text-sm text-gray-500">No outstanding bills for this vendor.</p>
+              <div className="bg-surface-secondary rounded-xl p-6 text-center">
+                <p className="text-sm text-muted">No outstanding bills for this vendor.</p>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-xl overflow-hidden">
-                <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="border border-edge rounded-xl overflow-hidden">
+                <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
                   <div className="col-span-1"></div>
                   <div className="col-span-3">Bill #</div>
                   <div className="col-span-2">Date</div>
@@ -262,7 +262,7 @@ function NewBillPaymentForm() {
                   <div className="col-span-2 text-right">Balance</div>
                   <div className="col-span-2 text-right">Apply</div>
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-edge-subtle">
                   {billApps.map((app, idx) => (
                     <div key={app.bill.id} className="grid grid-cols-1 sm:grid-cols-12 gap-2 px-4 py-3 items-center">
                       <div className="col-span-1 flex items-center">
@@ -270,15 +270,15 @@ function NewBillPaymentForm() {
                           type="checkbox"
                           checked={app.checked}
                           onChange={() => toggleBill(idx)}
-                          className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                          className="h-4 w-4 rounded border-edge text-cyan-600 focus:ring-cyan-500"
                         />
                       </div>
-                      <div className="col-span-3 text-sm font-medium text-gray-900">{app.bill.bill_number || "\u2014"}</div>
-                      <div className="col-span-2 text-sm text-gray-600">
+                      <div className="col-span-3 text-sm font-medium text-heading">{app.bill.bill_number || "\u2014"}</div>
+                      <div className="col-span-2 text-sm text-body">
                         {new Date(app.bill.bill_date + "T00:00:00").toLocaleDateString("en-CA")}
                       </div>
-                      <div className="col-span-2 text-sm text-gray-600 text-right">{formatCurrency(app.bill.total_amount)}</div>
-                      <div className="col-span-2 text-sm font-medium text-amber-600 text-right">{formatCurrency(app.bill.balance)}</div>
+                      <div className="col-span-2 text-sm text-body text-right">{formatCurrency(app.bill.total_amount)}</div>
+                      <div className="col-span-2 text-sm font-medium text-amber-600 dark:text-amber-400 text-right">{formatCurrency(app.bill.balance)}</div>
                       <div className="col-span-2">
                         <input
                           type="number" min="0" step="0.01"
@@ -286,22 +286,22 @@ function NewBillPaymentForm() {
                           placeholder="0.00"
                           value={app.amount}
                           onChange={(e) => updateApplicationAmount(idx, e.target.value)}
-                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-right text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
+                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-right text-heading ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
                         />
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+                <div className="px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t border-edge">
                   <div className="flex justify-end gap-6 text-sm">
                     <div>
-                      <span className="text-gray-500">Applied: </span>
-                      <span className="font-bold text-gray-900">${totalApplied.toFixed(2)}</span>
+                      <span className="text-muted">Applied: </span>
+                      <span className="font-bold text-heading">${totalApplied.toFixed(2)}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Unapplied: </span>
-                      <span className={`font-bold ${unapplied > 0 ? "text-amber-600" : "text-green-600"}`}>
+                      <span className="text-muted">Unapplied: </span>
+                      <span className={`font-bold ${unapplied > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}>
                         ${Math.max(0, unapplied).toFixed(2)}
                       </span>
                     </div>
@@ -318,7 +318,7 @@ function NewBillPaymentForm() {
             className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-glow">
             {loading ? "Recording..." : "Record Bill Payment"}
           </button>
-          <Link href="/bills" className="flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+          <Link href="/bills" className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             Cancel
           </Link>
         </div>
@@ -333,13 +333,13 @@ export default function NewBillPaymentPage() {
   if (authLoading) return <PageLoader />;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title="Record Bill Payment"
         subtitle="Pay a vendor bill"
         actions={
-          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

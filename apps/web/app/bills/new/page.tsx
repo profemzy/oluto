@@ -187,13 +187,13 @@ export default function NewBillPage() {
   if (authLoading || dataLoading) return <PageLoader />;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title="New Bill"
         subtitle="Record a bill from a vendor"
         actions={
-          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+          <Link href="/bills" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -202,15 +202,15 @@ export default function NewBillPage() {
         }
       />
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-gray-100 sm:px-10">
+        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} className="mb-6" />
           <form className="space-y-8" onSubmit={handleSubmit}>
             {/* Header Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="vendorId" className="block text-sm font-bold leading-6 text-gray-900">Vendor</label>
+                <label htmlFor="vendorId" className="block text-sm font-bold leading-6 text-heading">Vendor</label>
                 <select id="vendorId" required value={vendorId} onChange={(e) => setVendorId(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-white transition-all hover:ring-gray-400">
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm bg-surface transition-all hover:ring-gray-400">
                   <option value="">Select a vendor</option>
                   {vendors.map((v) => (
                     <option key={v.id} value={v.id}>{v.name}</option>
@@ -218,26 +218,26 @@ export default function NewBillPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="billNumber" className="block text-sm font-bold leading-6 text-gray-900">Bill Number <span className="text-gray-400 font-normal">(optional)</span></label>
+                <label htmlFor="billNumber" className="block text-sm font-bold leading-6 text-heading">Bill Number <span className="text-caption font-normal">(optional)</span></label>
                 <input id="billNumber" type="text" value={billNumber} onChange={(e) => setBillNumber(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
               </div>
               <div>
-                <label htmlFor="billDate" className="block text-sm font-bold leading-6 text-gray-900">Bill Date</label>
+                <label htmlFor="billDate" className="block text-sm font-bold leading-6 text-heading">Bill Date</label>
                 <input id="billDate" type="date" required value={billDate} onChange={(e) => setBillDate(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
               </div>
               <div>
-                <label htmlFor="dueDate" className="block text-sm font-bold leading-6 text-gray-900">Due Date</label>
+                <label htmlFor="dueDate" className="block text-sm font-bold leading-6 text-heading">Due Date</label>
                 <input id="dueDate" type="date" required value={dueDate} onChange={(e) => setDueDate(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
               </div>
             </div>
 
             <div>
-              <label htmlFor="memo" className="block text-sm font-bold leading-6 text-gray-900">Memo <span className="text-gray-400 font-normal">(optional)</span></label>
+              <label htmlFor="memo" className="block text-sm font-bold leading-6 text-heading">Memo <span className="text-caption font-normal">(optional)</span></label>
               <textarea id="memo" rows={2} value={memo} onChange={(e) => setMemo(e.target.value)}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
+                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
             </div>
 
             {/* Receipt/Invoice Upload */}
@@ -254,11 +254,11 @@ export default function NewBillPage() {
             {/* Line Items */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-gray-900">Line Items</h3>
+                <h3 className="text-sm font-bold text-heading">Line Items</h3>
                 <button
                   type="button"
                   onClick={addLineItem}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 px-3 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950 px-3 py-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-900 transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -267,36 +267,36 @@ export default function NewBillPage() {
                 </button>
               </div>
 
-              <div className="border border-gray-200 rounded-xl overflow-hidden">
-                <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="border border-edge rounded-xl overflow-hidden">
+                <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
                   <div className="col-span-1">#</div>
                   <div className="col-span-4">Description</div>
                   <div className="col-span-2">Amount</div>
                   <div className="col-span-4">Expense Account</div>
                   <div className="col-span-1"></div>
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-edge-subtle">
                   {lineItems.map((item, idx) => (
                     <div key={item._key} className="grid grid-cols-1 sm:grid-cols-12 gap-2 px-4 py-3 items-center">
-                      <div className="col-span-1 text-sm text-gray-500 font-medium hidden sm:block">{idx + 1}</div>
+                      <div className="col-span-1 text-sm text-muted font-medium hidden sm:block">{idx + 1}</div>
                       <div className="col-span-4">
                         <input
                           type="text" placeholder="Description"
                           value={item.description || ""} onChange={(e) => updateLineItem(idx, "description", e.target.value)}
-                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
+                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-heading ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
                         />
                       </div>
                       <div className="col-span-2">
                         <input
                           type="number" required min="0" step="0.01" placeholder="0.00"
                           value={item.amount} onChange={(e) => updateLineItem(idx, "amount", e.target.value)}
-                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
+                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-heading ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 transition-all hover:ring-gray-400"
                         />
                       </div>
                       <div className="col-span-4">
                         <select
                           required value={item.expense_account_id} onChange={(e) => updateLineItem(idx, "expense_account_id", e.target.value)}
-                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 bg-white transition-all hover:ring-gray-400"
+                          className="block w-full rounded-lg border-0 py-2 px-3 text-sm text-heading ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 bg-surface transition-all hover:ring-gray-400"
                         >
                           <option value="">Select account</option>
                           {expenseAccounts.map((a) => (
@@ -309,7 +309,7 @@ export default function NewBillPage() {
                           type="button"
                           onClick={() => removeLineItem(idx)}
                           disabled={lineItems.length <= 1}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 rounded-lg text-caption hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -323,10 +323,10 @@ export default function NewBillPage() {
 
               {/* Total */}
               <div className="mt-4 flex justify-end">
-                <div className="w-64 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4">
+                <div className="w-64 bg-gradient-to-r from-surface-secondary to-surface-tertiary rounded-xl p-4">
                   <div className="flex justify-between text-sm">
-                    <span className="font-bold text-gray-700">Total</span>
-                    <span className="font-bold text-gray-900">${total.toFixed(2)}</span>
+                    <span className="font-bold text-body">Total</span>
+                    <span className="font-bold text-heading">${total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function NewBillPage() {
                 className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-glow">
                 {loading ? "Creating..." : "Create Bill"}
               </button>
-              <Link href="/bills" className="flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+              <Link href="/bills" className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
                 Cancel
               </Link>
             </div>

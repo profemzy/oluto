@@ -40,9 +40,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 rounded-full opacity-20 blur-3xl animate-float" />
-      <div className="absolute top-1/2 left-[5%] w-32 h-32 bg-teal-200 rounded-full opacity-15 blur-2xl animate-float-reverse" />
+      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
+      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float" />
+      <div className="absolute top-1/2 left-[5%] w-32 h-32 bg-teal-200 dark:bg-teal-800 rounded-full opacity-15 blur-2xl animate-float-reverse" />
 
       {/* Bouncing decorative dots */}
       <div className="absolute top-32 right-[20%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
@@ -52,10 +52,10 @@ export default function LoginPage() {
       />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-heading">
           Sign in to your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-body">
           Or{" "}
           <Link
             href="/auth/register"
@@ -67,14 +67,14 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-gray-100 sm:px-10">
+        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-bold leading-6 text-gray-900"
+                className="block text-sm font-bold leading-6 text-heading"
               >
                 Email address
               </label>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="you@example.com"
                 />
               </div>
@@ -96,7 +96,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-bold leading-6 text-gray-900"
+                className="block text-sm font-bold leading-6 text-heading"
               >
                 Password
               </label>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   placeholder="••••••••"
                 />
               </div>
@@ -121,11 +121,11 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600 cursor-pointer"
+                  className="h-4 w-4 rounded border-edge text-cyan-600 focus:ring-cyan-600 cursor-pointer"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900 cursor-pointer"
+                  className="ml-2 block text-sm text-heading cursor-pointer"
                 >
                   Remember me
                 </label>
@@ -195,10 +195,10 @@ export default function LoginPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+                <div className="w-full border-t border-edge" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">
+                <span className="bg-surface px-2 text-muted">
                   Or continue with
                 </span>
               </div>
@@ -207,7 +207,7 @@ export default function LoginPage() {
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 onClick={() => toastInfo("OAuth coming soon!")}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-white px-3 py-2.5 text-sm font-bold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:ring-gray-400 transition-all duration-200"
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -231,7 +231,7 @@ export default function LoginPage() {
               </button>
               <button
                 onClick={() => toastInfo("OAuth coming soon!")}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-white px-3 py-2.5 text-sm font-bold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:ring-gray-400 transition-all duration-200"
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
               >
                 <svg
                   className="h-5 w-5"

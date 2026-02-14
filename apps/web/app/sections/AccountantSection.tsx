@@ -65,7 +65,7 @@ const proFeatures: ProFeature[] = [
 
 export function AccountantSection() {
   return (
-    <section className="relative py-24 sm:py-32 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <section className="relative py-24 sm:py-32 bg-gradient-to-b from-surface to-surface-secondary overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-20 right-[8%] w-56 h-56 bg-indigo-100 rounded-full opacity-25 blur-3xl animate-float-slow" />
       <div className="absolute bottom-20 left-[8%] w-48 h-48 bg-cyan-100 rounded-full opacity-25 blur-3xl animate-float" />
@@ -76,13 +76,13 @@ export function AccountantSection() {
           <p className="text-sm font-bold text-indigo-600 tracking-wider uppercase animate-pulse-slow">
             For the pros
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
             Your accountant will{" "}
             <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">
               thank you
             </span>
           </h2>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-body">
             Behind the simple interface is a full double-entry accounting engine
             your bookkeeper already knows how to use.
           </p>
@@ -93,16 +93,16 @@ export function AccountantSection() {
           {proFeatures.map((feature, i) => (
             <div
               key={i}
-              className="group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="group relative rounded-2xl border border-edge-subtle bg-surface p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <div className="inline-flex rounded-lg bg-indigo-50 p-2.5 text-indigo-600 ring-1 ring-inset ring-indigo-500/20 group-hover:bg-indigo-100 transition-colors">
+              <div className="inline-flex rounded-lg bg-indigo-50 dark:bg-indigo-950 p-2.5 text-indigo-600 ring-1 ring-inset ring-indigo-500/20 group-hover:bg-indigo-100 transition-colors">
                 {feature.icon}
               </div>
-              <h3 className="mt-4 text-base font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
+              <h3 className="mt-4 text-base font-bold text-heading group-hover:text-indigo-700 transition-colors">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-gray-600">
+              <p className="mt-2 text-sm leading-6 text-body">
                 {feature.description}
               </p>
             </div>
@@ -111,11 +111,11 @@ export function AccountantSection() {
 
         {/* Trust callout */}
         <div className="mt-16 mx-auto max-w-2xl text-center">
-          <div className="inline-flex items-center gap-3 rounded-2xl bg-white border border-gray-200 px-6 py-4 shadow-sm">
+          <div className="inline-flex items-center gap-3 rounded-2xl bg-surface border border-edge px-6 py-4 shadow-sm">
             <svg className="w-6 h-6 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-body">
               <span className="font-bold">Built on proper accounting principles</span>{" "}
               — every debit has a credit, every dollar is accounted for, and your books are always balanced.
             </p>

@@ -31,12 +31,12 @@ export default function ArAgingPage() {
   if (authLoading) return <PageLoader />;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
       <PageHeader
         title="AR Aging"
         subtitle={report ? `As of ${report.as_of_date}` : "Accounts receivable aging analysis"}
         actions={
-          <Link href="/reports" className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+          <Link href="/reports" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -49,9 +49,9 @@ export default function ArAgingPage() {
 
         <div className="flex items-end gap-4 mb-8">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">As of Date</label>
+            <label className="block text-sm font-bold text-body mb-1">As of Date</label>
             <input type="date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)}
-              className="rounded-xl border-0 py-2.5 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-cyan-600 sm:text-sm" />
+              className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm" />
           </div>
           <button onClick={generate} disabled={loading}
             className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50">
@@ -60,29 +60,29 @@ export default function ArAgingPage() {
         </div>
 
         {report && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <table className="min-w-full divide-y divide-edge">
+                <thead className="bg-gradient-to-r from-surface-secondary to-surface-tertiary">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Current</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">1-30</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">31-60</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">61-90</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">90+</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Total</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-muted uppercase tracking-wider">Customer</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">Current</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">1-30</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">31-60</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">61-90</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">90+</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-muted uppercase tracking-wider">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-edge-subtle">
                   {report.buckets.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">No outstanding receivables</td>
+                      <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted">No outstanding receivables</td>
                     </tr>
                   ) : (
                     report.buckets.map((b) => (
-                      <tr key={b.customer_id} className="hover:bg-cyan-50/50 transition-all">
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900">{b.customer_name}</td>
+                      <tr key={b.customer_id} className="hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
+                        <td className="px-4 py-3 text-sm font-bold text-heading">{b.customer_name}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.current)}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_1_30)}</td>
                         <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_31_60)}</td>
@@ -96,9 +96,9 @@ export default function ArAgingPage() {
                 {report.buckets.length > 0 && (() => {
                   const totals = computeAgingTotals(report);
                   return (
-                  <tfoot className="bg-gradient-to-r from-gray-50 to-gray-100 border-t">
+                  <tfoot className="bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t">
                     <tr>
-                      <td className="px-4 py-3 text-sm font-bold text-gray-900">Total</td>
+                      <td className="px-4 py-3 text-sm font-bold text-heading">Total</td>
                       <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.current)}</td>
                       <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_1_30)}</td>
                       <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_31_60)}</td>

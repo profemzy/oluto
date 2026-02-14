@@ -24,7 +24,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Record Expenses by Voice",
     description: "Driving to a job site? Just tap and speak. Oluto captures the expense, categorizes it, and files it — completely hands-free.",
-    color: "bg-indigo-50 text-indigo-600 ring-indigo-500/20",
+    color: "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 ring-indigo-500/20",
     gradient: "from-indigo-500 to-purple-500",
   },
   {
@@ -36,7 +36,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Snap a Receipt, We Do the Rest",
     description: "Take a photo of any receipt or invoice. AI extracts the details, categorizes the expense, and files it — no data entry needed.",
-    color: "bg-cyan-50 text-cyan-600 ring-cyan-500/20",
+    color: "bg-cyan-50 dark:bg-cyan-950 text-cyan-600 ring-cyan-500/20",
     gradient: "from-cyan-500 to-blue-500",
   },
   {
@@ -47,7 +47,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Know What You Can Actually Spend",
     description: "See your real available cash in seconds — after taxes, bills, and obligations are set aside. No surprises.",
-    color: "bg-emerald-50 text-emerald-600 ring-emerald-500/20",
+    color: "bg-emerald-50 dark:bg-emerald-950 text-emerald-600 ring-emerald-500/20",
     gradient: "from-emerald-500 to-green-500",
   },
   {
@@ -58,7 +58,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Never Miss a Tax Deadline",
     description: "GST/HST and income tax are estimated in real time. Province-aware alerts tell you what's due and when.",
-    color: "bg-purple-50 text-purple-600 ring-purple-500/20",
+    color: "bg-purple-50 dark:bg-purple-950 text-purple-600 ring-purple-500/20",
     gradient: "from-purple-500 to-violet-500",
   },
   {
@@ -69,7 +69,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Expenses Sort Themselves",
     description: "AI categorizes every transaction automatically. You only review the handful it's unsure about — takes 5 minutes a day.",
-    color: "bg-amber-50 text-amber-600 ring-amber-500/20",
+    color: "bg-amber-50 dark:bg-amber-950 text-amber-600 ring-amber-500/20",
     gradient: "from-amber-500 to-orange-500",
   },
   {
@@ -80,7 +80,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "See Trouble Before It Hits",
     description: "Cash flow forecasting spots shortfalls weeks ahead, so you can act before they become problems.",
-    color: "bg-emerald-50 text-emerald-600 ring-emerald-500/20",
+    color: "bg-emerald-50 dark:bg-emerald-950 text-emerald-600 ring-emerald-500/20",
     gradient: "from-teal-500 to-emerald-500",
   },
   {
@@ -91,7 +91,7 @@ const defaultFeatures: Feature[] = [
     ),
     title: "Reports Ready When You Need Them",
     description: "Profit & loss, balance sheets, and tax summaries generated instantly. Share with your accountant in one click.",
-    color: "bg-cyan-50 text-cyan-600 ring-cyan-500/20",
+    color: "bg-cyan-50 dark:bg-cyan-950 text-cyan-600 ring-cyan-500/20",
     gradient: "from-cyan-500 to-teal-500",
   },
 ];
@@ -103,7 +103,7 @@ export function FeaturesSection({
   features = defaultFeatures,
 }: FeaturesSectionProps) {
   return (
-    <section id="features" className="relative py-24 sm:py-32 bg-white overflow-hidden">
+    <section id="features" className="relative py-24 sm:py-32 bg-surface overflow-hidden">
       {/* Decorative floating orbs */}
       <div className="absolute top-20 right-[5%] w-64 h-64 bg-cyan-100 rounded-full opacity-30 blur-3xl animate-float-slow" />
       <div className="absolute bottom-20 left-[5%] w-48 h-48 bg-green-100 rounded-full opacity-30 blur-3xl animate-float" />
@@ -118,10 +118,10 @@ export function FeaturesSection({
           <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
             {title}
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
             {subtitle}
           </h2>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-body">
             {description}
           </p>
         </div>
@@ -140,12 +140,12 @@ export function FeaturesSection({
               </div>
               
               {/* Title */}
-              <h3 className="mt-5 text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">
+              <h3 className="mt-5 text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">
                 {feature.title}
               </h3>
-              
+
               {/* Description */}
-              <p className="mt-3 text-sm leading-6 text-gray-600">
+              <p className="mt-3 text-sm leading-6 text-body">
                 {feature.description}
               </p>
               

@@ -209,9 +209,9 @@ export default function EditTransactionPage({
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
-      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-3xl animate-float-slow" />
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
+      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-2xl animate-float" />
+      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
 
       <PageHeader
         title="Edit Transaction"
@@ -219,7 +219,7 @@ export default function EditTransactionPage({
         actions={
           <Link
             href="/transactions"
-            className="group inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
           >
             <svg
               className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
@@ -240,23 +240,23 @@ export default function EditTransactionPage({
       />
 
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-gray-100 sm:px-10">
+        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} className="mb-6" />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Transaction Type Toggle */}
             <div>
-              <label className="block text-sm font-bold leading-6 text-gray-900 mb-2">
+              <label className="block text-sm font-bold leading-6 text-heading mb-2">
                 Transaction Type
               </label>
-              <div className="grid grid-cols-2 gap-0 rounded-xl ring-1 ring-inset ring-gray-300 overflow-hidden">
+              <div className="grid grid-cols-2 gap-0 rounded-xl ring-1 ring-inset ring-[var(--color-ring-default)] overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setTxnType("expense")}
                   className={`flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all duration-200 ${
                     txnType === "expense"
                       ? "bg-gradient-to-r from-red-50 to-red-100 text-red-700 ring-1 ring-red-200"
-                      : "bg-white text-gray-500 hover:bg-gray-50"
+                      : "bg-surface text-muted hover:bg-surface-hover"
                   }`}
                 >
                   <svg
@@ -287,7 +287,7 @@ export default function EditTransactionPage({
                   className={`flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all duration-200 ${
                     txnType === "income"
                       ? "bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 ring-1 ring-emerald-200"
-                      : "bg-white text-gray-500 hover:bg-gray-50"
+                      : "bg-surface text-muted hover:bg-surface-hover"
                   }`}
                 >
                   <svg
@@ -311,7 +311,7 @@ export default function EditTransactionPage({
             <div>
               <label
                 htmlFor="vendorName"
-                className="block text-sm font-bold leading-6 text-gray-900"
+                className="block text-sm font-bold leading-6 text-heading"
               >
                 {txnType === "expense" ? "Vendor / Payee" : "Client / Payer"}
               </label>
@@ -324,7 +324,7 @@ export default function EditTransactionPage({
                   value={vendorName}
                   onChange={(e) => setVendorName(e.target.value)}
                   placeholder={txnType === "expense" ? "e.g. Staples, Tim Hortons" : "e.g. Client name, Company Inc."}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                 />
               </div>
             </div>
@@ -333,7 +333,7 @@ export default function EditTransactionPage({
               <div>
                 <label
                   htmlFor="amount"
-                  className="block text-sm font-bold leading-6 text-gray-900"
+                  className="block text-sm font-bold leading-6 text-heading"
                 >
                   Amount (CAD)
                 </label>
@@ -359,7 +359,7 @@ export default function EditTransactionPage({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className={`block w-full rounded-xl border-0 py-3 pl-12 pr-4 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 ${
+                    className={`block w-full rounded-xl border-0 py-3 pl-12 pr-4 shadow-sm ring-1 ring-inset placeholder:text-caption focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 ${
                       txnType === "expense"
                         ? "text-red-700 ring-red-200 focus:ring-red-500"
                         : "text-emerald-700 ring-emerald-200 focus:ring-emerald-500"
@@ -371,7 +371,7 @@ export default function EditTransactionPage({
               <div>
                 <label
                   htmlFor="transactionDate"
-                  className="block text-sm font-bold leading-6 text-gray-900"
+                  className="block text-sm font-bold leading-6 text-heading"
                 >
                   Date
                 </label>
@@ -383,7 +383,7 @@ export default function EditTransactionPage({
                     required
                     value={transactionDate}
                     onChange={(e) => setTransactionDate(e.target.value)}
-                    className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                    className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
                   />
                 </div>
               </div>
@@ -392,10 +392,10 @@ export default function EditTransactionPage({
             <div>
               <label
                 htmlFor="description"
-                className="block text-sm font-bold leading-6 text-gray-900"
+                className="block text-sm font-bold leading-6 text-heading"
               >
                 Description
-                <span className="text-gray-400 font-normal"> (optional)</span>
+                <span className="text-caption font-normal"> (optional)</span>
               </label>
               <div className="mt-2">
                 <textarea
@@ -405,7 +405,7 @@ export default function EditTransactionPage({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="e.g. Ink cartridges for office printer, team lunch..."
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 resize-none"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 resize-none"
                 />
               </div>
             </div>
@@ -425,10 +425,10 @@ export default function EditTransactionPage({
             <div>
               <label
                 htmlFor="category"
-                className="block text-sm font-bold leading-6 text-gray-900"
+                className="block text-sm font-bold leading-6 text-heading"
               >
                 Category
-                <span className="text-gray-400 font-normal"> (optional)</span>
+                <span className="text-caption font-normal"> (optional)</span>
               </label>
               <div className="mt-2 relative">
                 <select
@@ -439,10 +439,10 @@ export default function EditTransactionPage({
                     setCategory(e.target.value);
                     manualCategoryRef.current = true;
                   }}
-                  className={`block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 bg-white ${
+                  className={`block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 bg-surface ${
                     aiSuggestion && category === aiSuggestion.category
                       ? "ring-cyan-300 focus:ring-cyan-500"
-                      : "ring-gray-300 focus:ring-cyan-600"
+                      : "ring-[var(--color-ring-default)] focus:ring-cyan-600"
                   }`}
                 >
                   <option value="">Select CRA category...</option>
@@ -480,13 +480,13 @@ export default function EditTransactionPage({
                       : ""}
                   </span>
                   {aiSuggestion.reasoning && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted">
                       {aiSuggestion.reasoning}
                     </span>
                   )}
                 </div>
               ) : (
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-muted">
                   Based on CRA T2125 expense categories
                 </p>
               )}
@@ -495,7 +495,7 @@ export default function EditTransactionPage({
 
             {txnType === "expense" ? (
             <div>
-              <label className="block text-sm font-bold leading-6 text-gray-900 mb-2">
+              <label className="block text-sm font-bold leading-6 text-heading mb-2">
                 Tax Treatment
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -517,14 +517,14 @@ export default function EditTransactionPage({
                     }}
                     className={`rounded-xl p-3 text-left transition-all duration-200 border ${
                       taxTreatment === opt.value
-                        ? "bg-cyan-50 border-cyan-300 ring-1 ring-cyan-200"
-                        : "bg-white border-gray-200 hover:border-gray-300"
+                        ? "bg-cyan-50 dark:bg-cyan-950 border-cyan-300 ring-1 ring-cyan-200"
+                        : "bg-surface border-edge hover:border-edge"
                     }`}
                   >
-                    <p className={`text-xs font-bold ${taxTreatment === opt.value ? "text-cyan-700" : "text-gray-700"}`}>
+                    <p className={`text-xs font-bold ${taxTreatment === opt.value ? "text-cyan-700" : "text-body"}`}>
                       {opt.label}
                     </p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">{opt.desc}</p>
+                    <p className="text-[10px] text-muted mt-0.5">{opt.desc}</p>
                   </button>
                 ))}
               </div>
@@ -532,12 +532,12 @@ export default function EditTransactionPage({
               {taxTreatment === "custom" && (
                 <div className="grid grid-cols-2 gap-4 mt-3">
                   <div>
-                    <label htmlFor="gstAmount" className="block text-xs font-semibold text-gray-600 mb-1">
+                    <label htmlFor="gstAmount" className="block text-xs font-semibold text-body mb-1">
                       GST/HST Amount
                     </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span className="text-xs text-gray-400">$</span>
+                        <span className="text-xs text-caption">$</span>
                       </div>
                       <input
                         id="gstAmount"
@@ -547,17 +547,17 @@ export default function EditTransactionPage({
                         value={gstAmount}
                         onChange={(e) => setGstAmount(e.target.value)}
                         placeholder="0.00"
-                        className="block w-full rounded-lg border-0 py-2 pl-7 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm transition-all duration-200"
+                        className="block w-full rounded-lg border-0 py-2 pl-7 pr-3 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm transition-all duration-200"
                       />
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="pstAmount" className="block text-xs font-semibold text-gray-600 mb-1">
+                    <label htmlFor="pstAmount" className="block text-xs font-semibold text-body mb-1">
                       PST/QST Amount
                     </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span className="text-xs text-gray-400">$</span>
+                        <span className="text-xs text-caption">$</span>
                       </div>
                       <input
                         id="pstAmount"
@@ -567,7 +567,7 @@ export default function EditTransactionPage({
                         value={pstAmount}
                         onChange={(e) => setPstAmount(e.target.value)}
                         placeholder="0.00"
-                        className="block w-full rounded-lg border-0 py-2 pl-7 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm transition-all duration-200"
+                        className="block w-full rounded-lg border-0 py-2 pl-7 pr-3 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -575,7 +575,7 @@ export default function EditTransactionPage({
               )}
 
               {taxTreatment !== "custom" && (
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-muted">
                   {taxTreatment === "standard" && "GST/HST and PST will be auto-calculated from your business province."}
                   {taxTreatment === "gst_only" && "Only federal GST will be calculated. PST will be $0."}
                   {taxTreatment === "exempt" && "No tax will be claimed as ITC for this purchase."}
@@ -630,7 +630,7 @@ export default function EditTransactionPage({
               </button>
               <Link
                 href="/transactions"
-                className="flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200"
+                className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-edge hover:-translate-y-0.5 transition-all duration-200"
               >
                 Cancel
               </Link>
