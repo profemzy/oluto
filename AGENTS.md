@@ -29,13 +29,16 @@ Transition small business owners from reactive record-keeping to proactive finan
 
 ### Frontend (this repo)
 
-| Component  | Technology                       |
-| ---------- | -------------------------------- |
-| Monorepo   | npm workspaces                   |
-| Web App    | Next.js 16.1.6 + React 19        |
-| Mobile App | React Native + Expo (scaffolded) |
-| Language   | TypeScript 5.0                   |
-| CSS        | Tailwind CSS 4                   |
+| Component     | Technology                       |
+| ------------- | -------------------------------- |
+| Monorepo      | npm workspaces                   |
+| Web App       | Next.js 16.1.6 + React 19        |
+| Mobile App    | React Native + Expo (scaffolded) |
+| Language      | TypeScript 5.0                   |
+| CSS           | Tailwind CSS 4                   |
+| Data Fetching | TanStack React Query 5.90        |
+| Notifications | react-hot-toast 2.6              |
+| Theme         | Dark/light mode with system sync |
 
 ### Backend (LedgerForge — separate repo)
 
@@ -138,114 +141,171 @@ draft → posted → void
 
 ## Frontend Architecture
 
-### Page Structure
+### Page Structure (35 pages)
 
 | Page             | Path                         | Description                                           |
 | ---------------- | ---------------------------- | ----------------------------------------------------- |
 | Landing          | `/`                          | Marketing page with hero, features, CTA               |
 | Login            | `/auth/login`                | JWT authentication                                    |
 | Register         | `/auth/register`             | User registration                                     |
+| Forgot Password  | `/auth/forgot-password`      | Password reset                                        |
 | Business Setup   | `/onboarding/setup-business` | Create business workspace                             |
-| Dashboard        | `/dashboard`                 | Safe-to-Spend, revenue/expenses, cashflow chart       |
+| Dashboard        | `/dashboard`                 | Safe-to-Spend, revenue/expenses, cashflow, overdue items |
 | Transactions     | `/transactions`              | List, filter, bulk status, inline status change       |
-| New Transaction  | `/transactions/new`          | Create transaction form                               |
-| Edit Transaction | `/transactions/[id]/edit`    | Edit existing transaction                             |
-| Import           | `/transactions/import`       | CSV/PDF upload, preview, confirm                      |
+| New Transaction  | `/transactions/new`          | Create expense transaction form + receipt upload      |
+| Edit Transaction | `/transactions/[id]/edit`    | Edit existing transaction + receipt upload             |
+| Import           | `/transactions/import`       | CSV/PDF upload, preview, duplicate flagging, confirm  |
+| Invoices         | `/invoices`                  | Invoice list with status filters                      |
+| New Invoice      | `/invoices/new`              | Create invoice with line items                        |
+| Invoice Detail   | `/invoices/[id]`             | View invoice detail + associated payments             |
+| Bills            | `/bills`                     | Bill list with status filters                         |
+| New Bill         | `/bills/new`                 | Create bill with line items                           |
+| Bill Detail      | `/bills/[id]`                | View bill detail + line items + receipt uploads       |
+| Payments         | `/payments`                  | Customer payment list                                 |
+| New Payment      | `/payments/new`              | Create payment (apply to invoices)                    |
+| New Bill Payment | `/payments/new/bill`         | Create bill payment (apply to bills)                  |
+| Payment Detail   | `/payments/[id]`             | View payment detail                                   |
 | Contacts         | `/contacts`                  | List with type tabs (All/Customers/Vendors/Employees) |
 | New Contact      | `/contacts/new`              | Create contact form                                   |
 | Edit Contact     | `/contacts/[id]/edit`        | Edit contact form                                     |
 | Accounts         | `/accounts`                  | Chart of accounts list with type filter               |
 | New Account      | `/accounts/new`              | Create account form                                   |
 | Edit Account     | `/accounts/[id]/edit`        | Edit account form                                     |
-| Bills            | `/bills`                     | List, filter, status management                       |
-| New Bill         | `/bills/new`                 | Create bill form                                      |
-| Edit Bill        | `/bills/[id]/edit`           | Edit existing bill                                    |
-| Invoices         | `/invoices`                  | List, filter, status management                       |
-| New Invoice      | `/invoices/new`              | Create invoice form                                   |
-| Edit Invoice     | `/invoices/[id]/edit`        | Edit existing invoice                                 |
-| Payments         | `/payments`                  | List, filter, apply to bills                          |
-| New Payment      | `/payments/new`              | Record payment form                                   |
-| Edit Payment     | `/payments/[id]/edit`        | Edit existing payment                                 |
-| Reconciliation   | `/reconciliation`            | Bank statement reconciliation                         |
+| Reconciliation   | `/reconciliation`            | Bank reconciliation with match suggestions            |
 | Reports Hub      | `/reports`                   | Report selection with date inputs                     |
 | Trial Balance    | `/reports/trial-balance`     | Trial balance report                                  |
 | Profit & Loss    | `/reports/profit-loss`       | Income statement                                      |
 | Balance Sheet    | `/reports/balance-sheet`     | Balance sheet report                                  |
 | AR Aging         | `/reports/ar-aging`          | Accounts receivable aging                             |
+| Privacy          | `/privacy`                   | Privacy policy                                        |
+| Terms            | `/terms`                     | Terms of service                                      |
 
 ### Key Frontend Patterns
 
-- **`lib/api.ts`** — centralized API client with all backend calls, typed request/response DTOs
+- **`lib/api.ts`** — centralized API client (1,372 lines) with 100+ endpoints, 35+ TypeScript interfaces
 - **`hooks/useAuth.ts`** — authentication check + redirect for protected pages
-- **`components/ui/`** — shared components: `ErrorAlert`, `PageLoader`, `PageHeader`
-- **`lib/constants.ts`** — CRA T2125 categories, status labels
-- **`lib/format.ts`** — currency formatting, date formatting
-- **`components/Navigation.tsx`** — app navigation with links to all sections
+- **`hooks/useDataTable.ts`** — data table state management (sorting, filtering, pagination)
+- **`components/ui/`** — shared components: `ErrorAlert`, `PageLoader`, `PageHeader`, `ListPageLayout`, `ErrorBoundary`, `Toast`, `ReceiptUploadSection`, `BillReceiptSection`
+- **`lib/constants.ts`** — CRA T2125 categories, classification options, receipt constraints
+- **`lib/format.ts`** — currency, date, file size, relative time formatters
+- **`lib/status.ts`** — status enums + badge color schemes for all entity types
+- **`lib/toast.ts`** — toast notification helpers (`toastError`, `toastSuccess`, etc.)
+- **`components/Navigation.tsx`** — app navigation with Sales/Purchases/Reports dropdown groups
+- **`components/ThemeProvider.tsx`** — dark/light mode with system color scheme sync
+- **`components/QueryProvider.tsx`** — TanStack Query provider with cache invalidation patterns
 
 ### TypeScript Style
 
 - Strict TypeScript configuration
-- All API responses typed
+- All API responses typed in `lib/api.ts`
 - Use existing shared components and hooks — don't duplicate
+- TanStack Query for all data fetching (`useQuery`/`useMutation`)
+- Tailwind `dark:` variant for dark mode styling
 
 ---
 
-## API Endpoints (LedgerForge)
+## API Endpoints (LedgerForge — 80+ total)
 
 ### Authentication
-
 - `POST /api/v1/auth/register` — User registration
 - `POST /api/v1/auth/login` — Login (form-urlencoded)
+- `POST /api/v1/auth/refresh` — Refresh access token
 - `GET /api/v1/auth/me` — Current user profile
 
 ### Businesses
-
 - `POST /api/v1/businesses` — Create business
 - `GET /api/v1/businesses` — List accessible businesses
+- `GET /api/v1/businesses/{id}` — Get business details
+- `PATCH /api/v1/businesses/{id}` — Update business
 
 ### Transactions (business-scoped)
-
 - `POST /api/v1/businesses/{id}/transactions` — Create transaction
 - `GET /api/v1/businesses/{id}/transactions` — List (filterable by status, date, search)
-- `GET /api/v1/businesses/{id}/transactions/{txn_id}` — Get transaction
-- `PATCH /api/v1/businesses/{id}/transactions/{txn_id}` — Update transaction
-- `DELETE /api/v1/businesses/{id}/transactions/{txn_id}` — Delete transaction
+- `GET /api/v1/businesses/{id}/transactions/{tid}` — Get transaction
+- `PATCH /api/v1/businesses/{id}/transactions/{tid}` — Update transaction
+- `DELETE /api/v1/businesses/{id}/transactions/{tid}` — Delete transaction
 - `GET /api/v1/businesses/{id}/transactions/summary` — Dashboard summary
 - `POST /api/v1/businesses/{id}/transactions/suggest-category` — AI category suggestion
 - `PATCH /api/v1/businesses/{id}/transactions/bulk-status` — Bulk status update
+- `GET /api/v1/businesses/{id}/transactions/duplicates` — Find duplicate transactions
 
-### Import
-
+### Import & Jobs
 - `POST /api/v1/businesses/{id}/transactions/import/parse` — Parse CSV/PDF file
 - `POST /api/v1/businesses/{id}/transactions/import/confirm` — Confirm and import
+- `GET /api/v1/businesses/{id}/transactions/jobs/{job_id}` — Poll async job status
 
-### Jobs
+### Invoices
+- `GET /api/v1/businesses/{id}/invoices` — List invoices
+- `POST /api/v1/businesses/{id}/invoices` — Create invoice with line items
+- `GET /api/v1/businesses/{id}/invoices/{iid}` — Get invoice with line items
+- `PUT /api/v1/businesses/{id}/invoices/{iid}/status` — Update invoice status
+- `GET /api/v1/businesses/{id}/invoices/overdue` — Get overdue invoices
+- `GET /api/v1/businesses/{id}/customers/{cid}/invoices` — Get customer's invoices
+- `GET /api/v1/businesses/{id}/invoices/{iid}/payments` — Get invoice payments
 
-- `GET /api/v1/businesses/{id}/transactions/jobs/{job_id}` — Poll async job status (PDF import)
+### Bills
+- `GET /api/v1/businesses/{id}/bills` — List bills
+- `POST /api/v1/businesses/{id}/bills` — Create bill with line items
+- `GET /api/v1/businesses/{id}/bills/{bid}` — Get bill with line items
+- `DELETE /api/v1/businesses/{id}/bills/{bid}` — Delete bill
+- `PUT /api/v1/businesses/{id}/bills/{bid}/status` — Update bill status
+- `GET /api/v1/businesses/{id}/bills/overdue` — Get overdue bills
+- `GET /api/v1/businesses/{id}/vendors/{vid}/bills` — Get vendor's bills
 
-### Contacts
+### Payments
+- `GET /api/v1/businesses/{id}/payments` — List payments
+- `POST /api/v1/businesses/{id}/payments` — Create customer payment
+- `GET /api/v1/businesses/{id}/payments/{pid}` — Get payment details
+- `PUT /api/v1/businesses/{id}/payments/{pid}/apply` — Apply to invoices
+- `GET /api/v1/businesses/{id}/payments/unapplied` — Get unapplied payments
+- `POST /api/v1/businesses/{id}/bill-payments` — Create vendor bill payment
 
-- `GET/POST /api/v1/contacts` — List/create contacts
-- `GET/PUT/DELETE /api/v1/contacts/{id}` — Contact CRUD
-- `GET /api/v1/contacts/customers` — Filter by type
-- `GET /api/v1/contacts/vendors`
-- `GET /api/v1/contacts/employees`
+### Contacts (business-scoped)
+- `GET /api/v1/businesses/{id}/contacts` — List contacts
+- `POST /api/v1/businesses/{id}/contacts` — Create contact
+- `GET /api/v1/businesses/{id}/contacts/customers` — List customers
+- `GET /api/v1/businesses/{id}/contacts/vendors` — List vendors
+- `GET /api/v1/businesses/{id}/contacts/employees` — List employees
+- `GET /api/v1/businesses/{id}/contacts/{cid}` — Get contact
+- `PUT /api/v1/businesses/{id}/contacts/{cid}` — Update contact
+- `DELETE /api/v1/businesses/{id}/contacts/{cid}` — Delete contact
 
-### Accounts
+### Accounts (business-scoped)
+- `GET /api/v1/businesses/{id}/accounts` — List accounts
+- `POST /api/v1/businesses/{id}/accounts` — Create account
+- `GET /api/v1/businesses/{id}/accounts/{aid}` — Get account
+- `PUT /api/v1/businesses/{id}/accounts/{aid}` — Update account
+- `DELETE /api/v1/businesses/{id}/accounts/{aid}` — Deactivate account
 
-- `GET/POST /api/v1/accounts` — List/create accounts
-- `GET/PUT/DELETE /api/v1/accounts/{id}` — Account CRUD
+### Reconciliation
+- `GET /api/v1/businesses/{id}/reconciliation/summary` — Summary
+- `GET /api/v1/businesses/{id}/reconciliation/suggestions` — Match suggestions
+- `GET /api/v1/businesses/{id}/reconciliation/unreconciled` — Unreconciled items
+- `POST /api/v1/businesses/{id}/reconciliation/confirm` — Confirm match
+- `POST /api/v1/businesses/{id}/reconciliation/reject` — Reject match
+- `POST /api/v1/businesses/{id}/reconciliation/unlink` — Unlink match
+- `POST /api/v1/businesses/{id}/reconciliation/auto` — Auto-reconcile
+- `POST /api/v1/businesses/{id}/reconciliation/mark-reconciled` — Mark reconciled
+- `POST /api/v1/businesses/{id}/reconciliation/mark-unreconciled` — Mark unreconciled
+
+### Receipts & OCR
+- `GET /api/v1/businesses/{id}/transactions/{tid}/receipts` — List receipts
+- `POST /api/v1/businesses/{id}/transactions/{tid}/receipts` — Upload receipt
+- `GET /api/v1/businesses/{id}/receipts/{rid}` — Get receipt
+- `DELETE /api/v1/businesses/{id}/receipts/{rid}` — Delete receipt
+- `GET /api/v1/businesses/{id}/receipts/{rid}/download` — Download receipt
+- `POST /api/v1/businesses/{id}/receipts/extract-ocr` — Extract OCR only
+- `GET /api/v1/businesses/{id}/bills/{bid}/receipts` — List bill receipts
+- `POST /api/v1/businesses/{id}/bills/{bid}/receipts` — Upload bill receipt
 
 ### Reports
-
-- `GET /api/v1/reports/trial-balance` — Trial balance
-- `GET /api/v1/reports/profit-loss` — Profit & loss
-- `GET /api/v1/reports/balance-sheet` — Balance sheet
-- `GET /api/v1/reports/ar-aging` — AR aging
+- `GET /api/v1/businesses/{id}/reports/trial-balance` — Trial balance
+- `GET /api/v1/businesses/{id}/reports/profit-loss` — Profit & loss
+- `GET /api/v1/businesses/{id}/reports/balance-sheet` — Balance sheet
+- `GET /api/v1/businesses/{id}/reports/ar-aging` — AR aging
 
 ### Health & Docs
-
-- `GET /health` — Service health check
+- `GET /api/v1/health` — Service health check (DB + Redis status)
 - Swagger UI: `/swagger-ui/`
 - OpenAPI JSON: `/api-docs/openapi.json`
 
@@ -295,13 +355,16 @@ Two independent pipelines:
 
 ## Important Notes for AI Agents
 
-1. **This is a frontend-only repo** — backend changes go in the LedgerForge repository
+1. **This is a frontend-only repo** — backend changes go in the LedgerForge repository (`../ledger-forge`)
 2. **Use existing frontend patterns** — `useAuth` hook, shared UI components, `lib/api.ts` for API calls
 3. **Use Decimal for money** — never use float for financial calculations
 4. **Type everything** — all API responses and requests should be typed in `lib/api.ts`
 5. **Follow existing page patterns** — new pages should follow the structure of existing pages (layout, error handling, loading states)
-6. **Keep `concept.md` in sync** — if implementing features from the spec, note progress
-7. **Test with type checking** — run `npx tsc --noEmit -p apps/web/tsconfig.json` to verify
+6. **Use TanStack Query** — all data fetching should use `useQuery`/`useMutation` with proper cache invalidation
+7. **Dark mode support** — always include `dark:` Tailwind variants for new UI elements
+8. **Status badge colors** — use `lib/status.ts` for consistent entity status styling
+9. **Keep `concept.md` in sync** — if implementing features from the spec, note progress
+10. **Test with type checking** — run `npx tsc --noEmit -p apps/web/tsconfig.json` to verify
 
 ---
 

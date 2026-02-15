@@ -1,8 +1,8 @@
 # Product Design Specification: Oluto (v1.5)
 **"Financial Autopilot for the Modern Builder"**
 
-- **Date:** February 11, 2026
-- **Status:** Draft / Alpha
+- **Date:** February 14, 2026
+- **Status:** Alpha — Deployed (DEV: dev.oluto.app, PROD: oluto.app)
 - **Strategy:** Cashflow-First, Mobile-First, Voice-Enabled, Bookkeeper-Led, Co-Branded First.
 - **Target Market:** Canadian small businesses (sole proprietors + incorporated) across all provinces/territories, and independent bookkeepers/fractional CFOs (10–30 clients) as the primary distribution wedge.
 - **Competitive Position:** Oluto occupies the uncontested intersection of three dimensions no current competitor combines: cashflow-first UX, Canadian-native tax intelligence, and trust-first AI with human-in-the-loop verification. The strategic window is approximately 12–18 months before well-funded US AI-native competitors (Digits $100M, Puzzle $50M, Kick $20M) expand into Canada.
@@ -283,38 +283,47 @@ The score gamifies data entry (founders want to reach Level 4), sets honest expe
 ---
 
 ## 4. Technical Architecture
-**Strategy:** "Python Brain, TypeScript Face" (Optimized for AI & Data Science).
+**Strategy:** "Rust Engine, TypeScript Face" (Optimized for Performance & Safety).
+
+> **Implementation Note (Feb 2026):** The backend was built with **Rust/Axum** instead of the originally planned Python/FastAPI. This provides superior performance, memory safety, and type-safe financial calculations via `rust_decimal`. The frontend follows the original TypeScript monorepo plan.
 
 * **Frontend Monorepo (TypeScript):**
-    * **Mobile:** **React Native (Expo)**.
-    * **Web:** **Next.js**.
-    * **API Client:** Auto-generated from Backend OpenAPI schema (Ensures strict typing).
-* **Backend API (Python):**
-    * **Framework:** **FastAPI** (Async).
-    * **Manager:** **uv** (Package management).
-    * **Database:** PostgreSQL (Supabase) + SQLAlchemy (Async).
-    * **Multi-Tenant:** Firm → Business workspaces, strict tenant scoping, role-based access control, audit logging.
+    * **Mobile:** **React Native (Expo)** — scaffolded, not yet implemented.
+    * **Web:** **Next.js 16** + React 19 + Tailwind CSS 4 + TanStack Query.
+    * **API Client:** Hand-written typed client in `lib/api.ts` (100+ endpoints, 35+ TypeScript interfaces).
+* **Backend API (Rust) — [LedgerForge](https://github.com/profemzy/ledger-forge):**
+    * **Framework:** **Axum** 0.8.6 + Tokio (Async).
+    * **Database:** PostgreSQL + **SQLx** 0.8 (raw type-safe queries, no ORM).
+    * **Cache:** Redis via `redis` crate.
+    * **Auth:** JWT (jsonwebtoken 10) + Argon2 password hashing.
+    * **Financial Precision:** `rust_decimal` 1.36 for DECIMAL(15,2) financial values.
+    * **Multi-Tenant:** Business workspaces, strict `business_id` scoping, role-based access control (Viewer/Accountant/Admin).
+    * **API Docs:** Auto-generated via utoipa + Swagger UI.
 * **Intelligence Layer (The "Autopilot" Core):**
-    * **Voice:** **OpenAI Whisper** (via API or local distil-whisper).
-    * **Logic:** **LangChain (Python)** using Pydantic for structured data extraction.
-    * **Tiered AI Engine:** Starter tier uses open-source LLMs (Llama 3, Mistral) via self-hosted or low-cost inference for 85–90% categorization accuracy. Core/Pro tiers use premium models (OpenAI, Anthropic, or Fuelix-hosted equivalents) for 95%+ accuracy and richer explanations. Both tiers feed into the same trust layer (confidence scoring + exceptions routing). Architecture should abstract the model provider behind a common interface so tiers can be switched without code changes.
-    * **Benchmarks:** **Pandas** jobs running nightly to aggregate peer statistics.
-    * **Tax Logic:** `tax_engine.py` using Python's `Decimal` type for precise CRA math. Supports two modes: (1) **Estimated** — reverse-calculates tax from gross bank transaction amounts using province rates (Phase 1 baseline), and (2) **Verified** — uses actual tax amounts extracted from receipts (ITCs) and invoices (tax collected). The CRA Lockbox progressively upgrades from estimated to verified as source documents are added. Per-transaction `tax_source` field tracks whether tax data is estimated or receipt/invoice-verified.
-* **Ingestion Layer (v1-first):**
-    * **Statement Import:** CSV + PDF parsing into a canonical `Transaction` model with dedupe + confidence scoring.
-    * **Open Banking Readiness:** A `Connection` abstraction so future Flinks/Plaid/consumer-driven banking sync plugs into the same pipeline.
-* **Extensibility Layer (AI Tool Ecosystem):**
-    * **MCP Server (Model Context Protocol):** Expose Oluto's core data (safe-to-spend, transactions, categories, tax set-asides, audit trail) as an MCP server so external AI agents (Anthropic Cowork, Claude Code, OpenClaw, and future tools) can query Oluto data natively. Read-only by default; scoped write access (e.g., categorization confirmations) requires explicit user grants.
-    * **API Tokens:** Scoped, read-only API tokens for AI tool access. Founders and bookkeepers can connect their preferred AI assistant to Oluto without exposing write-level operations. Token management via the web console.
-    * **Webhook Events:** Publish events (new transaction imported, exception flagged, period closed) so external tools and automations can react to Oluto state changes.
+    * **AI Categorization:** Fuelix (OpenAI-compatible API) for CRA T2125 expense categories. Graceful fallback to keyword-based matching when AI unavailable.
+    * **OCR:** Azure Mistral Document AI for PDF bank statement text extraction.
+    * **PDF Parsing:** Generic multi-bank parser with pipe table, HTML table, and line-based strategies. Supports BMO, TD, RBC, Scotiabank formats.
+    * **Tax Logic:** Province-aware GST/HST/PST calculation for all 13 provinces/territories using `rust_decimal` for precision.
+    * **Voice:** **OpenAI Whisper** (planned — not yet implemented).
+    * **Benchmarks:** Planned for post-launch.
+* **Ingestion Layer (implemented):**
+    * **Statement Import:** CSV + PDF parsing into a canonical `Transaction` model with dedupe + confidence scoring + async job processing.
+    * **Receipt Upload:** Azure Blob Storage with OCR text extraction (vendor, amount, date, tax breakdown).
+    * **Open Banking Readiness:** Architecture supports future Flinks/Plaid/consumer-driven banking connections.
+* **Extensibility Layer (AI Tool Ecosystem — planned):**
+    * **MCP Server (Model Context Protocol):** Expose Oluto's core data as an MCP server so external AI agents can query Oluto data natively.
+    * **API Tokens:** Scoped, read-only API tokens for AI tool access.
+    * **Webhook Events:** Publish events for external automation.
 
 ## 4.1 Security & Compliance Posture (v1)
 This is essential for firm-led adoption and to support future SOC 2-style assurance.
 
-* **Tenant Isolation:** strict firm/business scoping on every query; no cross-tenant access paths.
-* **Access Control:** role-based permissions + least privilege defaults (firm admin/staff; business owner/member/read-only).
-* **Auditability:** immutable audit log for key actions; export/download logs for sensitive operations.
-* **Data Protection:** encryption in transit; encrypt sensitive data at rest where feasible; secure object storage for receipts/statements with scoped access.
+* **Tenant Isolation:** strict `business_id` scoping on every query; no cross-tenant access paths. Enforced at the service layer in LedgerForge.
+* **Access Control:** JWT authentication (access + refresh tokens) + Argon2 password hashing. Role-based permissions: Viewer(0) < Accountant(1) < Admin(2).
+* **Memory Safety:** Rust compile-time guarantees prevent buffer overflows, use-after-free, and data races.
+* **SQL Injection Prevention:** SQLx prepared statements with type-safe query building.
+* **Data Protection:** HTTPS via cert-manager + Let's Encrypt. Azure Blob Storage for receipts with scoped containers and signed URLs. Non-root Docker container user.
+* **Infrastructure:** Azure Key Vault secrets synced via ExternalSecrets Operator to K8s. No credentials in code or config files.
 
 ## 5. UI/UX Guidelines
 * **Mobile Principle:** "Thumb Zone & Voice First." Key actions must be reachable with one thumb; voice input must have haptic feedback.
@@ -341,12 +350,14 @@ Bank statements alone produce a **cash activity summary**, not accurate financia
 
 ### 6.1 Phase-by-Phase Build
 
-| Phase | Timeline | Focus | Key Deliverables | Data Completeness Level |
+| Phase | Timeline | Focus | Key Deliverables | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1** | Month 1-2 | **The "Onramp"** | Multi-tenant foundations + statement import (CSV) + Safe-to-Spend (estimated) + Exceptions Inbox + AI categorization. **P0: Tax engine for all 13 provinces/territories.** Dashboard clearly labeled "Estimated — based on bank activity." | Level 1–2 (Cash Activity → Categorized Cash) |
-| **Phase 2** | Month 3-4 | **The "Trust Layer"** | Email-to-Inbox (P0) + PDF import + **receipt upload with tax extraction** (GST/HST/PST/QST line items from source documents) + receipt-to-transaction matching + immutable audit log. CRA Lockbox upgrades from estimated to receipt-verified ITCs. Open-source LLM integration for Starter tier. | Level 3 (Receipt-Verified) |
-| **Phase 3** | Month 5-6 | **Revenue Accuracy** | **Basic invoicing** (create, send, track payment status) + invoice-to-deposit matching + deposit classification (revenue vs. non-revenue). CRA Lockbox upgrades to: actual tax collected (invoices) minus actual ITCs (receipts). Accounts receivable visible on dashboard. | Level 4 (Full Picture) |
-| **Phase 4** | Month 7-8 | **The "Bookkeeper Channel"** | Co-branding + multi-client review queue (with per-client Data Completeness Scores) + accountant export package (CRA-ready workpapers with verified tax data) + close checklist (soft lock). | Level 4 + multi-client |
+| **Phase 1** | Month 1-2 | **The "Onramp"** | Multi-tenant foundations + statement import (CSV) + Safe-to-Spend (estimated) + AI categorization. **Tax engine for all 13 provinces/territories.** Dashboard, transactions, contacts, accounts, reports. | ✅ **Complete** |
+| **Phase 2** | Month 3-4 | **The "Trust Layer"** | PDF import via Mistral OCR + **receipt upload with OCR tax extraction** + receipt-to-transaction attachment + bank reconciliation with duplicate detection. Generic multi-bank PDF parser. | ✅ **Complete** |
+| **Phase 3** | Month 5-6 | **Revenue Accuracy** | **Invoicing** (create with line items, status tracking, payment association) + **Bills** (AP with line items, bill receipts) + **Customer payments** (apply to invoices) + **Vendor bill payments** (apply to bills). AR aging reports. Accounts receivable visible on dashboard. | ✅ **Complete** |
+| **Phase 4** | Month 7-8 | **The "Bookkeeper Channel"** | Co-branding + multi-client review queue (with per-client Data Completeness Scores) + accountant export package (CRA-ready workpapers with verified tax data) + close checklist (soft lock). | 🔲 **Planned** |
+
+> **Implementation Note:** Phases 1–3 were completed ahead of schedule. The backend was built with Rust/Axum (LedgerForge) instead of Python/FastAPI. Email-to-Inbox (originally Phase 2 P0) was deferred in favor of receipt upload + OCR + reconciliation. Dark mode, forgot password, and bill attachment support were added as polish items.
 
 ### 6.2 Post-Launch Roadmap (Months 9–14)
 | Priority | Focus | Rationale |
@@ -448,17 +459,19 @@ This stack remains a strong fit for Oluto’s 2026 goals (cashflow-first UX, sta
 
 ### Master Prompt
 ```text
-Role: Senior Architect & Python Engineer.
+Role: Senior Architect & Rust/TypeScript Engineer.
 Project: "Oluto" (Financial Autopilot for Canada).
-Stack: React Native (Expo) + FastAPI (Python) + PostgreSQL.
+Stack: Next.js 16 (TypeScript) + LedgerForge (Rust/Axum) + PostgreSQL.
+Note: Original spec called for FastAPI/Python. Implemented with Rust/Axum for performance and type safety.
 
 ### ARCHITECTURAL GOALS
-1. **Python Backend (FastAPI):**
-   - Use 'uv' for dependency management.
-   - Implement 'SQLAlchemy' (Async) for DB access.
-   - Expose 'openapi.json' for frontend type generation.
-   - Implement strict multi-tenant scoping (Firm -> Business) with RBAC and an immutable audit log.
-   - Store statements/receipts in secure object storage (scoped access, signed URLs, download audit logs).
+1. **Rust Backend (Axum) — "LedgerForge":**
+   - Use Axum + Tokio for async HTTP API.
+   - Use SQLx for type-safe PostgreSQL queries (no ORM).
+   - Use rust_decimal for financial precision (DECIMAL(15,2)).
+   - Expose OpenAPI/Swagger UI via utoipa.
+   - Implement strict multi-tenant scoping (Business workspaces) with RBAC and audit logging.
+   - Store receipts in Azure Blob Storage (scoped containers, signed URLs).
 
 2. **Ingestion Module (v1-first):**
    - **Statement Import (CSV):** guided column mapping, saved templates per institution, dedupe/idempotency, and import preview.

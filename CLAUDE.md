@@ -27,19 +27,33 @@ npx tsc --noEmit -p apps/web/tsconfig.json
 ## Project Structure
 
 ```
-apps/web/                      # Next.js app
+apps/web/                      # Next.js app (64 files, 13,500+ lines)
   app/
-    auth/                      # Login + Register pages
+    auth/                      # Auth pages
       login/page.tsx
       register/page.tsx
+      forgot-password/page.tsx
     dashboard/page.tsx
     onboarding/
       setup-business/page.tsx
     transactions/
-      page.tsx                 # Transaction list
-      new/page.tsx             # Add transaction
+      page.tsx                 # Transaction list (filter, bulk status, inline editing)
+      new/page.tsx             # Add expense transaction
       [id]/edit/page.tsx       # Edit transaction
-      import/page.tsx          # Import CSV/PDF
+      import/page.tsx          # Import CSV/PDF bank statements
+    invoices/
+      page.tsx                 # Invoice list with status filters
+      new/page.tsx             # Create invoice with line items
+      [id]/page.tsx            # Invoice detail + payments
+    bills/
+      page.tsx                 # Bill list with status filters
+      new/page.tsx             # Create bill with line items
+      [id]/page.tsx            # Bill detail + line items + receipts
+    payments/
+      page.tsx                 # Customer payment list
+      new/page.tsx             # Create payment (apply to invoices)
+      new/bill/page.tsx        # Create bill payment (apply to bills)
+      [id]/page.tsx            # Payment detail
     contacts/
       page.tsx                 # Contact list (tabs: All/Customers/Vendors/Employees)
       new/page.tsx             # Add contact
@@ -48,29 +62,41 @@ apps/web/                      # Next.js app
       page.tsx                 # Chart of accounts list
       new/page.tsx             # Add account
       [id]/edit/page.tsx       # Edit account
+    reconciliation/
+      page.tsx                 # Bank reconciliation UI
     reports/
       page.tsx                 # Reports hub
       trial-balance/page.tsx
       profit-loss/page.tsx
       balance-sheet/page.tsx
       ar-aging/page.tsx
+    privacy/page.tsx           # Privacy policy
+    terms/page.tsx             # Terms of service
     sections/                  # Landing page sections
       HeroSection.tsx
       FeaturesSection.tsx
       HowItWorksSection.tsx
       DashboardPreview.tsx
+      AccountantSection.tsx
       CTASection.tsx
     components/
-      ui/                      # Shared UI (ErrorAlert, PageLoader, PageHeader)
-      Navigation.tsx
+      ui/                      # Shared UI (ErrorAlert, PageLoader, PageHeader, ListPageLayout, ErrorBoundary, Toast, ReceiptUploadSection, BillReceiptSection)
+      Navigation.tsx           # App nav with Sales/Purchases/Reports groups
       Footer.tsx
+      ThemeProvider.tsx         # Dark/light mode with system sync
+      ThemeToggle.tsx
+      ThemeLogo.tsx            # Inline SVG logo (dark/light variants)
+      QueryProvider.tsx        # TanStack Query provider
       index.ts                 # Barrel export
     hooks/
       useAuth.ts               # Auth check + redirect hook
+      useDataTable.ts          # Data table state management
     lib/
-      api.ts                   # API client (all backend calls)
-      constants.ts             # Shared constants (CRA_CATEGORIES)
-      format.ts                # Currency/date formatters
+      api.ts                   # API client (1,372 lines, 100+ endpoints, 35+ types)
+      constants.ts             # CRA_CATEGORIES, classification options, receipt constraints
+      format.ts                # Currency/date/file size formatters
+      status.ts                # Status enums + color schemes for all entities
+      toast.ts                 # Toast helper wrappers
     layout.tsx
     page.tsx                   # Landing page
   Dockerfile
@@ -146,6 +172,11 @@ azure-pipelines/               # Azure DevOps CI/CD
 - **Decimal for money:** Never use `float` for financial calculations — always proper decimal types
 - **Tenant isolation:** All queries scoped by `business_id`
 - **DRY frontend patterns:** Use `useAuth` hook for auth checks, shared UI components from `components/ui/`, constants from `lib/constants.ts`, API methods from `lib/api.ts`
+- **TanStack Query:** All data fetching uses `useQuery`/`useMutation` via `QueryProvider` — cache invalidation on mutations
+- **Dark mode:** Use Tailwind `dark:` variant classes — theme state in `ThemeProvider` (localStorage + system sync)
+- **Status management:** Entity status enums and badge colors defined in `lib/status.ts`
+- **Toast notifications:** Use helpers from `lib/toast.ts` (`toastError`, `toastSuccess`)
+- **Navigation groups:** Sales (Invoices, Payments) and Purchases (Bills, Bill Payments) are grouped in nav dropdowns
 
 ## Access Points
 
