@@ -19,6 +19,13 @@ yarn-error.log*
 *.swo
 *~
 
+# AI agents / tools
+.agent/
+.agents/
+.claude/
+.cline/
+*.skill
+
 # macOS
 .DS_Store
 
