@@ -191,13 +191,16 @@ export function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(() =>
-    api.isAuthenticated(),
-  );
-  const [authCheckedPath, setAuthCheckedPath] = useState(() => pathname);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [authCheckedPath, setAuthCheckedPath] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
+    setIsAuthenticated(api.isAuthenticated());
+    setAuthCheckedPath(pathname);
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -206,7 +209,7 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (authCheckedPath !== pathname) {
+  if (hasMounted && authCheckedPath !== pathname) {
     setAuthCheckedPath(pathname);
     setIsAuthenticated(api.isAuthenticated());
   }
@@ -223,8 +226,9 @@ export function Navigation() {
     pathname.startsWith("/payments") ||
     pathname.startsWith("/reconciliation");
 
-  const navLinks = isAppPage && isAuthenticated ? appLinks : marketingLinks;
-  const showAuth = !isAppPage || !isAuthenticated;
+  // Until client mounts, always show marketing links to match SSR output
+  const navLinks = hasMounted && isAppPage && isAuthenticated ? appLinks : marketingLinks;
+  const showAuth = !hasMounted || !isAppPage || !isAuthenticated;
 
   const handleLogout = () => {
     api.removeToken();
@@ -244,7 +248,7 @@ export function Navigation() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link
-            href={isAuthenticated && isAppPage ? "/dashboard" : "/"}
+            href={hasMounted && isAuthenticated && isAppPage ? "/dashboard" : "/"}
             className="flex items-center group"
           >
             <ThemeLogo />
