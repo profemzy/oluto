@@ -31,3 +31,21 @@ spec:
       name: http
   selector:
     app: oluto-frontend
+---
+# =============================================================================
+# Agent Service (PicoClaw gateway on port 18790)
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: oluto-agent
+  namespace: oluto
+spec:
+  type: ClusterIP
+  ports:
+    - port: 18790
+      targetPort: 18790
+      protocol: TCP
+      name: http
+  selector:
+    app: oluto-agent

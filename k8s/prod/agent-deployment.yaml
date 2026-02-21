@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oluto-agent
+  namespace: oluto
+  labels:
+    app: oluto-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oluto-agent
+  template:
+    metadata:
+      labels:
+        app: oluto-agent
+    spec:
+      containers:
+        - name: oluto-agent
+          image: wackopscoachprodacr.azurecr.io/oluto-agent:latest
+          command: ["picoclaw"]
+          args: ["gateway"]
+          ports:
+            - containerPort: 18790
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 18790
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 18790
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 150m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: picoclaw-config
+              mountPath: /home/picoclaw/.picoclaw/config.json
+              subPath: config.json
+              readOnly: true
+            - name: picoclaw-config
+              mountPath: /home/picoclaw/.oluto-config.json
+              subPath: oluto-config.json
+              readOnly: true
+            - name: workspace
+              mountPath: /home/picoclaw/.picoclaw/workspace
+      volumes:
+        - name: picoclaw-config
+          secret:
+            secretName: picoclaw-config
+        - name: workspace
+          emptyDir: {}
