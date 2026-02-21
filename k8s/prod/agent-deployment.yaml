@@ -49,10 +49,6 @@ spec:
               mountPath: /home/picoclaw/.picoclaw/config.json
               subPath: config.json
               readOnly: true
-            - name: picoclaw-config
-              mountPath: /home/picoclaw/.oluto-config.json
-              subPath: oluto-config.json
-              readOnly: true
             - name: workspace
               mountPath: /home/picoclaw/.picoclaw/workspace
       volumes:
