@@ -19,7 +19,30 @@ spec:
         - name: oluto-agent
           image: wackopscoachdevacr.azurecr.io/oluto-agent:latest
           command: ["sh", "-c"]
-          args: ["ln -s /home/picoclaw/.picoclaw/skills /home/picoclaw/.picoclaw/workspace/skills && exec picoclaw gateway"]
+          args:
+            - |
+              ln -s /home/picoclaw/.picoclaw/skills /home/picoclaw/.picoclaw/workspace/skills
+              cat > /home/picoclaw/.picoclaw/workspace/HEARTBEAT.md << 'HBEOF'
+              # Heartbeat Check List
+
+              ## Daily Financial Briefing
+
+              Run the daily briefing script to get the current financial snapshot:
+              ```bash
+              bash ~/.picoclaw/workspace/skills/oluto/scripts/oluto-briefing.sh
+              ```
+
+              Summarize the results in a friendly, concise message covering:
+              - **Cash position** (safe_to_spend from dashboard)
+              - **Recent transactions** (count and top 3 largest)
+              - **Overdue invoices** (total amount and count)
+              - **Overdue bills** (total amount and count)
+              - **Action items** (up to 3 prioritized items, e.g. "Send reminder for Invoice #42, $2,400 overdue 7 days")
+
+              If all financial data looks healthy and nothing needs attention, respond with HEARTBEAT_OK.
+              If any data is actionable (overdue items, unusual transactions), always report it.
+              HBEOF
+              exec picoclaw gateway
           ports:
             - containerPort: 18790
               protocol: TCP
