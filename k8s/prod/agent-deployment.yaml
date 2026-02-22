@@ -18,8 +18,8 @@ spec:
       containers:
         - name: oluto-agent
           image: wackopscoachprodacr.azurecr.io/oluto-agent:latest
-          command: ["picoclaw"]
-          args: ["gateway"]
+          command: ["sh", "-c"]
+          args: ["ln -s /home/picoclaw/.picoclaw/skills /home/picoclaw/.picoclaw/workspace/skills && exec picoclaw gateway"]
           ports:
             - containerPort: 18790
               protocol: TCP
