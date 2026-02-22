@@ -25,22 +25,26 @@ spec:
               cat > /home/picoclaw/.picoclaw/workspace/HEARTBEAT.md << 'HBEOF'
               # Heartbeat Check List
 
-              ## Daily Financial Briefing
+              IMPORTANT: First read your skill file to understand available tools:
+              Use the exec tool to run: cat ~/.picoclaw/workspace/skills/oluto/SKILL.md
 
-              Run the daily briefing script to get the current financial snapshot:
-              ```bash
+              ## Task: Daily Financial Briefing
+
+              Use the exec tool to run this EXACT command (it handles auth automatically):
               bash ~/.picoclaw/workspace/skills/oluto/scripts/oluto-briefing.sh
-              ```
 
-              Summarize the results in a friendly, concise message covering:
-              - **Cash position** (safe_to_spend from dashboard)
-              - **Recent transactions** (count and top 3 largest)
-              - **Overdue invoices** (total amount and count)
-              - **Overdue bills** (total amount and count)
-              - **Action items** (up to 3 prioritized items, e.g. "Send reminder for Invoice #42, $2,400 overdue 7 days")
+              DO NOT attempt to curl APIs directly. DO NOT guess credentials or URLs.
+              The script handles all authentication and API calls internally.
 
-              If all financial data looks healthy and nothing needs attention, respond with HEARTBEAT_OK.
-              If any data is actionable (overdue items, unusual transactions), always report it.
+              After running the script, summarize the JSON output covering:
+              - Cash position (safe_to_spend from dashboard)
+              - Recent transactions (count and top 3 largest)
+              - Overdue invoices (total amount and count)
+              - Overdue bills (total amount and count)
+              - Up to 3 prioritized action items
+
+              If all data looks healthy and nothing needs attention, respond ONLY with: HEARTBEAT_OK
+              If any data is actionable (overdue items, unusual transactions), report it.
               HBEOF
               exec picoclaw gateway
           ports:
