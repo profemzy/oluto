@@ -8,7 +8,7 @@ interface FooterProps {
 
 export function Footer({
   companyName = "InfoTitans LTD",
-  tagline = "The financial autopilot for Canadian small business owners. Voice-enabled, AI-powered, and built for how you actually work.",
+  tagline = "8 AI agents that handle your bookkeeping, chase invoices, and brief you like a CFO. Built for Canadian small businesses.",
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -32,8 +32,8 @@ export function Footer({
 
           {/* Quick Links */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm">
-            <Link href="#features" className="text-muted hover:text-cyan-600 transition-colors">
-              Features
+            <Link href="#agents" className="text-muted hover:text-cyan-600 transition-colors">
+              Agents
             </Link>
             <Link href="#how-it-works" className="text-muted hover:text-cyan-600 transition-colors">
               How it Works

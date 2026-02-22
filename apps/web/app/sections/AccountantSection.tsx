@@ -74,17 +74,17 @@ export function AccountantSection() {
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-bold text-indigo-600 tracking-wider uppercase animate-pulse-slow">
-            For the pros
+            The engine underneath
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
-            Your accountant will{" "}
+            Real accounting.{" "}
             <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">
-              thank you
+              Not a toy.
             </span>
           </h2>
           <p className="mt-4 text-lg leading-8 text-body">
-            Behind the simple interface is a full double-entry accounting engine
-            your bookkeeper already knows how to use.
+            Every AI agent is powered by a full double-entry accounting engine with 86 API endpoints.
+            Your accountant gets proper books — trial balance, P&L, balance sheet — not a chat transcript.
           </p>
         </div>
 

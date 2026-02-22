@@ -18,18 +18,18 @@ interface HeroSectionProps {
 }
 
 const defaultStats: Stat[] = [
-  { value: "5 min", label: "Daily bookkeeping" },
+  { value: "8", label: "AI agents" },
+  { value: "3", label: "Live today" },
   { value: "100%", label: "CRA ready" },
-  { value: "Zero", label: "Accounting jargon" },
 ];
 
 export function HeroSection({
-  badge = "Built for Canadian small businesses",
-  headline = "Run Your Business,",
-  headlineHighlight = "Not Your Books",
-  subheadline = "Record expenses by voice, track your cash flow in real time, and stay tax-ready — all while you focus on what actually makes you money.",
+  badge = "Your AI finance team is ready",
+  headline = "Meet Your AI",
+  headlineHighlight = "Finance Team",
+  subheadline = "8 AI agents on the Oluto desktop and mobile app handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO — so you can focus on what actually makes you money.",
   primaryCta = { text: "Start Free Trial", href: "/auth/register" },
-  secondaryCta = { text: "Watch Demo", href: "#demo" },
+  secondaryCta = { text: "See the agents", href: "#agents" },
   stats = defaultStats,
 }: Partial<HeroSectionProps>) {
   return (
@@ -54,7 +54,7 @@ export function HeroSection({
           {/* Badge with glow effect */}
           <div className="mb-8 inline-flex items-center gap-2.5 rounded-full badge-gradient px-5 py-2.5 shadow-lg shadow-cyan-500/10 animate-bounce-subtle">
             <svg className="w-4 h-4 text-cyan-600 hover-icon-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
             </svg>
             <span className="text-sm font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
               {badge}
@@ -125,8 +125,7 @@ export function HeroSection({
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
               {secondaryCta.text}
             </Link>

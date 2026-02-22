@@ -12,11 +12,11 @@ interface CTASectionProps {
 }
 
 export function CTASection({
-  title = "Ready to spend less time on",
-  titleHighlight = "paperwork?",
-  description = "Start your free trial and get back to the work that matters. Invite your accountant when you're ready — they'll love what they find.",
+  title = "Ready to meet your AI",
+  titleHighlight = "finance team?",
+  description = "Start your free trial and your AI agents go to work immediately. Daily briefings, receipt processing, and conversational bookkeeping — live from day one on the Oluto desktop and mobile app.",
   primaryCta = { text: "Start Free Trial", href: "/auth/register" },
-  secondaryCta = { text: "Schedule a Demo", href: "/demo" },
+  secondaryCta = { text: "Talk to the Bookkeeper", href: "/auth/register" },
   disclaimer = "No credit card required. Cancel anytime.",
 }: Partial<CTASectionProps>) {
   return (
@@ -47,7 +47,7 @@ export function CTASection({
             <svg className="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span className="text-sm font-semibold text-cyan-700">Free 14-day trial</span>
+            <span className="text-sm font-semibold text-cyan-700">3 agents, ready now</span>
           </div>
 
           {/* Headline */}
@@ -101,9 +101,9 @@ export function CTASection({
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
-              <span>Loved by Users</span>
+              <span>3 Agents Live</span>
             </div>
           </div>
 

@@ -19,7 +19,7 @@ interface NavItem {
 }
 
 const marketingLinks: NavItem[] = [
-  { name: "Features", href: "#features" },
+  { name: "Agents", href: "#agents" },
   { name: "How it Works", href: "#how-it-works" },
   { name: "For Bookkeepers", href: "#bookkeepers" },
   { name: "Pricing", href: "#pricing" },

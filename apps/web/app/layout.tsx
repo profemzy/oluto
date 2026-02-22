@@ -13,11 +13,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title:
-    "Oluto - Direct Your Wealth | Financial Autopilot for Canadian Small Business",
+    "Oluto — AI Finance Team for Canadian Small Business",
   description:
-    "Oluto is a cashflow-first financial management platform for Canadian small businesses. Features voice-enabled transaction capture, AI-powered categorization, and a bookkeeper console for multi-client operations.",
+    "8 AI agents that handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO. Built on real double-entry accounting for Canadian small businesses.",
   keywords:
-    "small business, accounting, Canadian business, cashflow, bookkeeping, GST, HST, financial management",
+    "AI bookkeeping, AI accountant, AI agents, receipt OCR, small business, accounting, Canadian business, cashflow, bookkeeping, GST, HST, financial management",
 };
 
 export default function RootLayout({

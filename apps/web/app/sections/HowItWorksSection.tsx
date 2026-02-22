@@ -16,30 +16,30 @@ interface HowItWorksSectionProps {
 const defaultSteps: Step[] = [
   {
     number: "01",
-    title: "Connect your business",
-    description: "Upload bank statements via CSV/PDF or forward them via email. AI extracts transactions with integrity checks.",
+    title: "Connect your accounts",
+    description: "Upload bank statements via CSV or PDF. Your AI agents import every transaction and start learning your patterns.",
   },
   {
     number: "02",
-    title: "AI processes everything",
-    description: "Transactions are auto-categorized with confidence scores. Duplicates detected. Balances validated.",
+    title: "Agents get to work",
+    description: "Receipt Snap categorizes expenses. Daily Briefing analyzes your cash position. The Bookkeeper maps everything to proper double-entry accounts.",
   },
   {
     number: "03",
-    title: "Clear your inbox",
-    description: "Spend 5 minutes daily confirming low-confidence items and attaching receipts. Everything else is handled.",
+    title: "Review the exceptions",
+    description: "Your agents handle 95% automatically. Spend 5 minutes a day confirming the handful of items they flag.",
   },
   {
     number: "04",
-    title: "Know your numbers",
-    description: "Check your Safe-to-Spend anytime. Get province-aware tax alerts. Export accountant-ready reports.",
+    title: "Ask anything, anytime",
+    description: "Chat with your Conversational Bookkeeper in plain English on the Oluto desktop or mobile app. Real-time answers, morning briefings, and proactive alerts.",
   },
 ];
 
 export function HowItWorksSection({
   title = "How it works",
-  subtitle = "Bookkeeping in 5 minutes a day",
-  description = "No more drowning in receipts or spending weekends on admin. Oluto's AI does the heavy lifting so you can focus on your business.",
+  subtitle = "From sign-up to AI-managed books in minutes",
+  description = "No more drowning in receipts or spending weekends on admin. Oluto's AI agents do the heavy lifting so you can focus on your business.",
   steps = defaultSteps,
 }: HowItWorksSectionProps) {
   return (

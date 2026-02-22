@@ -112,12 +112,16 @@ k8s/                           # Kubernetes manifests
     redis.yaml
     backend-deployment.yaml    # LedgerForge (Rust/Axum)
     frontend-deployment.yaml   # Next.js
+    agent-deployment.yaml      # PicoClaw agent (skills symlink + HEARTBEAT.md at startup)
+    agent-ingress.yaml         # /agent/* ingress with 180s timeout
     services.yaml              # Backend + frontend ClusterIP services
     ingress.yaml               # dev.oluto.app (path-based routing)
   prod/                        # PROD environment (same layout, 2 replicas)
   external-secrets/
-    dev/external-secret.yaml   # Maps Azure Key Vault → K8s oluto-secret
-    prod/external-secret.yaml
+    dev/
+      external-secret.yaml    # Maps Azure Key Vault → K8s oluto-secret
+      picoclaw-external-secret.yaml  # PicoClaw config.json + oluto-config.json from Key Vault
+    prod/                      # Same layout as dev
 
 azure-pipelines/               # Azure DevOps CI/CD
   01-app-ci.yml                # Build & push frontend image to DEV ACR
@@ -137,7 +141,7 @@ azure-pipelines/               # Azure DevOps CI/CD
 ### Kubernetes Architecture
 
 - **Namespace:** `oluto` on each cluster
-- **Path-based routing:** Ingress routes `/api/*`, `/swagger-ui/*`, `/api-docs/*` → backend; `/*` → frontend
+- **Path-based routing:** Ingress routes `/api/*`, `/swagger-ui/*`, `/api-docs/*` → backend; `/agent/*` → PicoClaw (180s timeout); `/*` → frontend
 - **TLS:** cert-manager with Let's Encrypt (`letsencrypt-prod` ClusterIssuer, HTTP-01 solver)
 - **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret`
 - **Redis:** In-cluster deployment (per-namespace), URL: `redis://redis:6379`
@@ -148,7 +152,7 @@ azure-pipelines/               # Azure DevOps CI/CD
 | Pipeline | Repo | Trigger | Purpose |
 |----------|------|---------|---------|
 | `01-app-ci.yml` | Oluto | Push to `apps/**` or `packages/**` | Build & push frontend image to DEV ACR |
-| `02-app-cd.yml` | Oluto | CI success or manual | Deploy all K8s manifests, update frontend image tag |
+| `02-app-cd.yml` | Oluto | CI success or manual | Deploy all K8s manifests (frontend, agent, ingress, secrets), update image tags |
 | `01-ci.yml` | LedgerForge | Push to `src/**`, `migrations/**`, `Cargo.*` | Build & push backend image to DEV ACR |
 | `02-cd.yml` | LedgerForge | CI success or manual | Update backend image on AKS, promote DEV → PROD |
 | `03-secrets-setup.yml` | Oluto | Manual | One-time Key Vault population |
