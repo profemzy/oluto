@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, Transaction, BulkStatusUpdateResponse } from "@/app/lib/api";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { useDataTable } from "@/app/hooks/useDataTable";
 import { toastError, toastSuccess } from "@/app/lib/toast";
 import {
@@ -18,7 +18,7 @@ import {
 
 export default function TransactionsPage() {
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<ListSkeleton title="Transactions" actionButton />}>
       <TransactionsContent />
     </Suspense>
   );
@@ -144,7 +144,7 @@ function TransactionsContent() {
   };
 
   if (authLoading || loading) {
-    return <PageLoader />;
+    return <ListSkeleton title="Transactions" actionButton />;
   }
 
   return (

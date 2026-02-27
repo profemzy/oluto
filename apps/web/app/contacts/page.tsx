@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { useDataTable } from "@/app/hooks/useDataTable";
 import { toastError, toastSuccess } from "@/app/lib/toast";
 import { CONTACT_TYPE_COLORS, CONTACT_TYPE_FILTERS } from "@/app/lib/status";
@@ -53,7 +53,7 @@ export default function ContactsPage() {
     deleteMutation.mutate(id);
   };
 
-  if (authLoading || loading) return <PageLoader />;
+  if (authLoading || loading) return <ListSkeleton title="Contacts" actionButton rowCount={6} />;
 
   return (
     <ListPageLayout

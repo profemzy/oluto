@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging, ReconciliationSummary, computeAgingTotals } from "@/app/lib/api";
 import { formatCurrency, todayInTimezone } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { DashboardSkeleton, PageHeader, ErrorAlert } from "@/app/components";
 import {
   DashboardStats,
   OutstandingSummary,
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   }, [user, timezone]);
 
   if (authLoading || loading) {
-    return <PageLoader />;
+    return <DashboardSkeleton />;
   }
 
   const hasTransactions = summary && summary.transactions_count > 0;
