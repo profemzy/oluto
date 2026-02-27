@@ -278,12 +278,12 @@ export interface AccountUpdate {
 
 export interface TrialBalanceEntry {
   account_id: string;
-  code: string;
-  name: string;
+  account_code: string;
+  account_name: string;
   account_type: string;
-  debit_balance: string;
-  credit_balance: string;
-  net_balance: string;
+  debit: string;
+  credit: string;
+  balance: string;
 }
 
 export interface TrialBalance {
@@ -294,20 +294,39 @@ export interface TrialBalance {
   is_balanced: boolean;
 }
 
+export interface ProfitLossEntry {
+  account_id: string;
+  account_code: string;
+  account_name: string;
+  account_type: string;
+  amount: string;
+}
+
 export interface ProfitLossStatement {
-  start_date: string;
-  end_date: string;
-  revenue: { accounts: TrialBalanceEntry[]; total: string };
-  expenses: { accounts: TrialBalanceEntry[]; total: string };
+  period_start: string;
+  period_end: string;
+  total_revenue: string;
+  total_expenses: string;
   net_income: string;
+  revenue_entries: ProfitLossEntry[];
+  expense_entries: ProfitLossEntry[];
+}
+
+export interface BalanceSheetEntry {
+  account_id: string;
+  account_code: string;
+  account_name: string;
+  amount: string;
 }
 
 export interface BalanceSheet {
   as_of_date: string;
-  assets: { accounts: TrialBalanceEntry[]; total: string };
-  liabilities: { accounts: TrialBalanceEntry[]; total: string };
-  equity: { accounts: TrialBalanceEntry[]; total: string };
-  is_balanced: boolean;
+  total_assets: string;
+  total_liabilities: string;
+  total_equity: string;
+  asset_entries: BalanceSheetEntry[];
+  liability_entries: BalanceSheetEntry[];
+  equity_entries: BalanceSheetEntry[];
 }
 
 export interface AgingBucket {
@@ -695,6 +714,154 @@ export interface ReceiptDownloadResponse {
   download_url: string;
 }
 
+// --- Conversation Types ---
+
+export interface Conversation {
+  id: string;
+  business_id: string;
+  created_by: string;
+  title: string;
+  model: string | null;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant" | "error";
+  content: string;
+  model: string | null;
+  created_at: string;
+}
+
+export interface SendChatResponse {
+  response?: string;
+  error?: string;
+  model?: string;
+}
+
+// --- QuickBooks Import Types ---
+
+export interface QbParsedAccount {
+  name: string;
+  qb_type: string;
+  detail_type?: string;
+  balance?: string;
+  mapped_type: string;
+  suggested_code: string;
+  conflict?: QbAccountConflict;
+}
+
+export interface QbAccountConflict {
+  existing_account_id: string;
+  existing_account_name: string;
+  match_type: string;
+  suggested_action: string;
+}
+
+export interface QbParsedContact {
+  name: string;
+  contact_type: string;
+  email?: string;
+  phone?: string;
+  balance?: string;
+}
+
+export interface QbParsedJournalEntry {
+  date: string;
+  num?: string;
+  description?: string;
+  line_items: { account_name: string; debit?: string; credit?: string }[];
+  is_balanced: boolean;
+  total_debit: string;
+  total_credit: string;
+}
+
+export interface QbParsedInvoice {
+  invoice_number: string;
+  date: string;
+  due_date?: string;
+  customer_name: string;
+  line_items: { description: string; quantity: string; rate: string; amount: string }[];
+  total: string;
+  status?: string;
+}
+
+export interface QbParsedBill {
+  bill_number?: string;
+  date: string;
+  due_date?: string;
+  vendor_name: string;
+  amount: string;
+  account_name?: string;
+  status?: string;
+}
+
+export interface QbParsedPayment {
+  payment_number?: string;
+  date: string;
+  contact_name: string;
+  contact_type: string;
+  amount: string;
+  method?: string;
+  applied_to?: string;
+}
+
+export interface QbImportParseResponse {
+  accounts: QbParsedAccount[];
+  customers: QbParsedContact[];
+  vendors: QbParsedContact[];
+  journal_entries: QbParsedJournalEntry[];
+  invoices: QbParsedInvoice[];
+  bills: QbParsedBill[];
+  payments: QbParsedPayment[];
+  summary: Record<string, number>;
+  warnings: string[];
+}
+
+export interface QbAccountConfirmItem extends QbParsedAccount {
+  action: "create_new" | "merge" | "skip";
+}
+
+export interface QbImportConfirmRequest {
+  accounts: QbAccountConfirmItem[];
+  customers: QbParsedContact[];
+  vendors: QbParsedContact[];
+  journal_entries: QbParsedJournalEntry[];
+  invoices: QbParsedInvoice[];
+  bills: QbParsedBill[];
+  payments: QbParsedPayment[];
+}
+
+export interface QbImportConfirmResponse {
+  import_batch_id: string;
+  accounts_created: number;
+  accounts_merged: number;
+  customers_created: number;
+  vendors_created: number;
+  journal_entries_created: number;
+  invoices_created: number;
+  bills_created: number;
+  payments_created: number;
+  errors: string[];
+}
+
+// --- Helpers ---
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildQueryString(params: Record<string, any>): string {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null) {
+      searchParams.set(key, String(value));
+    }
+  }
+  const qs = searchParams.toString();
+  return qs ? `?${qs}` : "";
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -871,16 +1038,8 @@ class ApiClient {
   }
 
   async listTransactions(businessId: string, params?: TransactionListParams): Promise<Transaction[]> {
-    const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set("status", params.status);
-    if (params?.start_date) searchParams.set("start_date", params.start_date);
-    if (params?.end_date) searchParams.set("end_date", params.end_date);
-    if (params?.skip !== undefined) searchParams.set("skip", String(params.skip));
-    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
-
-    const qs = searchParams.toString();
-    const path = `/businesses/${businessId}/transactions${qs ? `?${qs}` : ""}`;
-    return this.request<Transaction[]>(path);
+    const qs = buildQueryString(params ?? {});
+    return this.request<Transaction[]>(`/businesses/${businessId}/transactions${qs}`);
   }
 
   async getTransaction(businessId: string, transactionId: string): Promise<Transaction> {
@@ -1049,13 +1208,8 @@ class ApiClient {
   // --- Invoice endpoints ---
 
   async listInvoices(businessId: string, params?: InvoiceListParams): Promise<Invoice[]> {
-    const searchParams = new URLSearchParams();
-    if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
-    if (params?.status) searchParams.set("status", params.status);
-    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
-    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
-    const qs = searchParams.toString();
-    return this.request<Invoice[]>(`/businesses/${businessId}/invoices${qs ? `?${qs}` : ""}`);
+    const qs = buildQueryString(params ?? {});
+    return this.request<Invoice[]>(`/businesses/${businessId}/invoices${qs}`);
   }
 
   async getInvoice(businessId: string, invoiceId: string): Promise<InvoiceWithLineItems> {
@@ -1091,13 +1245,8 @@ class ApiClient {
   // --- Bill endpoints ---
 
   async listBills(businessId: string, params?: BillListParams): Promise<Bill[]> {
-    const searchParams = new URLSearchParams();
-    if (params?.vendor_id) searchParams.set("vendor_id", params.vendor_id);
-    if (params?.status) searchParams.set("status", params.status);
-    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
-    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
-    const qs = searchParams.toString();
-    return this.request<Bill[]>(`/businesses/${businessId}/bills${qs ? `?${qs}` : ""}`);
+    const qs = buildQueryString(params ?? {});
+    return this.request<Bill[]>(`/businesses/${businessId}/bills${qs}`);
   }
 
   async getBill(businessId: string, billId: string): Promise<BillWithLineItems> {
@@ -1135,13 +1284,8 @@ class ApiClient {
   // --- Payment endpoints ---
 
   async listPayments(businessId: string, params?: PaymentListParams): Promise<Payment[]> {
-    const searchParams = new URLSearchParams();
-    if (params?.customer_id) searchParams.set("customer_id", params.customer_id);
-    if (params?.unapplied_only) searchParams.set("unapplied_only", "true");
-    if (params?.limit !== undefined) searchParams.set("limit", String(params.limit));
-    if (params?.offset !== undefined) searchParams.set("offset", String(params.offset));
-    const qs = searchParams.toString();
-    return this.request<Payment[]>(`/businesses/${businessId}/payments${qs ? `?${qs}` : ""}`);
+    const qs = buildQueryString(params ?? {});
+    return this.request<Payment[]>(`/businesses/${businessId}/payments${qs}`);
   }
 
   async getPayment(businessId: string, paymentId: string): Promise<Payment> {
@@ -1367,6 +1511,110 @@ class ApiClient {
 
   async findDuplicates(businessId: string): Promise<DuplicateGroup[]> {
     return this.request<DuplicateGroup[]>(`/businesses/${businessId}/transactions/duplicates`);
+  }
+
+  // --- Conversation endpoints ---
+
+  async listConversations(businessId: string): Promise<Conversation[]> {
+    return this.request<Conversation[]>(`/businesses/${businessId}/conversations`);
+  }
+
+  async createConversation(businessId: string, title?: string): Promise<Conversation> {
+    return this.request<Conversation>(`/businesses/${businessId}/conversations`, {
+      method: "POST",
+      body: JSON.stringify({ title: title || "New Chat" }),
+    });
+  }
+
+  async updateConversation(businessId: string, convId: string, data: { title?: string; archived?: boolean }): Promise<Conversation> {
+    return this.request<Conversation>(`/businesses/${businessId}/conversations/${convId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteConversation(businessId: string, convId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/conversations/${convId}`, {
+      method: "DELETE",
+    });
+  }
+
+  async listMessages(businessId: string, convId: string): Promise<ChatMessage[]> {
+    return this.request<ChatMessage[]>(`/businesses/${businessId}/conversations/${convId}/messages`);
+  }
+
+  async createMessage(businessId: string, convId: string, data: { role: string; content: string; model?: string }): Promise<ChatMessage> {
+    return this.request<ChatMessage>(`/businesses/${businessId}/conversations/${convId}/messages`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteMessage(businessId: string, convId: string, msgId: string): Promise<void> {
+    await this.request<Record<string, never>>(`/businesses/${businessId}/conversations/${convId}/messages/${msgId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // --- Chat gateway endpoints ---
+
+  async sendChatMessage(message: string, businessId: string, timezone?: string): Promise<SendChatResponse> {
+    const token = this.getToken();
+    const res = await fetch("/api/chat/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ message, business_id: businessId, timezone }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Gateway error" }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async sendChatMessageWithFile(message: string, file: File, businessId: string, timezone?: string): Promise<SendChatResponse> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append("message", message);
+    formData.append("files", file);
+    formData.append("business_id", businessId);
+    if (timezone) formData.append("timezone", timezone);
+    const res = await fetch("/api/chat/send", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Gateway error" }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // --- QuickBooks Import endpoints ---
+
+  async parseQuickBooksImport(businessId: string, files: Record<string, File>): Promise<QbImportParseResponse> {
+    const formData = new FormData();
+    for (const [key, file] of Object.entries(files)) {
+      formData.append(key, file);
+    }
+    return this.uploadRequest<QbImportParseResponse>(
+      `/businesses/${businessId}/quickbooks/import/parse`,
+      formData
+    );
+  }
+
+  async confirmQuickBooksImport(businessId: string, data: QbImportConfirmRequest): Promise<QbImportConfirmResponse> {
+    return this.request<QbImportConfirmResponse>(
+      `/businesses/${businessId}/quickbooks/import/confirm`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
   }
 }
 

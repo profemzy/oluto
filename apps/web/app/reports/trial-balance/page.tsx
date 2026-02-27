@@ -1,28 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { api, TrialBalance } from "@/app/lib/api";
-import { formatCurrency, todayInTimezone } from "@/app/lib/format";
-import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { formatCurrency } from "@/app/lib/format";
+import { ReportPageLayout, useReportDates } from "@/app/reports/components/ReportPageLayout";
 
 export default function TrialBalancePage() {
-  const { user, loading: authLoading, timezone } = useAuth();
+  const { asOfDate, setAsOfDate } = useReportDates("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [asOfDate, setAsOfDate] = useState(() => todayInTimezone());
-
-  useEffect(() => { setAsOfDate(todayInTimezone(timezone)); }, [timezone]);
   const [report, setReport] = useState<TrialBalance | null>(null);
 
-  const generate = async () => {
-    if (!user?.business_id) return;
+  const onGenerate = async (businessId: string) => {
     setError("");
     setLoading(true);
     try {
-      const data = await api.getTrialBalance(user.business_id!, asOfDate);
-      setReport(data);
+      setReport(await api.getTrialBalance(businessId, asOfDate));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate report");
     } finally {
@@ -30,38 +23,19 @@ export default function TrialBalancePage() {
     }
   };
 
-  if (authLoading) return <PageLoader />;
-
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <PageHeader
-        title="Trial Balance"
-        subtitle={report ? `As of ${report.as_of_date}` : "Verify debits equal credits"}
-        actions={
-          <Link href="/reports" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
-            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            All Reports
-          </Link>
-        }
-      />
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <ErrorAlert error={error} className="mb-6" />
-
-        <div className="flex items-end gap-4 mb-8">
-          <div>
-            <label className="block text-sm font-bold text-body mb-1">As of Date</label>
-            <input type="date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)}
-              className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm" />
-          </div>
-          <button onClick={generate} disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50">
-            {loading ? "Generating..." : "Generate"}
-          </button>
-        </div>
-
-        {report && (
+    <ReportPageLayout
+      title="Trial Balance"
+      subtitle="Verify debits equal credits"
+      reportSubtitle={report ? `As of ${report.as_of_date}` : undefined}
+      dateMode="single"
+      loading={loading}
+      error={error}
+      onGenerate={onGenerate}
+      dateFields={[{ label: "As of Date", value: asOfDate, onChange: setAsOfDate }]}
+    >
+      {() =>
+        report ? (
           <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
             <div className="px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b flex justify-between items-center">
               <div className="grid grid-cols-5 gap-4 flex-1 text-xs font-bold text-muted uppercase tracking-wider">
@@ -72,14 +46,18 @@ export default function TrialBalancePage() {
               </div>
             </div>
             <div className="divide-y divide-edge-subtle">
-              {report.entries.map((entry) => (
-                <div key={entry.account_id} className="grid grid-cols-5 gap-4 px-6 py-3 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
-                  <div className="text-sm font-mono text-body">{entry.code}</div>
-                  <div className="col-span-2 text-sm text-heading">{entry.name}</div>
-                  <div className="text-sm text-right">{parseFloat(entry.debit_balance) > 0 ? formatCurrency(entry.debit_balance) : ""}</div>
-                  <div className="text-sm text-right">{parseFloat(entry.credit_balance) > 0 ? formatCurrency(entry.credit_balance) : ""}</div>
-                </div>
-              ))}
+              {report.entries.length === 0 ? (
+                <div className="px-6 py-8 text-center text-sm text-muted">No posted transactions found for this date.</div>
+              ) : (
+                report.entries.map((entry) => (
+                  <div key={entry.account_id} className="grid grid-cols-5 gap-4 px-6 py-3 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
+                    <div className="text-sm font-mono text-body">{entry.account_code}</div>
+                    <div className="col-span-2 text-sm text-heading">{entry.account_name}</div>
+                    <div className="text-sm text-right">{parseFloat(entry.debit) > 0 ? formatCurrency(entry.debit) : ""}</div>
+                    <div className="text-sm text-right">{parseFloat(entry.credit) > 0 ? formatCurrency(entry.credit) : ""}</div>
+                  </div>
+                ))
+              )}
             </div>
             <div className="px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t grid grid-cols-5 gap-4">
               <div className="col-span-3 text-sm font-bold text-heading">Total</div>
@@ -92,8 +70,8 @@ export default function TrialBalancePage() {
               </span>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        ) : null
+      }
+    </ReportPageLayout>
   );
 }

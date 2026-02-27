@@ -1,28 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { api, AccountsReceivableAging, computeAgingTotals } from "@/app/lib/api";
-import { formatCurrency, todayInTimezone } from "@/app/lib/format";
-import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { formatCurrency } from "@/app/lib/format";
+import { ReportPageLayout, useReportDates } from "@/app/reports/components/ReportPageLayout";
 
 export default function ArAgingPage() {
-  const { user, loading: authLoading, timezone } = useAuth();
+  const { asOfDate, setAsOfDate } = useReportDates("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [asOfDate, setAsOfDate] = useState(() => todayInTimezone());
-
-  useEffect(() => { setAsOfDate(todayInTimezone(timezone)); }, [timezone]);
   const [report, setReport] = useState<AccountsReceivableAging | null>(null);
 
-  const generate = async () => {
-    if (!user?.business_id) return;
+  const onGenerate = async (businessId: string) => {
     setError("");
     setLoading(true);
     try {
-      const data = await api.getArAging(user.business_id!, asOfDate);
-      setReport(data);
+      setReport(await api.getArAging(businessId, asOfDate));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate report");
     } finally {
@@ -30,38 +23,19 @@ export default function ArAgingPage() {
     }
   };
 
-  if (authLoading) return <PageLoader />;
-
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <PageHeader
-        title="AR Aging"
-        subtitle={report ? `As of ${report.as_of_date}` : "Accounts receivable aging analysis"}
-        actions={
-          <Link href="/reports" className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
-            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            All Reports
-          </Link>
-        }
-      />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <ErrorAlert error={error} className="mb-6" />
-
-        <div className="flex items-end gap-4 mb-8">
-          <div>
-            <label className="block text-sm font-bold text-body mb-1">As of Date</label>
-            <input type="date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)}
-              className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm" />
-          </div>
-          <button onClick={generate} disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50">
-            {loading ? "Generating..." : "Generate"}
-          </button>
-        </div>
-
-        {report && (
+    <ReportPageLayout
+      title="AR Aging"
+      subtitle="Accounts receivable aging analysis"
+      reportSubtitle={report ? `As of ${report.as_of_date}` : undefined}
+      dateMode="single"
+      loading={loading}
+      error={error}
+      onGenerate={onGenerate}
+      dateFields={[{ label: "As of Date", value: asOfDate, onChange: setAsOfDate }]}
+    >
+      {() =>
+        report ? (
           <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-edge">
@@ -85,11 +59,11 @@ export default function ArAgingPage() {
                     report.buckets.map((b) => (
                       <tr key={b.customer_id} className="hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
                         <td className="px-4 py-3 text-sm font-bold text-heading">{b.customer_name}</td>
-                        <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.current)}</td>
-                        <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_1_30)}</td>
-                        <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_31_60)}</td>
-                        <td className="px-4 py-3 text-sm text-right">{formatCurrency(b.days_61_90)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-red-600 font-bold">{formatCurrency(b.days_91_plus)}</td>
+                        <td className="px-4 py-3 text-sm text-right">{parseFloat(b.current) > 0 ? formatCurrency(b.current) : ""}</td>
+                        <td className="px-4 py-3 text-sm text-right">{parseFloat(b.days_1_30) > 0 ? formatCurrency(b.days_1_30) : ""}</td>
+                        <td className="px-4 py-3 text-sm text-right">{parseFloat(b.days_31_60) > 0 ? formatCurrency(b.days_31_60) : ""}</td>
+                        <td className="px-4 py-3 text-sm text-right">{parseFloat(b.days_61_90) > 0 ? formatCurrency(b.days_61_90) : ""}</td>
+                        <td className="px-4 py-3 text-sm text-right text-red-600 font-bold">{parseFloat(b.days_91_plus) > 0 ? formatCurrency(b.days_91_plus) : ""}</td>
                         <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(b.total)}</td>
                       </tr>
                     ))
@@ -98,24 +72,24 @@ export default function ArAgingPage() {
                 {report.buckets.length > 0 && (() => {
                   const totals = computeAgingTotals(report);
                   return (
-                  <tfoot className="bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t">
-                    <tr>
-                      <td className="px-4 py-3 text-sm font-bold text-heading">Total</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.current)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_1_30)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_31_60)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_61_90)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold text-red-600">{formatCurrency(totals.days_91_plus)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.total)}</td>
-                    </tr>
-                  </tfoot>
+                    <tfoot className="bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t">
+                      <tr>
+                        <td className="px-4 py-3 text-sm font-bold text-heading">Total</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.current)}</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_1_30)}</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_31_60)}</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.days_61_90)}</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold text-red-600">{formatCurrency(totals.days_91_plus)}</td>
+                        <td className="px-4 py-3 text-sm text-right font-bold">{formatCurrency(totals.total)}</td>
+                      </tr>
+                    </tfoot>
                   );
                 })()}
               </table>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        ) : null
+      }
+    </ReportPageLayout>
   );
 }

@@ -20,21 +20,24 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    Promise.all([
+    Promise.allSettled([
       api.getDashboardSummary(user.business_id!),
-      api.getOverdueInvoices(user.business_id!).catch(() => [] as Invoice[]),
-      api.getOverdueBills(user.business_id!).catch(() => [] as Bill[]),
-      api.getArAging(user.business_id!, todayInTimezone(timezone)).catch(() => null),
-      api.getReconciliationSummary(user.business_id!).catch(() => null),
+      api.getOverdueInvoices(user.business_id!),
+      api.getOverdueBills(user.business_id!),
+      api.getArAging(user.business_id!, todayInTimezone(timezone)),
+      api.getReconciliationSummary(user.business_id!),
     ])
-      .then(([data, invs, bills, aging, recon]) => {
-        setSummary(data);
-        setOverdueInvoices(invs);
-        setOverdueBills(bills);
-        setArAging(aging);
-        setReconSummary(recon);
+      .then(([summaryResult, invsResult, billsResult, agingResult, reconResult]) => {
+        if (summaryResult.status === "fulfilled") {
+          setSummary(summaryResult.value);
+        } else {
+          setError("Failed to load dashboard summary");
+        }
+        setOverdueInvoices(invsResult.status === "fulfilled" ? invsResult.value : []);
+        setOverdueBills(billsResult.status === "fulfilled" ? billsResult.value : []);
+        setArAging(agingResult.status === "fulfilled" ? agingResult.value : null);
+        setReconSummary(reconResult.status === "fulfilled" ? reconResult.value : null);
       })
-      .catch(() => setError("Failed to load dashboard data"))
       .finally(() => setLoading(false));
   }, [user]);
 

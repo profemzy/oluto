@@ -46,6 +46,7 @@ const appLinks: NavItem[] = [
   { name: "Accounts", href: "/accounts" },
   { name: "Reconciliation", href: "/reconciliation" },
   { name: "Reports", href: "/reports" },
+  { name: "Chat", href: "/chat" },
 ];
 
 function isGroupActive(item: NavItem, pathname: string): boolean {
@@ -224,7 +225,8 @@ export function Navigation() {
     pathname.startsWith("/invoices") ||
     pathname.startsWith("/bills") ||
     pathname.startsWith("/payments") ||
-    pathname.startsWith("/reconciliation");
+    pathname.startsWith("/reconciliation") ||
+    pathname.startsWith("/chat");
 
   // Until client mounts, always show marketing links to match SSR output
   const navLinks = hasMounted && isAppPage && isAuthenticated ? appLinks : marketingLinks;
