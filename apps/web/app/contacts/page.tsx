@@ -150,6 +150,7 @@ export default function ContactsPage() {
                   <Link
                     href={`/contacts/${contact.id}/edit`}
                     className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all"
+                    aria-label="Edit contact"
                     title="Edit contact"
                   >
                     <svg
@@ -157,6 +158,7 @@ export default function ContactsPage() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -169,6 +171,7 @@ export default function ContactsPage() {
                   <button
                     onClick={() => handleDelete(contact.id)}
                     className="p-2 rounded-lg text-caption hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+                    aria-label="Delete contact"
                     title="Delete contact"
                   >
                     <svg
@@ -176,6 +179,7 @@ export default function ContactsPage() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"

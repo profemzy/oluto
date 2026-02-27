@@ -93,6 +93,8 @@ function DesktopDropdown({
           active ? "text-cyan-600" : "text-body hover:text-cyan-600"
         }`}
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
       >
         {item.name}
         <svg
@@ -100,6 +102,7 @@ function DesktopDropdown({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -110,7 +113,11 @@ function DesktopDropdown({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-1 z-50">
+        <div 
+          className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-1 z-50"
+          role="menu"
+          aria-label={`${item.name} submenu`}
+        >
           {item.children!.map((child) => (
             <Link
               key={child.href}
@@ -121,6 +128,7 @@ function DesktopDropdown({
                   : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
               }`}
               onClick={() => setOpen(false)}
+              role="menuitem"
             >
               {child.name}
             </Link>
@@ -151,6 +159,8 @@ function MobileDropdown({
           active ? "text-cyan-600" : "text-heading hover:text-cyan-600"
         }`}
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
       >
         {item.name}
         <svg
@@ -158,6 +168,7 @@ function MobileDropdown({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -168,7 +179,11 @@ function MobileDropdown({
         </svg>
       </button>
       {open && (
-        <div className="pl-4 space-y-1">
+        <div 
+          className="pl-4 space-y-1"
+          role="menu"
+          aria-label={`${item.name} submenu`}
+        >
           {item.children!.map((child) => (
             <Link
               key={child.href}
@@ -179,6 +194,7 @@ function MobileDropdown({
                   : "text-muted hover:text-cyan-600"
               }`}
               onClick={onNavigate}
+              role="menuitem"
             >
               {child.name}
             </Link>
@@ -318,9 +334,10 @@ export function Navigation() {
                     ? "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50"
                     : "text-muted hover:text-cyan-600 hover:bg-surface-hover"
                 }`}
+                aria-label="Chat with Oluto"
                 title="Chat with Oluto"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </Link>

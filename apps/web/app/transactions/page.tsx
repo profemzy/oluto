@@ -398,6 +398,7 @@ function TransactionsContent() {
                   <Link
                     href={`/transactions/${txn.id}/edit`}
                     className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all duration-200"
+                    aria-label="Edit transaction"
                     title="Edit transaction"
                   >
                     <svg
@@ -405,6 +406,7 @@ function TransactionsContent() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -418,9 +420,10 @@ function TransactionsContent() {
                     <Link
                       href={`/transactions/${txn.id}/edit#receipts`}
                       className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all duration-200"
+                      aria-label="Attach receipt"
                       title="Attach receipt"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                       </svg>
                     </Link>
@@ -428,6 +431,7 @@ function TransactionsContent() {
                   <button
                     onClick={() => handleDelete(txn.id)}
                     className="p-2 rounded-lg text-caption hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                    aria-label="Delete transaction"
                     title="Delete transaction"
                   >
                     <svg
@@ -435,6 +439,7 @@ function TransactionsContent() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"

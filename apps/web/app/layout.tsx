@@ -6,6 +6,8 @@ import { QueryProvider } from "./components/QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Toast } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
+import { SkipLink } from "./components/SkipLink";
+import { LiveRegion } from "./components/Announcer";
 import { headers } from "next/headers";
 
 const inter = Inter({
@@ -58,12 +60,14 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased font-sans bg-surface text-body transition-colors duration-300">
+        <SkipLink />
         <QueryProvider>
           <ThemeProvider>
+            <LiveRegion />
             <Toast />
             <div className="flex flex-col min-h-screen">
               <Navigation />
-              <main id="main-content" className="flex-1 pt-16">
+              <main id="main-content" className="flex-1 pt-16" tabIndex={-1}>
                 <GlobalErrorBoundary>
                   {children}
                 </GlobalErrorBoundary>
