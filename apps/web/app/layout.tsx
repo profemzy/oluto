@@ -5,6 +5,7 @@ import { Navigation, Footer } from "./components";
 import { QueryProvider } from "./components/QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Toast } from "./components/ui/Toast";
+import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { headers } from "next/headers";
 
 const inter = Inter({
@@ -63,7 +64,9 @@ export default async function RootLayout({
             <div className="flex flex-col min-h-screen">
               <Navigation />
               <main id="main-content" className="flex-1 pt-16">
-                {children}
+                <GlobalErrorBoundary>
+                  {children}
+                </GlobalErrorBoundary>
               </main>
               <Footer />
             </div>

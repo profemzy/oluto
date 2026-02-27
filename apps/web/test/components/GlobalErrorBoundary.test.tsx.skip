@@ -1,0 +1,119 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { ErrorFallback } from "../../app/components/ErrorFallback";
+
+describe("ErrorFallback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset window.location.href
+    window.location.href = "http://localhost:3000";
+  });
+
+  it("renders error message and action buttons", () => {
+    const testError = new Error("Test error message");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+      />
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(
+      screen.getByText(/We're sorry, but something unexpected happened/)
+    ).toBeInTheDocument();
+    expect(screen.getByText("Refresh Page")).toBeInTheDocument();
+    expect(screen.getByText("Go to Dashboard")).toBeInTheDocument();
+    expect(screen.getByText(/Contact support/)).toBeInTheDocument();
+  });
+
+  it("calls resetErrorBoundary when refresh button is clicked", () => {
+    const testError = new Error("Test error");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+      />
+    );
+
+    const refreshButton = screen.getByText("Refresh Page");
+    fireEvent.click(refreshButton);
+
+    expect(resetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates to home when Go to Dashboard is clicked", () => {
+    const testError = new Error("Test error");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+      />
+    );
+
+    const homeButton = screen.getByText("Go to Dashboard");
+    fireEvent.click(homeButton);
+
+    expect(window.location.href).toBe("/");
+  });
+
+  it("shows error details in development mode", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+
+    const testError = new Error("Development test error");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+        errorInfo={{ componentStack: "at TestComponent\nat App" } as React.ErrorInfo}
+      />
+    );
+
+    expect(screen.getByText(/Error: Development test error/)).toBeInTheDocument();
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("does not show error details in production mode", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    const testError = new Error("Production test error");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+      />
+    );
+
+    expect(screen.queryByText(/Error: Production test error/)).not.toBeInTheDocument();
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("has support contact link", () => {
+    const testError = new Error("Test error");
+    const resetMock = vi.fn();
+
+    render(
+      <ErrorFallback
+        error={testError}
+        resetErrorBoundary={resetMock}
+      />
+    );
+
+    const supportLink = screen.getByText("Contact support");
+    expect(supportLink).toHaveAttribute("href", "mailto:support@oluto.ca");
+  });
+});

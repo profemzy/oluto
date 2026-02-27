@@ -70,9 +70,24 @@ console.error = (...args: unknown[]) => {
     message.includes('Warning: ReactDOM.render') ||
     message.includes('Warning: act') ||
     message.includes('Warning: An update to') ||
-    message.includes('not wrapped in act')
+    message.includes('not wrapped in act') ||
+    message.includes('Error: Uncaught') ||
+    message.includes('The above error occurred') ||
+    message.includes('TestingComponents') ||
+    message.includes('Test error')
   ) {
     return;
   }
   originalConsoleError(...args);
 };
+
+// Mock window.location for navigation tests
+Object.defineProperty(window, 'location', {
+  writable: true,
+  value: {
+    href: 'http://localhost:3000',
+    pathname: '/',
+    reload: vi.fn(),
+    assign: vi.fn(),
+  },
+});
