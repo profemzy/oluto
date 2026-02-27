@@ -44,11 +44,15 @@ export default function EditAccountPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.business_id) {
+      setError("You must be logged in to update accounts");
+      return;
+    }
     setError("");
     setSaving(true);
 
     try {
-      await api.updateAccount(user.business_id!, accountId, {
+      await api.updateAccount(user.business_id, accountId, {
         name,
         is_active: isActive,
       });

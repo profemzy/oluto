@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { formatFileSize } from "@/app/lib/format";
+import { toastError } from "@/app/lib/toast";
 
 interface InputBarProps {
   onSend: (message: string, file?: File) => void;
@@ -51,7 +52,7 @@ export function InputBar({ onSend, loading, onToggleQuickActions, quickActionsAc
     const f = e.target.files?.[0];
     if (f) {
       if (f.size > MAX_FILE_SIZE) {
-        alert("File must be under 20MB");
+        toastError("File must be under 20MB");
         return;
       }
       setFile(f);

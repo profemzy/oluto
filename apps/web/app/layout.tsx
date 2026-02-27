@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navigation, Footer, ErrorBoundary } from "./components";
+import { Navigation, Footer } from "./components";
 import { QueryProvider } from "./components/QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Toast } from "./components/ui/Toast";
+import { headers } from "next/headers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,15 +21,36 @@ export const metadata: Metadata = {
     "AI bookkeeping, AI accountant, AI agents, receipt OCR, small business, accounting, Canadian business, cashflow, bookkeeping, GST, HST, financial management",
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get nonce from middleware for CSP compliance
+  let nonce: string | undefined;
+  try {
+    const headersList = await headers();
+    nonce = headersList.get("x-nonce") ?? undefined;
+  } catch {
+    // Headers not available (e.g., during static generation)
+    nonce = undefined;
+  }
+
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* 
+          Theme initialization script with nonce for CSP compliance.
+          This prevents flash of wrong theme by checking localStorage 
+          and system preference before React hydrates.
+        */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('oluto-theme');var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(d)document.documentElement.classList.add('dark')}catch(e){}})();`,
           }}
@@ -40,8 +62,8 @@ export default function RootLayout({
             <Toast />
             <div className="flex flex-col min-h-screen">
               <Navigation />
-              <main className="flex-1 pt-16">
-                <ErrorBoundary>{children}</ErrorBoundary>
+              <main id="main-content" className="flex-1 pt-16">
+                {children}
               </main>
               <Footer />
             </div>

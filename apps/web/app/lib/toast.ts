@@ -12,6 +12,16 @@ export const toastInfo = (message: string) => {
   toast(message);
 };
 
+export const toastWarning = (message: string) => {
+  toast(message, {
+    icon: "⚠️",
+    style: {
+      background: "#FEF3C7",
+      color: "#92400E",
+    },
+  });
+};
+
 export const toastPromise = (
   promise: Promise<unknown>,
   loadingMessage: string,

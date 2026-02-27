@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { ChatMessage } from "@/app/lib/api";
+import { toastError } from "@/app/lib/toast";
 import { MessageBubble } from "./MessageBubble";
 import { InputBar } from "./InputBar";
 import { QuickActions, QuickAction } from "./QuickActions";
@@ -215,7 +216,7 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
 
     const file = files[0];
     if (file.size > 20 * 1024 * 1024) {
-      alert("File too large. Maximum size is 20MB.");
+      toastError("File too large. Maximum size is 20MB.");
       return;
     }
 

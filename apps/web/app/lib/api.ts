@@ -861,14 +861,127 @@ function buildQueryString(params: Record<string, any>): string {
   return qs ? `?${qs}` : "";
 }
 
+/**
+ * Structured API Error with status code
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public code?: string,
+    public details?: Record<string, string[]>
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+/**
+ * Network error for connection failures
+ */
+export class NetworkError extends Error {
+  constructor(message = 'Network connection failed') {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
+/**
+ * JWT Token response with refresh token
+ */
+export interface TokenResponseWithRefresh extends TokenResponse {
+  refresh_token?: string;
+}
+
 class ApiClient {
   private baseUrl: string;
+  private refreshPromise: Promise<void> | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(
+  /**
+   * Perform the actual token refresh
+   */
+  private async performRefresh(): Promise<void> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (!response.ok) {
+        // Refresh failed - clear tokens and throw
+        this.removeToken();
+        this.removeRefreshToken();
+        throw new Error('Session expired. Please log in again.');
+      }
+
+      const json = await response.json();
+      const data = json.data !== undefined ? json.data : json;
+      
+      // Store new tokens
+      this.setToken(data.access_token);
+      if (data.refresh_token) {
+        this.setRefreshToken(data.refresh_token);
+      }
+    } catch (error) {
+      this.removeToken();
+      this.removeRefreshToken();
+      throw error;
+    }
+  }
+
+  /**
+   * Refresh token with deduplication (prevents multiple concurrent refresh calls)
+   */
+  async refreshToken(): Promise<void> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = this.performRefresh();
+    try {
+      await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  /**
+   * Get token expiration time from JWT payload
+   */
+  getTokenExpiry(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Check if token needs refresh (expires within threshold)
+   */
+  shouldRefreshToken(thresholdMs: number = 5 * 60 * 1000): boolean {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) return false;
+    return expiry - Date.now() < thresholdMs;
+  }
+
+  private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
@@ -894,8 +1007,13 @@ class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`);
+      const error = await response.json().catch(() => ({ detail: "An error occurred" }));
+      throw new ApiError(
+        error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`,
+        response.status,
+        error.code,
+        error.details
+      );
     }
 
     // Handle empty responses
@@ -906,6 +1024,33 @@ class ApiClient {
     const json = await response.json();
     // LedgerForge wraps responses in { success, data } — unwrap if present
     return json.data !== undefined ? json.data : json;
+  }
+
+  /**
+   * Main request method with automatic token refresh on 401
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    try {
+      return await this.makeRequest<T>(endpoint, options);
+    } catch (error) {
+      if (error instanceof ApiError && error.statusCode === 401) {
+        // Token expired, try refresh once
+        try {
+          await this.refreshToken();
+          return await this.makeRequest<T>(endpoint, options);
+        } catch (refreshError) {
+          // Refresh failed, redirect to login
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login?reason=session_expired';
+          }
+          throw refreshError;
+        }
+      }
+      throw error;
+    }
   }
 
   private async uploadRequest<T>(
@@ -943,7 +1088,7 @@ class ApiClient {
 
   // --- Auth endpoints ---
 
-  async login(credentials: LoginCredentials): Promise<TokenResponse> {
+  async login(credentials: LoginCredentials): Promise<TokenResponseWithRefresh> {
     // OAuth2 form data format
     const formData = new URLSearchParams();
     formData.append("username", credentials.username);
@@ -959,12 +1104,24 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Invalid credentials" }));
-      throw new Error(error.error || error.detail || "Login failed");
+      throw new ApiError(
+        error.error || error.detail || "Login failed",
+        response.status,
+        error.code
+      );
     }
 
     const json = await response.json();
     // LedgerForge wraps responses in { success, data }
-    return json.data !== undefined ? json.data : json;
+    const data = json.data !== undefined ? json.data : json;
+    
+    // Store both tokens
+    this.setToken(data.access_token);
+    if (data.refresh_token) {
+      this.setRefreshToken(data.refresh_token);
+    }
+    
+    return data;
   }
 
   async register(data: RegisterData): Promise<User> {
@@ -979,6 +1136,16 @@ class ApiClient {
   }
 
   // --- Token management ---
+
+  /**
+   * SECURITY NOTE: JWT tokens are stored in localStorage for SPA compatibility.
+   * This is a known trade-off. Mitigations:
+   * 1. Strict CSP headers (see middleware.ts)
+   * 2. Short token expiry (60 minutes)
+   * 3. XSS prevention through input sanitization
+   * 
+   * TODO: Migrate to httpOnly cookies for enhanced security (requires backend changes).
+   */
 
   setToken(token: string): void {
     if (typeof window !== "undefined") {
@@ -996,6 +1163,27 @@ class ApiClient {
   removeToken(): void {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
+    }
+  }
+
+  // --- Refresh Token management ---
+
+  setRefreshToken(token: string): void {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("refresh_token", token);
+    }
+  }
+
+  getRefreshToken(): string | null {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("refresh_token");
+    }
+    return null;
+  }
+
+  removeRefreshToken(): void {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("refresh_token");
     }
   }
 
