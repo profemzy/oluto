@@ -1,12 +1,12 @@
 # Heartbeat Check List
 
 IMPORTANT: First read your skill file to understand available tools:
-Use the exec tool to run: cat ~/.picoclaw/workspace/skills/oluto/SKILL.md
+Use the exec tool to run: cat ~/workspace/skills/oluto/SKILL.md
 
 ## Task: Daily Financial Briefing
 
 Use the exec tool to run this EXACT command (it handles auth automatically):
-bash ~/.picoclaw/workspace/skills/oluto/scripts/oluto-briefing.sh
+bash ~/workspace/skills/oluto/scripts/oluto-briefing.sh
 
 DO NOT attempt to curl APIs directly. DO NOT guess credentials or URLs.
 The script handles all authentication and API calls internally.

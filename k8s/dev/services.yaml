@@ -33,7 +33,7 @@ spec:
     app: oluto-frontend
 ---
 # =============================================================================
-# Agent Service (PicoClaw gateway on port 18790)
+# Agent Service (ZeroClaw gateway on port 18790)
 # =============================================================================
 apiVersion: v1
 kind: Service

@@ -1,7 +1,7 @@
 # =============================================================================
-# Ingress for PicoClaw Agent (DEV)
+# Ingress for ZeroClaw Agent (DEV)
 # URL: https://dev.oluto.app/agent/*
-# Routes /agent/* to PicoClaw gateway with extended timeout for AI responses
+# Routes /agent/* to ZeroClaw gateway with extended timeout for AI responses
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress

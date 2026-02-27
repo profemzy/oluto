@@ -1,12 +1,13 @@
 # =============================================================================
 # Pipeline: 02-app-cd.yml
-# Purpose: Deploy Oluto frontend + agent infra to AKS clusters (DEV → PROD)
+# Purpose: Deploy Oluto frontend + infra to AKS clusters (DEV → PROD)
 # Triggers: Successful frontend CI builds or manual runs
 #
 # Note: Backend (LedgerForge) is deployed by its own CI/CD pipeline in the
-# ledger-forge repo. Agent image (PicoClaw) is built by picoclaw/ci-cd.yml.
-# This pipeline manages frontend, agent deployment, infra (namespace, redis,
-# services, ingress, secrets), and does NOT touch the backend deployment.
+# ledger-forge repo. Agent (ZeroClaw) is deployed by its own CI/CD pipeline
+# in the zeroclaw repo (zeroclaw/azure-pipelines/ci-cd.yml).
+# This pipeline manages frontend + infra (namespace, redis, services, ingress,
+# secrets) and does NOT touch the backend or agent deployments.
 # =============================================================================
 
 trigger: none
@@ -133,7 +134,6 @@ stages:
                     namespace: "oluto"
                     manifests: |
                       k8s/external-secrets/dev/external-secret.yaml
-                      k8s/external-secrets/dev/picoclaw-external-secret.yaml
 
                 # Wait for secrets to sync
                 - task: Kubernetes@1
@@ -148,18 +148,6 @@ stages:
                     arguments: "--for=condition=ready externalsecret/oluto-secrets --timeout=120s"
                   continueOnError: true
 
-                - task: Kubernetes@1
-                  displayName: "Wait for PicoClaw Secrets Sync"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-dev-rg"
-                    kubernetesCluster: "wackopscoach-dev-aks"
-                    namespace: "oluto"
-                    command: "wait"
-                    arguments: "--for=condition=ready externalsecret/picoclaw-secrets --timeout=120s"
-                  continueOnError: true
-
                 # Update DEV manifests with frontend image tag
                 - task: Bash@3
                   displayName: "Update DEV Manifests"
@@ -171,7 +159,7 @@ stages:
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/dev/frontend-deployment.yaml
 
-                # Deploy to DEV AKS (frontend + agent + infra; backend managed by LedgerForge CI/CD)
+                # Deploy to DEV AKS (frontend + infra; backend by LedgerForge CI/CD, agent by ZeroClaw CI/CD)
                 - task: KubernetesManifest@1
                   displayName: "Deploy to DEV AKS"
                   inputs:
@@ -185,7 +173,6 @@ stages:
                       k8s/dev/namespace.yaml
                       k8s/dev/redis.yaml
                       k8s/dev/frontend-deployment.yaml
-                      k8s/dev/agent-deployment.yaml
                       k8s/dev/services.yaml
                       k8s/dev/ingress.yaml
 
@@ -322,7 +309,6 @@ stages:
                     namespace: "oluto"
                     manifests: |
                       k8s/external-secrets/prod/external-secret.yaml
-                      k8s/external-secrets/prod/picoclaw-external-secret.yaml
 
                 # Wait for secrets to sync
                 - task: Kubernetes@1
@@ -337,18 +323,6 @@ stages:
                     arguments: "--for=condition=ready externalsecret/oluto-secrets --timeout=120s"
                   continueOnError: true
 
-                - task: Kubernetes@1
-                  displayName: "Wait for PicoClaw Secrets Sync"
-                  inputs:
-                    connectionType: "Azure Resource Manager"
-                    azureSubscriptionEndpoint: $(aksServiceConnection)
-                    azureResourceGroup: "wackopscoach-prod-rg"
-                    kubernetesCluster: "wackopscoach-prod-aks"
-                    namespace: "oluto"
-                    command: "wait"
-                    arguments: "--for=condition=ready externalsecret/picoclaw-secrets --timeout=120s"
-                  continueOnError: true
-
                 # Update PROD manifests with frontend image tag
                 - task: Bash@3
                   displayName: "Update PROD Manifests"
@@ -360,7 +334,7 @@ stages:
                       echo "--- Frontend deployment image:"
                       grep "image:" k8s/prod/frontend-deployment.yaml
 
-                # Deploy to PROD AKS (frontend + agent + infra; backend managed by LedgerForge CI/CD)
+                # Deploy to PROD AKS (frontend + infra; backend by LedgerForge CI/CD, agent by ZeroClaw CI/CD)
                 - task: KubernetesManifest@1
                   displayName: "Deploy to PROD AKS"
                   inputs:
@@ -374,7 +348,6 @@ stages:
                       k8s/prod/namespace.yaml
                       k8s/prod/redis.yaml
                       k8s/prod/frontend-deployment.yaml
-                      k8s/prod/agent-deployment.yaml
                       k8s/prod/services.yaml
                       k8s/prod/ingress.yaml
 
