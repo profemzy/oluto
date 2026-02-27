@@ -894,7 +894,7 @@ class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: "An error occurred" }));
+      const error = await response.json().catch(() => ({}));
       throw new Error(error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -931,7 +931,7 @@ class ApiClient {
     if (!response.ok) {
       const error = await response
         .json()
-        .catch(() => ({ detail: "An error occurred" }));
+        .catch(() => ({}));
       throw new Error(
         error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`
       );

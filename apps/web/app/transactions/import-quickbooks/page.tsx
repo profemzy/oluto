@@ -12,7 +12,7 @@ const FILE_TYPES = [
   { key: "accounts", label: "Chart of Accounts" },
   { key: "customers", label: "Customers" },
   { key: "vendors", label: "Vendors" },
-  { key: "journal_entries", label: "Journal Entries" },
+  { key: "journal", label: "Journal Entries" },
   { key: "invoices", label: "Invoices" },
   { key: "bills", label: "Bills" },
   { key: "payments", label: "Payments" },
