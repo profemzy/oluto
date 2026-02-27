@@ -10,6 +10,7 @@ export { GlobalErrorBoundary, withErrorBoundary } from "./GlobalErrorBoundary";
 export { ErrorFallback } from "./ErrorFallback";
 export { SkipLink } from "./SkipLink";
 export { LiveRegion, announce, useAnnouncer } from "./Announcer";
+export { QueryProvider } from "./QueryProvider";
 export { ReceiptUploadSection } from "./ui/ReceiptUploadSection";
 export { BillReceiptSection } from "./ui/BillReceiptSection";
 export type { PendingReceiptFile, OcrSuggestion } from "./ui/ReceiptUploadSection";

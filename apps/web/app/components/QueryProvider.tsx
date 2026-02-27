@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, ReactNode, useEffect } from "react";
 import { useTokenRefresh } from "@/app/hooks/useTokenRefresh";
+import { defaultQueryClientConfig } from "@/app/lib/queryConfig";
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -10,18 +11,10 @@ interface QueryProviderProps {
 
 /**
  * QueryClient configuration with optimized caching strategy
+ * @see lib/queryConfig.ts for detailed configuration
  */
 function createQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 30 * 1000,
-        gcTime: 5 * 60 * 1000,
-        retry: 1,
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
+  return new QueryClient(defaultQueryClientConfig);
 }
 
 /**
