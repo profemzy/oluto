@@ -1560,7 +1560,7 @@ class ApiClient {
 
   async sendChatMessage(message: string, businessId: string, timezone?: string): Promise<SendChatResponse> {
     const token = this.getToken();
-    const res = await fetch("/api/chat/send", {
+    const res = await fetch("/gateway/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1582,7 +1582,7 @@ class ApiClient {
     formData.append("files", file);
     formData.append("business_id", businessId);
     if (timezone) formData.append("timezone", timezone);
-    const res = await fetch("/api/chat/send", {
+    const res = await fetch("/gateway/chat", {
       method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
