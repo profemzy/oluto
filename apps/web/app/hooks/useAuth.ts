@@ -15,13 +15,17 @@ interface UseAuthOptions {
  * Checks the JWT token, fetches the current user, and optionally
  * redirects to onboarding if the user has no business yet.
  *
- * Returns `{ user, loading }` — render a loader while `loading` is true.
+ * Also fetches the business timezone (derived from province by the API)
+ * so pages can generate correct local dates.
+ *
+ * Returns `{ user, loading, timezone }` — render a loader while `loading` is true.
  */
 export function useAuth(options: UseAuthOptions = {}) {
   const { requireBusiness = true } = options;
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [timezone, setTimezone] = useState("America/Toronto");
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -38,6 +42,15 @@ export function useAuth(options: UseAuthOptions = {}) {
         }
         setUser(currentUser);
         setLoading(false);
+
+        if (currentUser.business_id) {
+          api
+            .getBusiness(currentUser.business_id)
+            .then((biz) => {
+              if (biz.timezone) setTimezone(biz.timezone);
+            })
+            .catch(() => {});
+        }
       })
       .catch(() => {
         api.removeToken();
@@ -45,5 +58,5 @@ export function useAuth(options: UseAuthOptions = {}) {
       });
   }, [router, requireBusiness]);
 
-  return { user, loading };
+  return { user, loading, timezone };
 }

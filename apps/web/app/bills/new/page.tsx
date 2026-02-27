@@ -6,19 +6,10 @@ import { useRouter } from "next/navigation";
 import { api, Contact, Account, CreateBillLineItemRequest, ReceiptOcrData } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
+import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
 interface LineItemRow extends CreateBillLineItemRequest {
   _key: number;
-}
-
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function plus30(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 30);
-  return d.toISOString().slice(0, 10);
 }
 
 let nextKey = 1;
@@ -32,7 +23,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewBillPage() {
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, timezone } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,11 +33,16 @@ export default function NewBillPage() {
 
   const [billNumber, setBillNumber] = useState("");
   const [vendorId, setVendorId] = useState("");
-  const [billDate, setBillDate] = useState(todayStr());
-  const [dueDate, setDueDate] = useState(plus30());
+  const [billDate, setBillDate] = useState(() => todayInTimezone());
+  const [dueDate, setDueDate] = useState(() => dateOffsetInTimezone(30));
   const [memo, setMemo] = useState("");
   const [lineItems, setLineItems] = useState<LineItemRow[]>([emptyLine()]);
   const [pendingReceipts, setPendingReceipts] = useState<PendingReceiptFile[]>([]);
+
+  useEffect(() => {
+    setBillDate(todayInTimezone(timezone));
+    setDueDate(dateOffsetInTimezone(30, timezone));
+  }, [timezone]);
 
   useEffect(() => {
     if (!user?.business_id) return;
@@ -109,7 +105,11 @@ export default function NewBillPage() {
       try {
         const parsedDate = new Date(ocrData.date);
         if (!isNaN(parsedDate.getTime())) {
-          setBillDate(parsedDate.toISOString().slice(0, 10));
+          // Use local date parts to avoid UTC shift
+          const y = parsedDate.getFullYear();
+          const m = String(parsedDate.getMonth() + 1).padStart(2, "0");
+          const d = String(parsedDate.getDate()).padStart(2, "0");
+          setBillDate(`${y}-${m}-${d}`);
         }
       } catch (err) {
         console.error("Failed to parse OCR date:", err);

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { api, BillWithLineItems, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection } from "@/app/components";
+import { formatDate } from "@/app/lib/format";
 
 const STATUS_COLORS: Record<string, string> = {
   open: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 ring-blue-200 dark:ring-blue-800",
@@ -26,11 +27,6 @@ const STATUS_ACTIONS: Record<string, { label: string; status: string; color: str
 function formatCurrency(amount: string): string {
   const num = parseFloat(amount);
   return isNaN(num) ? "$0.00" : `$${num.toFixed(2)}`;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "\u2014";
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-CA");
 }
 
 export default function BillDetailPage({

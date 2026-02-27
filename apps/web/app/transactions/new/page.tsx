@@ -8,19 +8,18 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
 import type { PendingReceiptFile, OcrSuggestion } from "@/app/components";
 import { CRA_CATEGORIES } from "@/app/lib/constants";
+import { todayInTimezone } from "@/app/lib/format";
 
 export default function NewTransactionPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, timezone } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [vendorName, setVendorName] = useState("");
   const [txnType, setTxnType] = useState<"expense" | "income">("expense");
   const [amount, setAmount] = useState("");
-  const [transactionDate, setTransactionDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [transactionDate, setTransactionDate] = useState(() => todayInTimezone());
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [taxTreatment, setTaxTreatment] = useState<"standard" | "gst_only" | "exempt" | "custom">("standard");
@@ -35,6 +34,8 @@ export default function NewTransactionPage() {
   const manualCategoryRef = useRef(false);
   const prevVendorRef = useRef("");
   const prevDescriptionRef = useRef("");
+
+  useEffect(() => { setTransactionDate(todayInTimezone(timezone)); }, [timezone]);
 
   // Debounced AI category suggestion for expenses
   // Two-phase: fast on vendor change (600ms), slower on description refinement (1200ms)

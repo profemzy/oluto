@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
 interface LineItemRow extends CreateInvoiceLineItemRequest {
   amount: string;
@@ -22,16 +23,6 @@ function calcLineAmount(qty: string, price: string, discountPct: string): string
   const d = parseFloat(discountPct) || 0;
   const amt = q * p * (1 - d / 100);
   return amt.toFixed(2);
-}
-
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function plus30(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 30);
-  return d.toISOString().slice(0, 10);
 }
 
 const emptyLine = (): LineItemRow => ({
@@ -47,7 +38,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewInvoicePage() {
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, timezone } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -57,13 +48,18 @@ export default function NewInvoicePage() {
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [customerId, setCustomerId] = useState("");
-  const [invoiceDate, setInvoiceDate] = useState(todayStr());
-  const [dueDate, setDueDate] = useState(plus30());
+  const [invoiceDate, setInvoiceDate] = useState(() => todayInTimezone());
+  const [dueDate, setDueDate] = useState(() => dateOffsetInTimezone(30));
   const [shipDate, setShipDate] = useState("");
   const [customerMemo, setCustomerMemo] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [lineItems, setLineItems] = useState<LineItemRow[]>([emptyLine()]);
+
+  useEffect(() => {
+    setInvoiceDate(todayInTimezone(timezone));
+    setDueDate(dateOffsetInTimezone(30, timezone));
+  }, [timezone]);
 
   useEffect(() => {
     if (!user?.business_id) return;

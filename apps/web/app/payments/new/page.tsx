@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api, Contact, Account, Invoice } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { todayInTimezone } from "@/app/lib/format";
 
 const PAYMENT_METHODS = ["Cash", "Check", "Credit Card", "Bank Transfer", "Other"];
 
@@ -20,14 +21,10 @@ function formatCurrency(amount: string): string {
   return isNaN(num) ? "$0.00" : `$${num.toFixed(2)}`;
 }
 
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function NewPaymentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, timezone } = useAuth();
   const preCustomerId = searchParams.get("customerId") || "";
   const preInvoiceId = searchParams.get("invoiceId") || "";
 
@@ -39,7 +36,7 @@ function NewPaymentForm() {
   const [assetAccounts, setAssetAccounts] = useState<Account[]>([]);
 
   const [customerId, setCustomerId] = useState(preCustomerId);
-  const [paymentDate, setPaymentDate] = useState(todayStr());
+  const [paymentDate, setPaymentDate] = useState(() => todayInTimezone());
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -48,6 +45,8 @@ function NewPaymentForm() {
 
   const [invoiceApps, setInvoiceApps] = useState<InvoiceApplication[]>([]);
   const [invoicesLoading, setInvoicesLoading] = useState(false);
+
+  useEffect(() => { setPaymentDate(todayInTimezone(timezone)); }, [timezone]);
 
   useEffect(() => {
     if (!user?.business_id) return;

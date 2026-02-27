@@ -1,3 +1,56 @@
+const DEFAULT_TIMEZONE = "America/Toronto";
+
+/**
+ * Returns today's date as YYYY-MM-DD in the given IANA timezone.
+ * Uses Intl.DateTimeFormat so the result is correct regardless of the
+ * browser's local clock — it always reflects "now" in the business's province.
+ */
+export function todayInTimezone(timezone = DEFAULT_TIMEZONE): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const y = parts.find((p) => p.type === "year")!.value;
+  const m = parts.find((p) => p.type === "month")!.value;
+  const d = parts.find((p) => p.type === "day")!.value;
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Returns a date offset by `days` from today, as YYYY-MM-DD in the given timezone.
+ */
+export function dateOffsetInTimezone(
+  days: number,
+  timezone = DEFAULT_TIMEZONE,
+): string {
+  const now = new Date();
+  now.setDate(now.getDate() + days);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const y = parts.find((p) => p.type === "year")!.value;
+  const m = parts.find((p) => p.type === "month")!.value;
+  const d = parts.find((p) => p.type === "day")!.value;
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Returns January 1st of the current year in the given timezone as YYYY-MM-DD.
+ */
+export function firstOfYearInTimezone(timezone = DEFAULT_TIMEZONE): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+  }).formatToParts(new Date());
+  const y = parts.find((p) => p.type === "year")!.value;
+  return `${y}-01-01`;
+}
+
 export function formatCurrency(
   amount: string | number,
   currency = "CAD",

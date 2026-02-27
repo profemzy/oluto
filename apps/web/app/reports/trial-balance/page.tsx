@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api, TrialBalance } from "@/app/lib/api";
-import { formatCurrency } from "@/app/lib/format";
+import { formatCurrency, todayInTimezone } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function TrialBalancePage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, timezone } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split("T")[0]);
+  const [asOfDate, setAsOfDate] = useState(() => todayInTimezone());
+
+  useEffect(() => { setAsOfDate(todayInTimezone(timezone)); }, [timezone]);
   const [report, setReport] = useState<TrialBalance | null>(null);
 
   const generate = async () => {

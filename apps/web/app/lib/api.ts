@@ -40,6 +40,7 @@ export interface BusinessResponse {
   id: string;
   name: string;
   province: string | null;
+  timezone: string;
   tax_profile: string | null;
   created_at: string | null;
 }

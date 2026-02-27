@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, DashboardSummary, Invoice, Bill, AccountsReceivableAging, ReconciliationSummary, computeAgingTotals } from "@/app/lib/api";
-import { formatCurrency, formatDate, formatRelativeTime } from "@/app/lib/format";
+import { formatCurrency, formatDate, formatRelativeTime, todayInTimezone } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, timezone } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [overdueInvoices, setOverdueInvoices] = useState<Invoice[]>([]);
   const [overdueBills, setOverdueBills] = useState<Bill[]>([]);
@@ -24,7 +24,7 @@ export default function DashboardPage() {
       api.getDashboardSummary(user.business_id!),
       api.getOverdueInvoices(user.business_id!).catch(() => [] as Invoice[]),
       api.getOverdueBills(user.business_id!).catch(() => [] as Bill[]),
-      api.getArAging(user.business_id!, new Date().toISOString().split("T")[0]).catch(() => null),
+      api.getArAging(user.business_id!, todayInTimezone(timezone)).catch(() => null),
       api.getReconciliationSummary(user.business_id!).catch(() => null),
     ])
       .then(([data, invs, bills, aging, recon]) => {

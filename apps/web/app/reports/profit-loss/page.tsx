@@ -1,20 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api, ProfitLossStatement } from "@/app/lib/api";
-import { formatCurrency } from "@/app/lib/format";
+import { formatCurrency, todayInTimezone, firstOfYearInTimezone } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function ProfitLossPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, timezone } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const today = new Date().toISOString().split("T")[0];
-  const firstOfYear = `${new Date().getFullYear()}-01-01`;
-  const [startDate, setStartDate] = useState(firstOfYear);
-  const [endDate, setEndDate] = useState(today);
+  const [startDate, setStartDate] = useState(() => firstOfYearInTimezone());
+  const [endDate, setEndDate] = useState(() => todayInTimezone());
+
+  useEffect(() => {
+    setStartDate(firstOfYearInTimezone(timezone));
+    setEndDate(todayInTimezone(timezone));
+  }, [timezone]);
   const [report, setReport] = useState<ProfitLossStatement | null>(null);
 
   const generate = async () => {
