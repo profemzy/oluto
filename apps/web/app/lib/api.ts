@@ -850,7 +850,6 @@ export interface QbImportConfirmResponse {
 
 // --- Helpers ---
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildQueryString(params: Record<string, any>): string {
   const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {

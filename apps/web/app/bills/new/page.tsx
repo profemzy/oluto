@@ -111,8 +111,8 @@ export default function NewBillPage() {
           const d = String(parsedDate.getDate()).padStart(2, "0");
           setBillDate(`${y}-${m}-${d}`);
         }
-      } catch (err) {
-        console.error("Failed to parse OCR date:", err);
+      } catch {
+        // OCR date parsing is best-effort; fall through to manual entry
       }
     }
 

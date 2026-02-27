@@ -4,7 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -39,51 +39,55 @@ function applyTheme(resolved: "light" | "dark") {
   }
 }
 
+// SSR-safe mount detection
+const emptySubscribe = () => () => {};
+const getMountedClient = () => true;
+const getMountedServer = () => false;
+
+// Theme store with same-tab change notification
+const themeStoreListeners = new Set<() => void>();
+
+function subscribeThemeStore(callback: () => void) {
+  themeStoreListeners.add(callback);
+  const handler = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) callback();
+  };
+  window.addEventListener("storage", handler);
+  return () => {
+    themeStoreListeners.delete(callback);
+    window.removeEventListener("storage", handler);
+  };
+}
+
+function readStoredTheme(): Theme {
+  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+  return stored && ["light", "dark", "system"].includes(stored) ? stored : "system";
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, getMountedClient, getMountedServer);
+  const theme = useSyncExternalStore(subscribeThemeStore, readStoredTheme, () => "system" as Theme);
 
-  // Read persisted preference on mount
-  useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    if (stored && ["light", "dark", "system"].includes(stored)) {
-      setThemeState(stored);
-      const resolved = resolveTheme(stored);
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
-    } else {
-      const resolved = resolveTheme("system");
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
-    }
-  }, []);
+  // Derive resolvedTheme synchronously
+  const resolvedTheme = mounted ? resolveTheme(theme) : "light";
 
-  // Resolve and apply theme when it changes (after mount)
+  // Apply theme class to document when theme changes
   useEffect(() => {
-    if (!mounted) return;
-    const resolved = resolveTheme(theme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-  }, [theme, mounted]);
+    applyTheme(resolveTheme(theme));
+  }, [theme]);
 
   // Listen for system preference changes when in "system" mode
   useEffect(() => {
     if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => {
-      const resolved = e.matches ? "dark" : "light";
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
-    };
+    const handler = () => applyTheme(resolveTheme("system"));
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
     localStorage.setItem(STORAGE_KEY, newTheme);
+    themeStoreListeners.forEach((cb) => cb());
   };
 
   return (

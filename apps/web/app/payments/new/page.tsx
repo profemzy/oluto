@@ -94,7 +94,7 @@ function NewPaymentForm() {
       }
     };
     loadInvoices();
-  }, [customerId, preInvoiceId]);
+  }, [customerId, preInvoiceId, user?.business_id]);
 
   // Auto-distribute payment amount across invoices oldest-first
   const autoDistribute = () => {

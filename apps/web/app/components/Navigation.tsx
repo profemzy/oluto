@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { ThemeToggle } from "./ThemeToggle";
@@ -46,7 +46,6 @@ const appLinks: NavItem[] = [
   { name: "Accounts", href: "/accounts" },
   { name: "Reconciliation", href: "/reconciliation" },
   { name: "Reports", href: "/reports" },
-  { name: "Chat", href: "/chat" },
 ];
 
 function isGroupActive(item: NavItem, pathname: string): boolean {
@@ -89,6 +88,7 @@ function DesktopDropdown({
       onMouseLeave={handleLeave}
     >
       <button
+        type="button"
         className={`nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1 ${
           active ? "text-cyan-600" : "text-body hover:text-cyan-600"
         }`}
@@ -146,6 +146,7 @@ function MobileDropdown({
   return (
     <div>
       <button
+        type="button"
         className={`w-full flex items-center justify-between py-2.5 text-base font-medium transition-colors ${
           active ? "text-cyan-600" : "text-heading hover:text-cyan-600"
         }`}
@@ -188,20 +189,22 @@ function MobileDropdown({
   );
 }
 
+const emptySubscribe = () => () => {};
+const getMountedClient = () => true;
+const getMountedServer = () => false;
+
 export function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
-  const [authCheckedPath, setAuthCheckedPath] = useState("");
+  const hasMounted = useSyncExternalStore(emptySubscribe, getMountedClient, getMountedServer);
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-    setIsAuthenticated(api.isAuthenticated());
-    setAuthCheckedPath(pathname);
+  // Compute auth state synchronously — localStorage read is side-effect-free
+  const isAuthenticated = hasMounted && api.isAuthenticated();
 
+  // Scroll listener
+  useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -209,11 +212,6 @@ export function Navigation() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (hasMounted && authCheckedPath !== pathname) {
-    setAuthCheckedPath(pathname);
-    setIsAuthenticated(api.isAuthenticated());
-  }
 
   const isAppPage =
     pathname.startsWith("/dashboard") ||
@@ -234,7 +232,6 @@ export function Navigation() {
 
   const handleLogout = () => {
     api.removeToken();
-    setIsAuthenticated(false);
     router.push("/");
   };
 
@@ -312,8 +309,21 @@ export function Navigation() {
               </Link>
             </div>
           ) : (
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3">
               <ThemeToggle />
+              <Link
+                href="/chat"
+                className={`p-2 rounded-lg transition-colors ${
+                  pathname.startsWith("/chat")
+                    ? "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50"
+                    : "text-muted hover:text-cyan-600 hover:bg-surface-hover"
+                }`}
+                title="Chat with Oluto"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </Link>
               <Link
                 href="/transactions/new"
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300"
@@ -334,6 +344,7 @@ export function Navigation() {
                 Add Transaction
               </Link>
               <button
+                type="button"
                 onClick={handleLogout}
                 className="text-sm font-bold text-body hover:text-red-600 transition-colors"
               >
@@ -422,6 +433,18 @@ export function Navigation() {
               </div>
             ) : (
               <div className="pt-4 mt-4 border-t border-edge-subtle space-y-3">
+                <Link
+                  href="/chat"
+                  className={`flex items-center gap-2 py-2.5 text-base font-medium transition-colors ${
+                    pathname.startsWith("/chat") ? "text-cyan-600" : "text-heading hover:text-cyan-600"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                  Chat with Oluto
+                </Link>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-muted">Theme</span>
                   <ThemeToggle />
@@ -434,6 +457,7 @@ export function Navigation() {
                   Add Transaction
                 </Link>
                 <button
+                  type="button"
                   onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);

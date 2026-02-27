@@ -89,6 +89,7 @@ export default function RegisterPage() {
           <ErrorAlert error={error} />
 
           <form className="space-y-5" onSubmit={handleSubmit}>
+            <fieldset disabled={loading} className="space-y-5">
             <div>
               <label htmlFor="fullName" className="block text-sm font-bold leading-6 text-heading">
                 Full name
@@ -186,6 +187,7 @@ export default function RegisterPage() {
               </label>
             </div>
 
+            </fieldset>
             <div>
               <button
                 type="submit"

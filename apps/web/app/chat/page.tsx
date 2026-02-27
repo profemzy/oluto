@@ -17,6 +17,7 @@ export default function ChatPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [sending, setSending] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingQuickActionRef = useRef<QuickAction | null>(null);
 
@@ -198,7 +199,8 @@ export default function ChatPage() {
   if (authLoading) return <PageLoader />;
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0a0a14]">
+      {/* Sidebar — desktop: inline, mobile: overlay */}
       <ChatSidebar
         conversations={conversations}
         activeId={activeId}
@@ -210,14 +212,46 @@ export default function ChatPage() {
         onDelete={(id) => deleteConversation.mutate(id)}
         collapsed={collapsed}
         onToggle={() => setCollapsed((v) => !v)}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
       />
 
-      <ChatArea
-        messages={messages}
-        loading={sending}
-        onSend={sendMessage}
-        onQuickAction={handleQuickAction}
-      />
+      {/* Main chat area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile header bar */}
+        <div className="md:hidden flex items-center gap-3 px-3 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f0f18]">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2 flex-1">
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center">
+              <span className="text-xs font-bold text-white">O</span>
+            </div>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Oluto Chat</span>
+          </div>
+          <button
+            onClick={() => { setActiveId(null); }}
+            className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors"
+            title="New chat"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+
+        <ChatArea
+          messages={messages}
+          loading={sending}
+          onSend={sendMessage}
+          onQuickAction={handleQuickAction}
+        />
+      </div>
 
       {/* Hidden file input for quick actions that need files */}
       <input

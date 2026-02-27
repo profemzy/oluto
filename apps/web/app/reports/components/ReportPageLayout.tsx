@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, ReactNode } from "react";
+import { useState, ReactNode } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
 import { todayInTimezone, firstOfYearInTimezone } from "@/app/lib/format";
@@ -31,14 +31,17 @@ export function useReportDates(mode: "single" | "range") {
   const [startDate, setStartDate] = useState(() => firstOfYearInTimezone());
   const [endDate, setEndDate] = useState(() => todayInTimezone());
 
-  useEffect(() => {
+  // Adjust dates when timezone changes (React render-time state adjustment pattern)
+  const [prevTimezone, setPrevTimezone] = useState<string | undefined>();
+  if (timezone && timezone !== prevTimezone) {
+    setPrevTimezone(timezone);
     if (mode === "single") {
       setAsOfDate(todayInTimezone(timezone));
     } else {
       setStartDate(firstOfYearInTimezone(timezone));
       setEndDate(todayInTimezone(timezone));
     }
-  }, [timezone, mode]);
+  }
 
   return {
     user,

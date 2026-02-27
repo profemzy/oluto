@@ -85,9 +85,10 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
+                  disabled={loading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="you@example.com"
                 />
               </div>
@@ -107,9 +108,10 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
+                  disabled={loading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400"
+                  className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="••••••••"
                 />
               </div>
@@ -206,6 +208,7 @@ export default function LoginPage() {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
+                type="button"
                 onClick={() => toastInfo("OAuth coming soon!")}
                 className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
               >
@@ -230,6 +233,7 @@ export default function LoginPage() {
                 Google
               </button>
               <button
+                type="button"
                 onClick={() => toastInfo("OAuth coming soon!")}
                 className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
               >
