@@ -283,8 +283,8 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
               </div>
             ))}
 
-            {/* Typing indicator */}
-            {loading && !showLoadingBanner && <TypingIndicator />}
+            {/* Typing indicator at bottom — always visible when loading */}
+            {loading && <TypingIndicator />}
           </>
         )}
 
