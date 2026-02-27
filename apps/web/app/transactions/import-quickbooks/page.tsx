@@ -116,8 +116,9 @@ export default function QuickBooksImportPage() {
     setLoading(true);
     try {
       const accounts: QbAccountConfirmItem[] = parseResult.accounts.map((a, i) => ({
-        ...a,
+        parsed_account: a,
         action: accountActions[i] || "create_new",
+        merge_with_account_id: accountActions[i] === "merge" && a.conflict ? a.conflict.existing_account_id : undefined,
       }));
       const result = await api.confirmQuickBooksImport(user.business_id, {
         accounts,
@@ -342,6 +343,7 @@ export default function QuickBooksImportPage() {
               {[
                 { label: "Accounts Created", count: importResult.accounts_created },
                 { label: "Accounts Merged", count: importResult.accounts_merged },
+                { label: "Accounts Skipped", count: importResult.accounts_skipped },
                 { label: "Customers", count: importResult.customers_created },
                 { label: "Vendors", count: importResult.vendors_created },
                 { label: "Journal Entries", count: importResult.journal_entries_created },
@@ -360,7 +362,7 @@ export default function QuickBooksImportPage() {
               <div className="bg-red-50 dark:bg-red-950/50 rounded-xl border border-red-200 p-4 mb-6">
                 <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-2">Errors</p>
                 <ul className="text-sm text-red-700 dark:text-red-400 space-y-1">
-                  {importResult.errors.map((e, i) => <li key={i}>{e}</li>)}
+                  {importResult.errors.map((e, i) => <li key={i}>[{e.entity_type}] {e.entity_name}: {e.error}</li>)}
                 </ul>
               </div>
             )}

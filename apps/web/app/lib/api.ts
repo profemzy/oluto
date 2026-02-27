@@ -748,6 +748,7 @@ export interface QbParsedAccount {
   name: string;
   qb_type: string;
   detail_type?: string;
+  description?: string;
   balance?: string;
   mapped_type: string;
   suggested_code: string;
@@ -757,6 +758,7 @@ export interface QbParsedAccount {
 export interface QbAccountConflict {
   existing_account_id: string;
   existing_account_name: string;
+  existing_account_code: string;
   match_type: string;
   suggested_action: string;
 }
@@ -764,8 +766,11 @@ export interface QbAccountConflict {
 export interface QbParsedContact {
   name: string;
   contact_type: string;
+  company_name?: string;
   email?: string;
   phone?: string;
+  billing_address?: string;
+  shipping_address?: string;
   balance?: string;
 }
 
@@ -773,7 +778,8 @@ export interface QbParsedJournalEntry {
   date: string;
   num?: string;
   description?: string;
-  line_items: { account_name: string; debit?: string; credit?: string }[];
+  contact_name?: string;
+  line_items: { account_name: string; description?: string; debit_amount: string; credit_amount: string }[];
   is_balanced: boolean;
   total_debit: string;
   total_credit: string;
@@ -784,7 +790,7 @@ export interface QbParsedInvoice {
   date: string;
   due_date?: string;
   customer_name: string;
-  line_items: { description: string; quantity: string; rate: string; amount: string }[];
+  line_items: { description: string; quantity: string; unit_price: string; amount: string; account_name?: string }[];
   total: string;
   status?: string;
 }
@@ -794,6 +800,7 @@ export interface QbParsedBill {
   date: string;
   due_date?: string;
   vendor_name: string;
+  description?: string;
   amount: string;
   account_name?: string;
   status?: string;
@@ -807,6 +814,7 @@ export interface QbParsedPayment {
   amount: string;
   method?: string;
   applied_to?: string;
+  deposit_account?: string;
 }
 
 export interface QbImportParseResponse {
@@ -821,8 +829,10 @@ export interface QbImportParseResponse {
   warnings: string[];
 }
 
-export interface QbAccountConfirmItem extends QbParsedAccount {
+export interface QbAccountConfirmItem {
+  parsed_account: QbParsedAccount;
   action: "create_new" | "merge" | "skip";
+  merge_with_account_id?: string;
 }
 
 export interface QbImportConfirmRequest {
@@ -835,17 +845,24 @@ export interface QbImportConfirmRequest {
   payments: QbParsedPayment[];
 }
 
+export interface QbImportError {
+  entity_type: string;
+  entity_name: string;
+  error: string;
+}
+
 export interface QbImportConfirmResponse {
   import_batch_id: string;
   accounts_created: number;
   accounts_merged: number;
+  accounts_skipped: number;
   customers_created: number;
   vendors_created: number;
   journal_entries_created: number;
   invoices_created: number;
   bills_created: number;
   payments_created: number;
-  errors: string[];
+  errors: QbImportError[];
 }
 
 // --- Helpers ---
