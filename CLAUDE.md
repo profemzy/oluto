@@ -27,7 +27,7 @@ npx tsc --noEmit -p apps/web/tsconfig.json
 ## Project Structure
 
 ```
-apps/web/                      # Next.js app (64 files, 13,500+ lines)
+apps/web/                      # Next.js app (74 files, 16,400+ lines)
   app/
     auth/                      # Auth pages
       login/page.tsx
@@ -36,11 +36,21 @@ apps/web/                      # Next.js app (64 files, 13,500+ lines)
     dashboard/page.tsx
     onboarding/
       setup-business/page.tsx
+    chat/                      # AI chat interface (ZeroClaw agent)
+      page.tsx                 # Chat orchestration (conversations, messages, gateway calls)
+      components/
+        ChatArea.tsx           # Message display, date grouping, loading indicators, drag-drop
+        ChatSidebar.tsx        # Conversation list, search, create/archive/delete
+        InputBar.tsx           # Message input with file attachment, quick actions toggle
+        MessageBubble.tsx      # User/assistant/error message bubbles with copy, avatars
+        MarkdownRenderer.tsx   # Custom text-to-React-nodes renderer (no dangerouslySetInnerHTML)
+        QuickActions.tsx       # Pre-built agent actions (Daily Briefing, Receipt Snap, etc.)
     transactions/
       page.tsx                 # Transaction list (filter, bulk status, inline editing)
       new/page.tsx             # Add expense transaction
       [id]/edit/page.tsx       # Edit transaction
       import/page.tsx          # Import CSV/PDF bank statements
+      import-quickbooks/page.tsx # QuickBooks CSV import wizard (upload, review, confirm)
     invoices/
       page.tsx                 # Invoice list with status filters
       new/page.tsx             # Create invoice with line items
@@ -70,6 +80,8 @@ apps/web/                      # Next.js app (64 files, 13,500+ lines)
       profit-loss/page.tsx
       balance-sheet/page.tsx
       ar-aging/page.tsx
+    gateway/                   # API route handlers
+      chat/route.ts            # POST proxy to ZeroClaw gateway (/agent/webhook)
     privacy/page.tsx           # Privacy policy
     terms/page.tsx             # Terms of service
     sections/                  # Landing page sections
@@ -81,9 +93,9 @@ apps/web/                      # Next.js app (64 files, 13,500+ lines)
       CTASection.tsx
     components/
       ui/                      # Shared UI (ErrorAlert, PageLoader, PageHeader, ListPageLayout, ErrorBoundary, Toast, ReceiptUploadSection, BillReceiptSection)
-      Navigation.tsx           # App nav with Sales/Purchases/Reports groups
+      Navigation.tsx           # App nav with Sales/Purchases/Reports groups + chat icon
       Footer.tsx
-      ThemeProvider.tsx         # Dark/light mode with system sync
+      ThemeProvider.tsx         # Dark/light mode with system sync (useSyncExternalStore)
       ThemeToggle.tsx
       ThemeLogo.tsx            # Inline SVG logo (dark/light variants)
       QueryProvider.tsx        # TanStack Query provider
@@ -92,7 +104,7 @@ apps/web/                      # Next.js app (64 files, 13,500+ lines)
       useAuth.ts               # Auth check + redirect hook
       useDataTable.ts          # Data table state management
     lib/
-      api.ts                   # API client (1,372 lines, 100+ endpoints, 35+ types)
+      api.ts                   # API client (1,620 lines, 100+ endpoints, 35+ types)
       constants.ts             # CRA_CATEGORIES, classification options, receipt constraints
       format.ts                # Currency/date/file size formatters
       status.ts                # Status enums + color schemes for all entities
@@ -179,7 +191,10 @@ azure-pipelines/               # Azure DevOps CI/CD
 - **Dark mode:** Use Tailwind `dark:` variant classes — theme state in `ThemeProvider` (localStorage + system sync)
 - **Status management:** Entity status enums and badge colors defined in `lib/status.ts`
 - **Toast notifications:** Use helpers from `lib/toast.ts` (`toastError`, `toastSuccess`)
-- **Navigation groups:** Sales (Invoices, Payments) and Purchases (Bills, Bill Payments) are grouped in nav dropdowns
+- **Navigation groups:** Sales (Invoices, Payments) and Purchases (Bills, Bill Payments) are grouped in nav dropdowns; Chat is an icon button in the nav action area
+- **Chat UI:** Desktop-parity design with date-grouped messages, loading banner + typing indicator, drag-and-drop file upload, quick actions, markdown rendering, conversation sidebar
+- **Gateway proxy:** Chat messages route through Next.js API route (`/gateway/chat`) to ZeroClaw webhook, passing JWT for auth
+- **SSR-safe patterns:** `useSyncExternalStore` used in ThemeProvider and Navigation for safe localStorage/mount detection
 
 ## Access Points
 

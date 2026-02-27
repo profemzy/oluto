@@ -141,7 +141,7 @@ draft → posted → void
 
 ## Frontend Architecture
 
-### Page Structure (35 pages)
+### Page Structure (37 pages)
 
 | Page             | Path                         | Description                                           |
 | ---------------- | ---------------------------- | ----------------------------------------------------- |
@@ -155,6 +155,8 @@ draft → posted → void
 | New Transaction  | `/transactions/new`          | Create expense transaction form + receipt upload      |
 | Edit Transaction | `/transactions/[id]/edit`    | Edit existing transaction + receipt upload             |
 | Import           | `/transactions/import`       | CSV/PDF upload, preview, duplicate flagging, confirm  |
+| QuickBooks Import| `/transactions/import-quickbooks` | QuickBooks CSV import wizard (upload, review, confirm) |
+| Chat             | `/chat`                      | AI chat with ZeroClaw agent (conversations, file upload, quick actions) |
 | Invoices         | `/invoices`                  | Invoice list with status filters                      |
 | New Invoice      | `/invoices/new`              | Create invoice with line items                        |
 | Invoice Detail   | `/invoices/[id]`             | View invoice detail + associated payments             |
@@ -182,7 +184,7 @@ draft → posted → void
 
 ### Key Frontend Patterns
 
-- **`lib/api.ts`** — centralized API client (1,372 lines) with 100+ endpoints, 35+ TypeScript interfaces
+- **`lib/api.ts`** — centralized API client (1,620 lines) with 100+ endpoints, 35+ TypeScript interfaces
 - **`hooks/useAuth.ts`** — authentication check + redirect for protected pages
 - **`hooks/useDataTable.ts`** — data table state management (sorting, filtering, pagination)
 - **`components/ui/`** — shared components: `ErrorAlert`, `PageLoader`, `PageHeader`, `ListPageLayout`, `ErrorBoundary`, `Toast`, `ReceiptUploadSection`, `BillReceiptSection`
@@ -190,13 +192,15 @@ draft → posted → void
 - **`lib/format.ts`** — currency, date, file size, relative time formatters
 - **`lib/status.ts`** — status enums + badge color schemes for all entity types
 - **`lib/toast.ts`** — toast notification helpers (`toastError`, `toastSuccess`, etc.)
-- **`components/Navigation.tsx`** — app navigation with Sales/Purchases/Reports dropdown groups
-- **`components/ThemeProvider.tsx`** — dark/light mode with system color scheme sync
+- **`components/Navigation.tsx`** — app navigation with Sales/Purchases/Reports dropdown groups + chat icon button
+- **`components/ThemeProvider.tsx`** — dark/light mode with system color scheme sync (useSyncExternalStore)
 - **`components/QueryProvider.tsx`** — TanStack Query provider with cache invalidation patterns
+- **`chat/components/`** — 6 chat components: ChatArea, ChatSidebar, InputBar, MessageBubble, MarkdownRenderer, QuickActions
+- **`gateway/chat/route.ts`** — Next.js API route proxying chat messages to ZeroClaw gateway
 
 ### TypeScript Style
 
-- Strict TypeScript configuration
+- TypeScript with `strict: false` (incremental strictness planned — see improvement plan)
 - All API responses typed in `lib/api.ts`
 - Use existing shared components and hooks — don't duplicate
 - TanStack Query for all data fetching (`useQuery`/`useMutation`)
