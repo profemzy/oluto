@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, Invoice, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { useDataTable } from "@/app/hooks/useDataTable";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 import {
@@ -59,7 +59,7 @@ export default function InvoicesPage() {
 
   const loadingState =
     authLoading || loading || customersLoading || overdueLoading;
-  if (loadingState) return <PageLoader />;
+  if (loadingState) return <ListSkeleton title="Invoices" actionButton />;
 
   const combinedError =
     error ||

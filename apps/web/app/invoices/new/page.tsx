@@ -10,7 +10,7 @@ import {
   CreateInvoiceLineItemRequest,
 } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { FormSkeleton, PageHeader, ErrorAlert } from "@/app/components";
 import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
 interface LineItemRow extends CreateInvoiceLineItemRequest {
@@ -158,7 +158,7 @@ export default function NewInvoicePage() {
     }
   };
 
-  if (authLoading || dataLoading) return <PageLoader />;
+  if (authLoading || dataLoading) return <FormSkeleton title="New Invoice" fieldCount={5} />;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

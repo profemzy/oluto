@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, Bill, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { useDataTable } from "@/app/hooks/useDataTable";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 import { toastError, toastSuccess } from "@/app/lib/toast";
@@ -76,7 +76,7 @@ export default function BillsPage() {
 
   const loadingState =
     authLoading || loading || vendorsLoading || overdueLoading;
-  if (loadingState) return <PageLoader />;
+  if (loadingState) return <ListSkeleton title="Bills" actionButton />;
 
   const combinedError =
     billsError ||

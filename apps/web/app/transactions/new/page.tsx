@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
+import { FormSkeleton, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
 import type { PendingReceiptFile, OcrSuggestion } from "@/app/components";
 import { CRA_CATEGORIES } from "@/app/lib/constants";
 import { todayInTimezone } from "@/app/lib/format";
@@ -175,7 +175,7 @@ export default function NewTransactionPage() {
   };
 
   if (authLoading) {
-    return <PageLoader />;
+    return <FormSkeleton title="Add Transaction" fieldCount={6} showReceiptUpload />;
   }
 
   return (

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api, Contact, Account, CreateBillLineItemRequest, ReceiptOcrData } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
+import { FormSkeleton, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
 import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
 interface LineItemRow extends CreateBillLineItemRequest {
@@ -184,7 +184,7 @@ export default function NewBillPage() {
     }
   };
 
-  if (authLoading || dataLoading) return <PageLoader />;
+  if (authLoading || dataLoading) return <FormSkeleton title="New Bill" fieldCount={5} showReceiptUpload />;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

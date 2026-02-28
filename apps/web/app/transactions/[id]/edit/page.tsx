@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
 import { api, Transaction } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
+import { FormSkeleton, PageHeader, ErrorAlert, ReceiptUploadSection } from "@/app/components";
 import type { OcrSuggestion } from "@/app/components";
 import { CRA_CATEGORIES } from "@/app/lib/constants";
 
@@ -205,7 +205,7 @@ export default function EditTransactionPage({
   };
 
   if (authLoading || loading) {
-    return <PageLoader />;
+    return <FormSkeleton title="Edit Transaction" fieldCount={6} showReceiptUpload />;
   }
 
   return (

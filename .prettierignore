@@ -1,0 +1,34 @@
+# Build outputs
+.next
+out
+dist
+build
+
+# Dependencies
+node_modules
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lock files (optional - include if you want them formatted)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

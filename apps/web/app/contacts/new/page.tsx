@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { CompactFormSkeleton, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function NewContactPage() {
     }
   };
 
-  if (authLoading) return <PageLoader />;
+  if (authLoading) return <CompactFormSkeleton fieldCount={4} />;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

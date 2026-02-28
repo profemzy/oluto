@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, Account } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { useDataTable } from "@/app/hooks/useDataTable";
 import { toastError, toastSuccess } from "@/app/lib/toast";
 import { ACCOUNT_TYPE_COLORS, ACCOUNT_TYPE_FILTERS } from "@/app/lib/status";
@@ -50,7 +50,7 @@ export default function AccountsPage() {
     deactivateMutation.mutate(id);
   };
 
-  if (authLoading || loading) return <PageLoader />;
+  if (authLoading || loading) return <ListSkeleton title="Accounts" actionButton rowCount={6} />;
 
   return (
     <ListPageLayout

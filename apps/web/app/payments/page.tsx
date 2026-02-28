@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, Payment, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ErrorAlert, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ErrorAlert, ListPageLayout } from "@/app/components";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 
 export default function PaymentsPage() {
@@ -39,7 +39,7 @@ export default function PaymentsPage() {
   }, [customers]);
 
   const loadingState = authLoading || paymentsLoading || customersLoading;
-  if (loadingState) return <PageLoader />;
+  if (loadingState) return <ListSkeleton title="Payments" actionButton />;
 
   const combinedError =
     (error instanceof Error ? error.message : "") ||

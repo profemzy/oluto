@@ -11,7 +11,7 @@ import {
 } from "@/app/lib/api";
 import { formatCurrency, formatDate } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
-import { PageLoader, ListPageLayout } from "@/app/components";
+import { ListSkeleton, ListPageLayout } from "@/app/components";
 import { toastError, toastSuccess } from "@/app/lib/toast";
 import Link from "next/link";
 
@@ -236,7 +236,7 @@ export default function ReconciliationPage() {
   const loadingState =
     authLoading || summaryLoading || suggestionsLoading || unreconciledLoading;
   if (loadingState) {
-    return <PageLoader />;
+    return <ListSkeleton title="Reconciliation" rowCount={8} />;
   }
 
   return (
