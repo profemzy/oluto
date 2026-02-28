@@ -15,8 +15,9 @@ export interface RegisterData {
 }
 
 export interface TokenResponse {
-  access_token: string;
-  token_type: string;
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
 }
 
 export interface User {
@@ -922,11 +923,6 @@ class ApiClient {
    * Perform the actual token refresh
    */
   private async performRefresh(): Promise<void> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
     try {
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: 'POST',
@@ -934,27 +930,23 @@ class ApiClient {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ refresh_token: refreshToken }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
-        // Refresh failed - clear tokens and throw
-        this.removeToken();
-        this.removeRefreshToken();
+        // Refresh failed - clear auth state and throw
+        this.clearAuthState();
         throw new Error('Session expired. Please log in again.');
       }
 
       const json = await response.json();
       const data = json.data !== undefined ? json.data : json;
-      
-      // Store new tokens
-      this.setToken(data.access_token);
-      if (data.refresh_token) {
-        this.setRefreshToken(data.refresh_token);
-      }
+
+      // Update auth state expiry
+      const expiresIn = data.expires_in || 3600;
+      this.setAuthState(expiresIn);
     } catch (error) {
-      this.removeToken();
-      this.removeRefreshToken();
+      this.clearAuthState();
       throw error;
     }
   }
@@ -976,15 +968,15 @@ class ApiClient {
   }
 
   /**
-   * Get token expiration time from JWT payload
+   * Get token expiration time from auth state
    */
   getTokenExpiry(): number | null {
-    const token = this.getToken();
-    if (!token) return null;
-    
+    if (typeof window === "undefined") return null;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp ? payload.exp * 1000 : null;
+      const state = localStorage.getItem("auth_state");
+      if (!state) return null;
+      const parsed = JSON.parse(state);
+      return parsed.expiresAt || null;
     } catch {
       return null;
     }
@@ -1013,15 +1005,7 @@ class ApiClient {
       ...options,
     };
 
-    // Add auth token if available
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
-      };
-    }
-
+    // Auth is handled via httpOnly cookies — no Bearer header needed
     config.credentials = 'include';
     const response = await fetch(url, config);
 
@@ -1077,18 +1061,11 @@ class ApiClient {
     formData: FormData
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers: Record<string, string> = {};
 
-    // Add auth token (do NOT set Content-Type — browser sets it with boundary)
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
+    // Auth is handled via httpOnly cookies — no Bearer header needed
+    // Do NOT set Content-Type — browser sets it with boundary for multipart
     const response = await fetch(url, {
       method: "POST",
-      headers,
       credentials: 'include',
       body: formData,
     });
@@ -1135,13 +1112,11 @@ class ApiClient {
     const json = await response.json();
     // LedgerForge wraps responses in { success, data }
     const data = json.data !== undefined ? json.data : json;
-    
-    // Store both tokens
-    this.setToken(data.access_token);
-    if (data.refresh_token) {
-      this.setRefreshToken(data.refresh_token);
-    }
-    
+
+    // Store auth state indicator (non-sensitive) — tokens are in httpOnly cookies
+    const expiresIn = data.expires_in || 3600;
+    this.setAuthState(expiresIn);
+
     return data;
   }
 
@@ -1165,54 +1140,39 @@ class ApiClient {
     } catch {
       // Best-effort — clear local state regardless
     }
-    this.removeToken();
-    this.removeRefreshToken();
+    this.clearAuthState();
   }
 
-  // --- Token management ---
+  // --- Auth state management (non-sensitive indicator — tokens live in httpOnly cookies) ---
 
-  setToken(token: string): void {
+  setAuthState(expiresInSecs: number): void {
     if (typeof window !== "undefined") {
-      localStorage.setItem("token", token);
+      localStorage.setItem("auth_state", JSON.stringify({
+        loggedIn: true,
+        expiresAt: Date.now() + expiresInSecs * 1000,
+      }));
     }
   }
 
-  getToken(): string | null {
+  clearAuthState(): void {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("token");
-    }
-    return null;
-  }
-
-  removeToken(): void {
-    if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_state");
+      // Clean up legacy keys if present
       localStorage.removeItem("token");
-    }
-  }
-
-  // --- Refresh Token management ---
-
-  setRefreshToken(token: string): void {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("refresh_token", token);
-    }
-  }
-
-  getRefreshToken(): string | null {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("refresh_token");
-    }
-    return null;
-  }
-
-  removeRefreshToken(): void {
-    if (typeof window !== "undefined") {
       localStorage.removeItem("refresh_token");
     }
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    if (typeof window === "undefined") return false;
+    try {
+      const state = localStorage.getItem("auth_state");
+      if (!state) return false;
+      const parsed = JSON.parse(state);
+      return !!parsed.loggedIn;
+    } catch {
+      return false;
+    }
   }
 
   // --- Business endpoints ---
@@ -1770,12 +1730,10 @@ class ApiClient {
   // --- Chat gateway endpoints ---
 
   async sendChatMessage(message: string, businessId: string, timezone?: string): Promise<SendChatResponse> {
-    const token = this.getToken();
     const res = await fetch("/gateway/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       credentials: 'include',
       body: JSON.stringify({ message, business_id: businessId, timezone }),
@@ -1788,7 +1746,6 @@ class ApiClient {
   }
 
   async sendChatMessageWithFile(message: string, file: File, businessId: string, timezone?: string): Promise<SendChatResponse> {
-    const token = this.getToken();
     const formData = new FormData();
     formData.append("message", message);
     formData.append("files", file);
@@ -1796,7 +1753,6 @@ class ApiClient {
     if (timezone) formData.append("timezone", timezone);
     const res = await fetch("/gateway/chat", {
       method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
       credentials: 'include',
       body: formData,
     });

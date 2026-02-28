@@ -53,7 +53,7 @@ export function useAuth(options: UseAuthOptions = {}) {
         }
       })
       .catch(() => {
-        api.removeToken();
+        api.clearAuthState();
         router.push("/auth/login");
       });
   }, [router, requireBusiness]);

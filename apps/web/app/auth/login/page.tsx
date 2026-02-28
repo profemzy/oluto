@@ -20,8 +20,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await api.login({ username: email, password });
-      api.setToken(response.access_token);
+      await api.login({ username: email, password });
 
       // Check if user has a business set up
       const currentUser = await api.getCurrentUser();

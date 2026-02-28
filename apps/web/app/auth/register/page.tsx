@@ -42,13 +42,12 @@ export default function RegisterPage() {
         role: "founder",
       });
 
-      // Auto-login after registration
-      const loginResponse = await api.login({
+      // Auto-login after registration (sets auth_state via httpOnly cookies)
+      await api.login({
         username: formData.email,
         password: formData.password,
       });
 
-      api.setToken(loginResponse.access_token);
       router.push("/onboarding/setup-business");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");

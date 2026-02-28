@@ -334,7 +334,7 @@ function TransactionsContent() {
                 </div>
                 <div className="col-span-2">
                   <p
-                    className={`text-sm font-bold ${parseFloat(txn.amount) < 0 ? "text-red-600" : "text-emerald-600"}`}
+                    className={`text-sm font-bold ${txn.classification === "business_income" ? "text-emerald-600" : "text-red-600"}`}
                   >
                     {formatCurrency(txn.amount)}
                   </p>
@@ -416,7 +416,7 @@ function TransactionsContent() {
                       />
                     </svg>
                   </Link>
-                  {parseFloat(txn.amount) < 0 && (
+                  {txn.classification === "business_expense" && (
                     <Link
                       href={`/transactions/${txn.id}/edit#receipts`}
                       className="p-2 rounded-lg text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-all duration-200"

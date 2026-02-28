@@ -70,8 +70,7 @@ export function useTokenRefresh(
     } catch (error) {
       // Refresh failed - redirect to login
       console.error("Token refresh failed:", error);
-      api.removeToken();
-      api.removeRefreshToken();
+      api.clearAuthState();
       if (typeof window !== 'undefined') {
         window.location.href = "/auth/login?reason=session_expired";
       }
