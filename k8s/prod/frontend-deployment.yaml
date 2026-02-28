@@ -21,6 +21,9 @@ spec:
         - name: oluto-frontend
           image: wackopscoachprodacr.azurecr.io/oluto-frontend:latest
           imagePullPolicy: Always
+          env:
+            - name: GATEWAY_URL
+              value: "http://oluto-agent:18790"
           ports:
             - containerPort: 3000
               name: http
