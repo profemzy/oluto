@@ -64,7 +64,7 @@ export function proxy(request: NextRequest) {
   const cspHeader = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    `style-src 'self' 'nonce-${nonce}'`,
+    `style-src 'self' 'unsafe-inline'`,
     "img-src 'self' data: https:",
     "font-src 'self'",
     "connect-src 'self' https://api.oluto.app https://dev.oluto.app http://localhost:3000 http://localhost:18790",
