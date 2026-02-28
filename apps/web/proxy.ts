@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
  * while maintaining CSP protection against XSS attacks.
  */
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Generate a unique nonce for this request
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   
