@@ -784,6 +784,8 @@ export interface QbParsedJournalEntry {
   is_balanced: boolean;
   total_debit: string;
   total_credit: string;
+  suggested_category?: string;
+  category_confidence?: number;
 }
 
 export interface QbParsedInvoice {
@@ -836,6 +838,11 @@ export interface QbAccountConfirmItem {
   merge_with_account_id?: string;
 }
 
+export interface QbJournalCategory {
+  index: number;
+  category: string;
+}
+
 export interface QbImportConfirmRequest {
   accounts: QbAccountConfirmItem[];
   customers: QbParsedContact[];
@@ -844,6 +851,7 @@ export interface QbImportConfirmRequest {
   invoices: QbParsedInvoice[];
   bills: QbParsedBill[];
   payments: QbParsedPayment[];
+  categories?: QbJournalCategory[];
 }
 
 export interface QbImportError {

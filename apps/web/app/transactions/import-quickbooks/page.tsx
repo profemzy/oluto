@@ -2,11 +2,20 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import { api, QbImportParseResponse, QbAccountConfirmItem, QbImportConfirmResponse } from "@/app/lib/api";
+import { api, QbImportParseResponse, QbAccountConfirmItem, QbImportConfirmResponse, QbJournalCategory } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader, PageHeader, ErrorAlert } from "@/app/components";
+import { CRA_CATEGORIES } from "@/app/lib/constants";
 
-type Step = "upload" | "review" | "results";
+type Step = "upload" | "review" | "categorize" | "results";
+
+const STEPS: Step[] = ["upload", "review", "categorize", "results"];
+const STEP_LABELS: Record<Step, string> = {
+  upload: "Upload",
+  review: "Review",
+  categorize: "Categorize",
+  results: "Results",
+};
 
 const FILE_TYPES = [
   { key: "accounts", label: "Chart of Accounts" },
@@ -85,6 +94,7 @@ export default function QuickBooksImportPage() {
   const [error, setError] = useState("");
   const [parseResult, setParseResult] = useState<QbImportParseResponse | null>(null);
   const [accountActions, setAccountActions] = useState<Record<number, "create_new" | "merge" | "skip">>({});
+  const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [importResult, setImportResult] = useState<QbImportConfirmResponse | null>(null);
 
   if (authLoading) return <PageLoader />;
@@ -102,6 +112,12 @@ export default function QuickBooksImportPage() {
         actions[i] = a.conflict ? (a.conflict.suggested_action as "create_new" | "merge" | "skip") : "create_new";
       });
       setAccountActions(actions);
+      // Initialize category overrides from server suggestions
+      const cats: Record<number, string> = {};
+      result.journal_entries.forEach((j, i) => {
+        cats[i] = j.suggested_category || "Other expenses";
+      });
+      setCategoryOverrides(cats);
       setStep("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to parse files");
@@ -120,6 +136,9 @@ export default function QuickBooksImportPage() {
         action: accountActions[i] || "create_new",
         merge_with_account_id: accountActions[i] === "merge" && a.conflict ? a.conflict.existing_account_id : undefined,
       }));
+      const categories: QbJournalCategory[] = Object.entries(categoryOverrides)
+        .filter(([, cat]) => cat && cat !== "Other expenses")
+        .map(([idx, category]) => ({ index: parseInt(idx), category }));
       const result = await api.confirmQuickBooksImport(user.business_id, {
         accounts,
         customers: parseResult.customers,
@@ -128,6 +147,7 @@ export default function QuickBooksImportPage() {
         invoices: parseResult.invoices,
         bills: parseResult.bills,
         payments: parseResult.payments,
+        categories,
       });
       setImportResult(result);
       setStep("results");
@@ -137,6 +157,8 @@ export default function QuickBooksImportPage() {
       setLoading(false);
     }
   };
+
+  const hasJournalEntries = parseResult && parseResult.journal_entries.length > 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
@@ -158,18 +180,18 @@ export default function QuickBooksImportPage() {
 
         {/* Step indicators */}
         <div className="flex items-center gap-2 mb-8">
-          {(["upload", "review", "results"] as Step[]).map((s, i) => (
+          {STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
                 step === s ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white" :
-                (["upload", "review", "results"].indexOf(step) > i ? "bg-emerald-100 text-emerald-700" : "bg-surface-tertiary text-muted")
+                (STEPS.indexOf(step) > i ? "bg-emerald-100 text-emerald-700" : "bg-surface-tertiary text-muted")
               }`}>
-                {["upload", "review", "results"].indexOf(step) > i ? "\u2713" : i + 1}
+                {STEPS.indexOf(step) > i ? "\u2713" : i + 1}
               </div>
               <span className={`text-sm font-medium ${step === s ? "text-heading" : "text-muted"}`}>
-                {s === "upload" ? "Upload" : s === "review" ? "Review" : "Results"}
+                {STEP_LABELS[s]}
               </span>
-              {i < 2 && <div className="w-8 h-px bg-edge-subtle" />}
+              {i < STEPS.length - 1 && <div className="w-8 h-px bg-edge-subtle" />}
             </div>
           ))}
         </div>
@@ -317,6 +339,116 @@ export default function QuickBooksImportPage() {
                 Back
               </button>
               <button
+                onClick={() => {
+                  if (hasJournalEntries) {
+                    setStep("categorize");
+                  } else {
+                    handleConfirm();
+                  }
+                }}
+                disabled={loading}
+                className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50"
+              >
+                {loading ? "Importing..." : hasJournalEntries ? "Next: Categorize" : "Confirm Import"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Categorize */}
+        {step === "categorize" && parseResult && (
+          <div className="space-y-6">
+            <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b bg-surface-secondary">
+                <h3 className="text-sm font-bold text-heading">Assign CRA Categories</h3>
+                <p className="text-xs text-muted mt-1">
+                  Review and adjust the suggested T2125 expense categories for each journal entry.
+                  Rows highlighted in amber have low-confidence suggestions.
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-surface-secondary text-left">
+                      <th className="px-4 py-3 font-bold text-heading">Date</th>
+                      <th className="px-4 py-3 font-bold text-heading">Description</th>
+                      <th className="px-4 py-3 font-bold text-heading text-right">Amount</th>
+                      <th className="px-4 py-3 font-bold text-heading">Category</th>
+                      <th className="px-4 py-3 font-bold text-heading text-center w-20">Conf.</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-edge-subtle">
+                    {parseResult.journal_entries.map((j, i) => {
+                      const confidence = j.category_confidence ?? 0;
+                      const isLow = confidence < 0.6;
+                      const isNone = confidence === 0 || (categoryOverrides[i] === "Other expenses" && confidence < 0.3);
+                      return (
+                        <tr
+                          key={i}
+                          className={
+                            isNone
+                              ? "bg-amber-100/60 dark:bg-amber-950/40"
+                              : isLow
+                                ? "bg-amber-50/50 dark:bg-amber-950/20"
+                                : ""
+                          }
+                        >
+                          <td className="px-4 py-2.5 text-heading whitespace-nowrap">{j.date}</td>
+                          <td className="px-4 py-2.5 text-body max-w-[200px] truncate">
+                            {j.description || j.num || "—"}
+                          </td>
+                          <td className="px-4 py-2.5 text-heading text-right whitespace-nowrap font-mono">
+                            ${j.total_debit}
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <select
+                              value={categoryOverrides[i] || "Other expenses"}
+                              onChange={(e) =>
+                                setCategoryOverrides((prev) => ({
+                                  ...prev,
+                                  [i]: e.target.value,
+                                }))
+                              }
+                              className="w-full rounded-lg border border-edge px-2 py-1.5 text-sm bg-surface text-heading"
+                            >
+                              {CRA_CATEGORIES.map((cat) => (
+                                <option key={cat} value={cat}>
+                                  {cat}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-4 py-2.5 text-center">
+                            <span
+                              className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${
+                                confidence >= 0.8
+                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
+                                  : confidence >= 0.6
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400"
+                                    : confidence > 0
+                                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+                                      : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                              }`}
+                            >
+                              {Math.round(confidence * 100)}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setStep("review")}
+                className="rounded-xl border border-edge bg-surface px-6 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all"
+              >
+                Back
+              </button>
+              <button
                 onClick={handleConfirm}
                 disabled={loading}
                 className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50"
@@ -327,7 +459,7 @@ export default function QuickBooksImportPage() {
           </div>
         )}
 
-        {/* Step 3: Results */}
+        {/* Step 4: Results */}
         {step === "results" && importResult && (
           <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6">
             <div className="text-center mb-6">
