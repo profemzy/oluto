@@ -933,6 +933,7 @@ class ApiClient {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ refresh_token: refreshToken }),
       });
 
@@ -1021,6 +1022,7 @@ class ApiClient {
       };
     }
 
+    config.credentials = 'include';
     const response = await fetch(url, config);
 
     if (!response.ok) {
@@ -1087,6 +1089,7 @@ class ApiClient {
     const response = await fetch(url, {
       method: "POST",
       headers,
+      credentials: 'include',
       body: formData,
     });
 
@@ -1116,6 +1119,7 @@ class ApiClient {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      credentials: 'include',
       body: formData,
     });
 
@@ -1152,17 +1156,20 @@ class ApiClient {
     return this.request<User>("/auth/me");
   }
 
-  // --- Token management ---
+  async logout(): Promise<void> {
+    try {
+      await fetch(`${this.baseUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // Best-effort — clear local state regardless
+    }
+    this.removeToken();
+    this.removeRefreshToken();
+  }
 
-  /**
-   * SECURITY NOTE: JWT tokens are stored in localStorage for SPA compatibility.
-   * This is a known trade-off. Mitigations:
-   * 1. Strict CSP headers (see middleware.ts)
-   * 2. Short token expiry (60 minutes)
-   * 3. XSS prevention through input sanitization
-   * 
-   * TODO: Migrate to httpOnly cookies for enhanced security (requires backend changes).
-   */
+  // --- Token management ---
 
   setToken(token: string): void {
     if (typeof window !== "undefined") {
@@ -1770,6 +1777,7 @@ class ApiClient {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
+      credentials: 'include',
       body: JSON.stringify({ message, business_id: businessId, timezone }),
     });
     if (!res.ok) {
@@ -1789,6 +1797,7 @@ class ApiClient {
     const res = await fetch("/gateway/chat", {
       method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
       body: formData,
     });
     if (!res.ok) {

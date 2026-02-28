@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 const GATEWAY_URL = process.env.GATEWAY_URL || "http://localhost:18790";
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
+  // Try Authorization header first, then httpOnly cookie
+  let authHeader = request.headers.get("authorization");
+  if (!authHeader) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("oluto_access_token")?.value;
+    if (token) {
+      authHeader = `Bearer ${token}`;
+    }
+  }
+
   if (!authHeader) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

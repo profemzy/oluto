@@ -246,8 +246,8 @@ export function Navigation() {
   const navLinks = hasMounted && isAppPage && isAuthenticated ? appLinks : marketingLinks;
   const showAuth = !hasMounted || !isAppPage || !isAuthenticated;
 
-  const handleLogout = () => {
-    api.removeToken();
+  const handleLogout = async () => {
+    await api.logout();
     router.push("/");
   };
 
