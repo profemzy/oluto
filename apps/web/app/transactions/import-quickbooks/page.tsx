@@ -112,10 +112,12 @@ export default function QuickBooksImportPage() {
         actions[i] = a.conflict ? (a.conflict.suggested_action as "create_new" | "merge" | "skip") : "create_new";
       });
       setAccountActions(actions);
-      // Initialize category overrides from server suggestions
+      // Initialize category overrides from server suggestions (expenses only)
       const cats: Record<number, string> = {};
       result.journal_entries.forEach((j, i) => {
-        cats[i] = j.suggested_category || "Other expenses";
+        if (j.suggested_classification === "business_expense") {
+          cats[i] = j.suggested_category || "Other expenses";
+        }
       });
       setCategoryOverrides(cats);
       setStep("review");
@@ -158,7 +160,12 @@ export default function QuickBooksImportPage() {
     }
   };
 
-  const hasJournalEntries = parseResult && parseResult.journal_entries.length > 0;
+  const expenseEntries = parseResult
+    ? parseResult.journal_entries
+        .map((j, i) => ({ ...j, _index: i }))
+        .filter((j) => j.suggested_classification === "business_expense")
+    : [];
+  const hasExpenseEntries = expenseEntries.length > 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
@@ -340,7 +347,7 @@ export default function QuickBooksImportPage() {
               </button>
               <button
                 onClick={() => {
-                  if (hasJournalEntries) {
+                  if (hasExpenseEntries) {
                     setStep("categorize");
                   } else {
                     handleConfirm();
@@ -349,7 +356,7 @@ export default function QuickBooksImportPage() {
                 disabled={loading}
                 className="rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md transition-all disabled:opacity-50"
               >
-                {loading ? "Importing..." : hasJournalEntries ? "Next: Categorize" : "Confirm Import"}
+                {loading ? "Importing..." : hasExpenseEntries ? "Next: Categorize" : "Confirm Import"}
               </button>
             </div>
           </div>
@@ -378,7 +385,8 @@ export default function QuickBooksImportPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-edge-subtle">
-                    {parseResult.journal_entries.map((j, i) => {
+                    {expenseEntries.map((j) => {
+                      const i = j._index;
                       const confidence = j.category_confidence ?? 0;
                       const isLow = confidence < 0.6;
                       const isNone = confidence === 0 || (categoryOverrides[i] === "Other expenses" && confidence < 0.3);

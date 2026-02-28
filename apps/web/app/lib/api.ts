@@ -784,6 +784,7 @@ export interface QbParsedJournalEntry {
   is_balanced: boolean;
   total_debit: string;
   total_credit: string;
+  suggested_classification?: string;
   suggested_category?: string;
   category_confidence?: number;
 }
