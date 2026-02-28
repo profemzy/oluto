@@ -46,36 +46,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Generate a unique nonce for this request
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const response = NextResponse.next();
 
-  // Clone headers and add nonce for downstream use
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-
-  // Create response with modified headers
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
-  // Build CSP header with nonce
-  const cspHeader = [
-    "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    `style-src 'self' 'unsafe-inline'`,
-    "img-src 'self' data: https:",
-    "font-src 'self'",
-    "connect-src 'self' https://api.oluto.app https://dev.oluto.app http://localhost:3000 http://localhost:18790",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests",
-  ].join('; ');
-
-  // Set security headers
-  response.headers.set('Content-Security-Policy', cspHeader);
+  // Security headers (CSP kept permissive for now — tighten once nonce propagation is wired up)
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -88,9 +61,6 @@ export function proxy(request: NextRequest) {
       'max-age=31536000; includeSubDomains; preload'
     );
   }
-
-  // Expose nonce to client components via header (will be used in layout)
-  response.headers.set('x-nonce', nonce);
 
   return response;
 }
