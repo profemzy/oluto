@@ -27,12 +27,6 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
-          // Note: CSP is set in middleware.ts with request-specific nonces
-          // This static CSP is a fallback for edge cases
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.oluto.app https://dev.oluto.app http://localhost:3000 http://localhost:18790; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;",
-          },
         ],
       },
     ];
