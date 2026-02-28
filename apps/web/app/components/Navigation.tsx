@@ -25,9 +25,15 @@ const marketingLinks: NavItem[] = [
   { name: "Pricing", href: "#pricing" },
 ];
 
-const appLinks: NavItem[] = [
+// Core app links - most important items visible by default
+const primaryAppLinks: NavItem[] = [
   { name: "Dashboard", href: "/dashboard" },
   { name: "Transactions", href: "/transactions" },
+  { name: "Contacts", href: "/contacts" },
+];
+
+// Secondary app links - grouped under "More"
+const secondaryAppLinks: NavItem[] = [
   {
     name: "Sales",
     children: [
@@ -42,7 +48,6 @@ const appLinks: NavItem[] = [
       { name: "Bill Payments", href: "/payments/new/bill" },
     ],
   },
-  { name: "Contacts", href: "/contacts" },
   { name: "Accounts", href: "/accounts" },
   { name: "Reconciliation", href: "/reconciliation" },
   { name: "Reports", href: "/reports" },
@@ -53,17 +58,27 @@ function isGroupActive(item: NavItem, pathname: string): boolean {
     return pathname === item.href || pathname.startsWith(item.href + "/");
   if (item.children)
     return item.children.some(
-      (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
+      (c) => pathname === c.href || pathname.startsWith(c.href + "/")
     );
   return false;
 }
 
+function isAnySecondaryActive(pathname: string): boolean {
+  return secondaryAppLinks.some((item) => isGroupActive(item, pathname));
+}
+
+// ============================================================================
+// DESKTOP DROPDOWN COMPONENT
+// ============================================================================
+
 function DesktopDropdown({
   item,
   pathname,
+  compact = false,
 }: {
   item: NavItem;
   pathname: string;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -89,9 +104,11 @@ function DesktopDropdown({
     >
       <button
         type="button"
-        className={`nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1 ${
-          active ? "text-cyan-600" : "text-body hover:text-cyan-600"
-        }`}
+        className={`
+          nav-link font-semibold transition-colors inline-flex items-center gap-1
+          ${compact ? "text-xs px-2 py-1" : "text-sm"}
+          ${active ? "text-cyan-600" : "text-body hover:text-cyan-600"}
+        `}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -113,7 +130,7 @@ function DesktopDropdown({
         </svg>
       </button>
       {open && (
-        <div 
+        <div
           className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-1 z-50"
           role="menu"
           aria-label={`${item.name} submenu`}
@@ -138,6 +155,10 @@ function DesktopDropdown({
     </div>
   );
 }
+
+// ============================================================================
+// MOBILE DROPDOWN COMPONENT
+// ============================================================================
 
 function MobileDropdown({
   item,
@@ -179,11 +200,7 @@ function MobileDropdown({
         </svg>
       </button>
       {open && (
-        <div 
-          className="pl-4 space-y-1"
-          role="menu"
-          aria-label={`${item.name} submenu`}
-        >
+        <div className="pl-4 space-y-1" role="menu" aria-label={`${item.name} submenu`}>
           {item.children!.map((child) => (
             <Link
               key={child.href}
@@ -205,9 +222,127 @@ function MobileDropdown({
   );
 }
 
+// ============================================================================
+// MORE MENU COMPONENT (for overflow items)
+// ============================================================================
+
+function MoreMenu({ pathname }: { pathname: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const isActive = isAnySecondaryActive(pathname);
+
+  const handleEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  // Close on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <button
+        type="button"
+        className={`
+          nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1
+          ${isActive ? "text-cyan-600" : "text-body hover:text-cyan-600"}
+        `}
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        More
+        <svg
+          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+      {open && (
+        <div
+          className="absolute top-full right-0 mt-1 w-56 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto"
+          role="menu"
+          aria-label="More navigation items"
+        >
+          {secondaryAppLinks.map((item) =>
+            item.children ? (
+              <div key={item.name} className="border-b border-edge-subtle last:border-0 py-1">
+                <div className="px-4 py-1.5 text-xs font-semibold text-muted uppercase">
+                  {item.name}
+                </div>
+                {item.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className={`block px-4 py-2 text-sm font-medium transition-colors ${
+                      pathname === child.href || pathname.startsWith(child.href + "/")
+                        ? "text-cyan-600 bg-cyan-50/50"
+                        : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
+                    }`}
+                    onClick={() => setOpen(false)}
+                    role="menuitem"
+                  >
+                    {child.name}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Link
+                key={item.name}
+                href={item.href!}
+                className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
+                  pathname === item.href || pathname.startsWith(item.href + "/")
+                    ? "text-cyan-600 bg-cyan-50/50"
+                    : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
+                }`}
+                onClick={() => setOpen(false)}
+                role="menuitem"
+              >
+                {item.name}
+              </Link>
+            )
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const emptySubscribe = () => () => {};
 const getMountedClient = () => true;
 const getMountedServer = () => false;
+
+// ============================================================================
+// MAIN NAVIGATION COMPONENT
+// ============================================================================
 
 export function Navigation() {
   const pathname = usePathname();
@@ -216,7 +351,7 @@ export function Navigation() {
   const hasMounted = useSyncExternalStore(emptySubscribe, getMountedClient, getMountedServer);
   const [scrolled, setScrolled] = useState(false);
 
-  // Compute auth state synchronously — localStorage read is side-effect-free
+  // Compute auth state synchronously
   const isAuthenticated = hasMounted && api.isAuthenticated();
 
   // Scroll listener
@@ -243,7 +378,7 @@ export function Navigation() {
     pathname.startsWith("/chat");
 
   // Until client mounts, always show marketing links to match SSR output
-  const navLinks = hasMounted && isAppPage && isAuthenticated ? appLinks : marketingLinks;
+  const showAppNav = hasMounted && isAppPage && isAuthenticated;
   const showAuth = !hasMounted || !isAppPage || !isAuthenticated;
 
   const handleLogout = async () => {
@@ -259,231 +394,349 @@ export function Navigation() {
           : "bg-surface/80 backdrop-blur-xl border-b border-edge/50"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link
-            href={hasMounted && isAuthenticated && isAppPage ? "/dashboard" : "/"}
-            className="flex items-center group"
-          >
-            <ThemeLogo />
-          </Link>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Logo - Fixed width, never shrinks */}
+          <div className="flex-shrink-0">
+            <Link
+              href={hasMounted && isAuthenticated && isAppPage ? "/dashboard" : "/"}
+              className="flex items-center group"
+            >
+              <ThemeLogo />
+            </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((item) =>
-              item.children ? (
-                <DesktopDropdown
-                  key={item.name}
-                  item={item}
-                  pathname={pathname}
-                />
-              ) : (
+          {/* Desktop Navigation - Flexible but constrained */}
+          <div className="hidden lg:flex items-center gap-1 xl:gap-6 flex-1 justify-center min-w-0">
+            {showAppNav ? (
+              <>
+                {/* Primary links - always visible */}
+                <div className="flex items-center gap-1 xl:gap-6">
+                  {primaryAppLinks.map((item) =>
+                    item.children ? (
+                      <DesktopDropdown
+                        key={item.name}
+                        item={item}
+                        pathname={pathname}
+                      />
+                    ) : (
+                      <Link
+                        key={item.name}
+                        href={item.href!}
+                        className={`
+                          nav-link text-sm font-semibold transition-colors whitespace-nowrap
+                          px-2 py-1 rounded-lg
+                          ${isGroupActive(item, pathname)
+                            ? "text-cyan-600 bg-cyan-50/50 dark:bg-cyan-950/30"
+                            : "text-body hover:text-cyan-600 hover:bg-surface-hover"
+                          }
+                        `}
+                      >
+                        {item.name}
+                      </Link>
+                    )
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="w-px h-6 bg-edge mx-2" />
+
+                {/* Secondary links - grouped under "More" on smaller screens */}
+                <div className="hidden xl:flex items-center gap-1">
+                  {secondaryAppLinks.slice(0, 3).map((item) =>
+                    item.children ? (
+                      <DesktopDropdown
+                        key={item.name}
+                        item={item}
+                        pathname={pathname}
+                        compact
+                      />
+                    ) : (
+                      <Link
+                        key={item.name}
+                        href={item.href!}
+                        className={`
+                          nav-link text-xs font-semibold transition-colors whitespace-nowrap
+                          px-2 py-1 rounded-lg
+                          ${isGroupActive(item, pathname)
+                            ? "text-cyan-600 bg-cyan-50/50 dark:bg-cyan-950/30"
+                            : "text-body hover:text-cyan-600 hover:bg-surface-hover"
+                          }
+                        `}
+                      >
+                        {item.name}
+                      </Link>
+                    )
+                  )}
+                </div>
+
+                {/* More menu for overflow items */}
+                <MoreMenu pathname={pathname} />
+              </>
+            ) : (
+              // Marketing links
+              marketingLinks.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href!}
-                  className={`nav-link text-sm font-semibold transition-colors ${
-                    isGroupActive(item, pathname)
-                      ? "text-cyan-600"
-                      : "text-body hover:text-cyan-600"
-                  }`}
+                  className={`
+                    nav-link text-sm font-semibold transition-colors whitespace-nowrap
+                    ${isGroupActive(item, pathname) ? "text-cyan-600" : "text-body hover:text-cyan-600"}
+                  `}
                 >
                   {item.name}
                 </Link>
-              ),
+              ))
             )}
           </div>
 
-          {/* CTA / User Actions */}
-          {showAuth ? (
-            <div className="hidden md:flex items-center gap-4">
-              <ThemeToggle />
-              <Link
-                href="/auth/login"
-                className="text-sm font-bold text-body hover:text-cyan-600 transition-colors"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/auth/register"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 btn-glow"
-              >
-                Get Started
-                <svg
-                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center gap-3">
-              <ThemeToggle />
-              <Link
-                href="/chat"
-                className={`p-2 rounded-lg transition-colors ${
-                  pathname.startsWith("/chat")
-                    ? "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50"
-                    : "text-muted hover:text-cyan-600 hover:bg-surface-hover"
-                }`}
-                aria-label="Chat with Oluto"
-                title="Chat with Oluto"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </Link>
-              <Link
-                href="/transactions/new"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300"
-              >
-                <svg
-                  className="w-4 h-4 group-hover:scale-110 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Add Transaction
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-sm font-bold text-body hover:text-red-600 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          )}
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 -mr-2 rounded-lg text-muted hover:bg-surface-hover hover:text-heading transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {mobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg">
-          <div className="px-6 py-4 space-y-1">
-            {navLinks.map((item) =>
-              item.children ? (
-                <MobileDropdown
-                  key={item.name}
-                  item={item}
-                  pathname={pathname}
-                  onNavigate={() => setMobileMenuOpen(false)}
-                />
-              ) : (
-                <Link
-                  key={item.name}
-                  href={item.href!}
-                  className={`block py-2.5 text-base font-medium transition-colors ${
-                    isGroupActive(item, pathname)
-                      ? "text-cyan-600"
-                      : "text-heading hover:text-cyan-600"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ),
-            )}
+          {/* CTA / User Actions - Fixed width area */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             {showAuth ? (
-              <div className="pt-4 mt-4 border-t border-edge-subtle space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted">Theme</span>
-                  <ThemeToggle />
-                </div>
+              <div className="hidden md:flex items-center gap-3">
+                <ThemeToggle />
                 <Link
                   href="/auth/login"
-                  className="block py-2 text-base font-medium text-heading hover:text-cyan-600"
+                  className="text-sm font-bold text-body hover:text-cyan-600 transition-colors whitespace-nowrap"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 btn-glow whitespace-nowrap"
                 >
                   Get Started
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
                 </Link>
               </div>
             ) : (
-              <div className="pt-4 mt-4 border-t border-edge-subtle space-y-3">
+              <div className="hidden lg:flex items-center gap-2">
+                <ThemeToggle />
                 <Link
                   href="/chat"
-                  className={`flex items-center gap-2 py-2.5 text-base font-medium transition-colors ${
-                    pathname.startsWith("/chat") ? "text-cyan-600" : "text-heading hover:text-cyan-600"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
+                  className={`
+                    p-2 rounded-lg transition-colors
+                    ${pathname.startsWith("/chat")
+                      ? "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50"
+                      : "text-muted hover:text-cyan-600 hover:bg-surface-hover"
+                    }
+                  `}
+                  aria-label="Chat with Oluto"
+                  title="Chat with Oluto"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
-                  Chat with Oluto
                 </Link>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted">Theme</span>
-                  <ThemeToggle />
-                </div>
                 <Link
                   href="/transactions/new"
-                  className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
-                  onClick={() => setMobileMenuOpen(false)}
+                  className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-3 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap"
                 >
-                  Add Transaction
+                  <svg
+                    className="w-4 h-4 group-hover:scale-110 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span className="hidden xl:inline">Add Transaction</span>
+                  <span className="xl:hidden">Add</span>
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left py-2 text-base font-medium text-heading hover:text-red-600"
+                  onClick={handleLogout}
+                  className="text-sm font-bold text-body hover:text-red-600 transition-colors px-2 whitespace-nowrap"
                 >
                   Logout
                 </button>
               </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden p-2 rounded-lg text-muted hover:bg-surface-hover hover:text-heading transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {mobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg max-h-[70vh] overflow-y-auto">
+          <div className="px-4 py-4 space-y-1">
+            {showAppNav ? (
+              <>
+                {/* Primary links */}
+                {primaryAppLinks.map((item) =>
+                  item.children ? (
+                    <MobileDropdown
+                      key={item.name}
+                      item={item}
+                      pathname={pathname}
+                      onNavigate={() => setMobileMenuOpen(false)}
+                    />
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href!}
+                      className={`block py-2.5 text-base font-medium transition-colors ${
+                        isGroupActive(item, pathname)
+                          ? "text-cyan-600"
+                          : "text-heading hover:text-cyan-600"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  )
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-edge-subtle my-2" />
+
+                {/* Secondary links */}
+                {secondaryAppLinks.map((item) =>
+                  item.children ? (
+                    <MobileDropdown
+                      key={item.name}
+                      item={item}
+                      pathname={pathname}
+                      onNavigate={() => setMobileMenuOpen(false)}
+                    />
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href!}
+                      className={`block py-2.5 text-base font-medium transition-colors ${
+                        isGroupActive(item, pathname)
+                          ? "text-cyan-600"
+                          : "text-heading hover:text-cyan-600"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  )
+                )}
+
+                {/* Mobile actions */}
+                <div className="border-t border-edge-subtle pt-4 mt-4 space-y-3">
+                  <Link
+                    href="/chat"
+                    className={`flex items-center gap-2 py-2.5 text-base font-medium transition-colors ${
+                      pathname.startsWith("/chat") ? "text-cyan-600" : "text-heading hover:text-cyan-600"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Chat with Oluto
+                  </Link>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted">Theme</span>
+                    <ThemeToggle />
+                  </div>
+                  <Link
+                    href="/transactions/new"
+                    className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Add Transaction
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left py-2 text-base font-medium text-heading hover:text-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Marketing links */}
+                {marketingLinks.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href!}
+                    className={`block py-2.5 text-base font-medium transition-colors ${
+                      isGroupActive(item, pathname)
+                        ? "text-cyan-600"
+                        : "text-heading hover:text-cyan-600"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+
+                {/* Auth links */}
+                <div className="border-t border-edge-subtle pt-4 mt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted">Theme</span>
+                    <ThemeToggle />
+                  </div>
+                  <Link
+                    href="/auth/login"
+                    className="block py-2 text-base font-medium text-heading hover:text-cyan-600"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -491,3 +744,5 @@ export function Navigation() {
     </nav>
   );
 }
+
+export default Navigation;
