@@ -96,7 +96,7 @@ echo ""
 
 # Pull from DEV, tag for PROD, push to PROD
 echo "Pulling from DEV: $DEV_IMAGE"
-docker pull "$DEV_IMAGE"
+docker pull --platform linux/amd64 "$DEV_IMAGE"
 echo "Tagging for PROD: $PROD_IMAGE"
 docker tag "$DEV_IMAGE" "$PROD_IMAGE"
 echo "Pushing to PROD..."
