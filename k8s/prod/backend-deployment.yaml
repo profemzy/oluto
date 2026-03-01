@@ -81,6 +81,8 @@ spec:
                   key: AZURE_STORAGE_CONTAINER_PREFIX
             - name: KEYCLOAK_URL
               value: "http://keycloak:8080"
+            - name: KEYCLOAK_ISSUER
+              value: "https://auth.oluto.app"
             - name: KEYCLOAK_REALM
               value: "oluto"
             - name: ENVIRONMENT
