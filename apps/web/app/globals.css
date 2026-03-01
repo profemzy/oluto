@@ -110,6 +110,18 @@
   --animate-glow: glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
+
+  /* Animation delay utilities - replaces inline styles */
+  --delay-100: 100ms;
+  --delay-200: 200ms;
+  --delay-300: 300ms;
+  --delay-400: 400ms;
+  --delay-500: 500ms;
+  --delay-600: 600ms;
+  --delay-700: 700ms;
+  --delay-800: 800ms;
+  --delay-900: 900ms;
+  --delay-1000: 1000ms;
 }
 
 html {
@@ -977,7 +989,47 @@ a:focus-visible {
   }
 }
 
-/* Dark mode: tell browser to render native form controls in dark scheme */
+/* ============================================
+   ANIMATION DELAY UTILITIES
+   Replaces inline styles for staggered animations
+   ============================================ */
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-900 { animation-delay: 900ms; }
+.delay-1000 { animation-delay: 1000ms; }
+
+/* Dynamic delay via CSS custom property */
+[style*="--index"] {
+  animation-delay: calc(var(--index, 0) * 100ms);
+}
+
+/* ============================================
+   SR-ONLY UTILITY (screen reader only)
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   DARK MODE: Native form controls
+   ============================================ */
+
 .dark input[type="date"],
 .dark input[type="time"],
 .dark input[type="datetime-local"],

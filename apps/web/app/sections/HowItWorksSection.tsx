@@ -13,6 +13,10 @@ interface HowItWorksSectionProps {
   steps?: Step[];
 }
 
+/**
+ * Default onboarding steps - demonstrates the user journey
+ * from account connection to daily AI interactions.
+ */
 const defaultSteps: Step[] = [
   {
     number: "01",
@@ -36,6 +40,10 @@ const defaultSteps: Step[] = [
   },
 ];
 
+/**
+ * How It Works section with step-by-step process visualization.
+ * Uses semantic <ol> for the ordered steps and <article> for each card.
+ */
 export function HowItWorksSection({
   title = "How it works",
   subtitle = "From sign-up to AI-managed books in minutes",
@@ -43,68 +51,105 @@ export function HowItWorksSection({
   steps = defaultSteps,
 }: HowItWorksSectionProps) {
   return (
-    <section id="how-it-works" className="relative py-24 sm:py-32 bg-gradient-to-b from-surface-secondary to-surface overflow-hidden">
+    <section
+      id="how-it-works"
+      aria-labelledby="how-it-works-heading"
+      className="relative py-24 sm:py-32 bg-gradient-to-b from-surface-secondary to-surface overflow-hidden"
+    >
       {/* Decorative floating orbs */}
-      <div className="absolute top-32 left-[3%] w-56 h-56 bg-cyan-100 rounded-full opacity-40 blur-3xl animate-float" />
-      <div className="absolute bottom-32 right-[3%] w-64 h-64 bg-teal-100 rounded-full opacity-35 blur-3xl animate-float-slow" />
-      
+      <div
+        className="absolute top-32 left-[3%] w-56 h-56 bg-cyan-100 rounded-full opacity-40 blur-3xl animate-float"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-32 right-[3%] w-64 h-64 bg-teal-100 rounded-full opacity-35 blur-3xl animate-float-slow"
+        aria-hidden="true"
+      />
+
       {/* Decorative bouncing elements */}
-      <div className="absolute top-20 right-[15%] w-4 h-4 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle shadow-lg" />
-      <div className="absolute bottom-28 left-[12%] w-3 h-3 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full animate-bounce-gentle shadow-lg" style={{ animationDelay: '0.5s' }} />
+      <div
+        className="absolute top-20 right-[15%] w-4 h-4 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle shadow-lg"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-28 left-[12%] w-3 h-3 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full animate-bounce-gentle shadow-lg [animation-delay:500ms]"
+        aria-hidden="true"
+      />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
+        <header className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
             {title}
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
+          <h2
+            id="how-it-works-heading"
+            className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl"
+          >
             {subtitle}
           </h2>
           <p className="mt-4 text-lg leading-8 text-body">
             {description}
           </p>
-        </div>
+        </header>
 
         {/* Steps with connector line on desktop */}
         <div className="relative mx-auto mt-16 sm:mt-20">
           {/* Connector line (visible on lg screens) */}
-          <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-cyan-200 via-teal-200 to-green-200" />
-          
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, i) => (
-              <div 
-                key={i} 
-                className="step-card group relative"
-                style={{ animationDelay: `${i * 0.15}s` }}
+          <div
+            className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-cyan-200 via-teal-200 to-green-200"
+            aria-hidden="true"
+          />
+
+          <ol
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            aria-label="Getting started steps"
+          >
+            {steps.map((step, index) => (
+              <li
+                key={step.number}
+                className="[animation-delay:calc(var(--index)*150ms)]"
+                style={{ "--index": index } as React.CSSProperties}
               >
-                {/* Background number watermark */}
-                <span className="absolute top-4 right-4 text-6xl font-black text-gray-100 dark:text-slate-800 select-none leading-none group-hover:text-cyan-50 transition-colors">
-                  {step.number}
-                </span>
-                
-                <div className="relative">
-                  {/* Step number badge */}
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-500/40 group-hover:scale-110 transition-all duration-300">
+                <article className="step-card group relative h-full">
+                  {/* Background number watermark */}
+                  <span
+                    className="absolute top-4 right-4 text-6xl font-black text-gray-100 dark:text-slate-800 select-none leading-none group-hover:text-cyan-50 transition-colors"
+                    aria-hidden="true"
+                  >
                     {step.number}
+                  </span>
+
+                  <div className="relative">
+                    {/* Step number badge */}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-500/40 group-hover:scale-110 transition-all duration-300">
+                      {step.number}
+                    </div>
+
+                    {/* Connector dot (visible on lg screens) */}
+                    <div
+                      className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ top: "-2.5rem" }}
+                      aria-hidden="true"
+                    />
+
+                    <h3 className="mt-5 text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-body">
+                      {step.description}
+                    </p>
                   </div>
-                  
-                  {/* Connector dot (visible on lg screens) */}
-                  <div className="hidden lg:block absolute top-6 left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ top: '-2.5rem' }} />
-                  
-                  <h3 className="mt-5 text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-body">
-                    {step.description}
-                  </p>
-                </div>
-                
-                {/* Hover gradient border effect */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
-              </div>
+
+                  {/* Hover gradient border effect */}
+                  <div
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"
+                    aria-hidden="true"
+                  />
+                </article>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </div>
     </section>

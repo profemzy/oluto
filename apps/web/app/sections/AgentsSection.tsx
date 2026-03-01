@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/app/lib/utils";
+
 interface Agent {
   icon: React.ReactNode;
   title: string;
@@ -9,6 +11,10 @@ interface Agent {
   timeline?: string;
 }
 
+/**
+ * Agent configurations - separated data from presentation for maintainability.
+ * Each agent has a unique icon, color theme, and availability status.
+ */
 const agents: Agent[] = [
   {
     icon: (
@@ -106,27 +112,50 @@ const agents: Agent[] = [
   },
 ];
 
+/**
+ * Agents showcase section with live and upcoming agents.
+ * Uses semantic HTML with proper heading hierarchy (h2 -> h3).
+ */
 export function AgentsSection() {
   const liveAgents = agents.filter((a) => a.live);
   const comingAgents = agents.filter((a) => !a.live);
 
   return (
-    <section className="relative py-24 sm:py-32 bg-surface overflow-hidden">
+    <section
+      id="agents"
+      aria-labelledby="agents-heading"
+      className="relative py-24 sm:py-32 bg-surface overflow-hidden"
+    >
       {/* Decorative floating orbs */}
-      <div className="absolute top-20 right-[5%] w-64 h-64 bg-cyan-100 rounded-full opacity-30 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 left-[5%] w-48 h-48 bg-green-100 rounded-full opacity-30 blur-3xl animate-float" />
+      <div
+        className="absolute top-20 right-[5%] w-64 h-64 bg-cyan-100 rounded-full opacity-30 blur-3xl animate-float-slow"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-20 left-[5%] w-48 h-48 bg-green-100 rounded-full opacity-30 blur-3xl animate-float"
+        aria-hidden="true"
+      />
 
       {/* Decorative bouncing dots */}
-      <div className="absolute top-40 left-[8%] w-3 h-3 bg-cyan-400 rounded-full animate-bounce-subtle shadow-md" />
-      <div className="absolute bottom-40 right-[10%] w-2 h-2 bg-green-400 rounded-full animate-bounce-gentle shadow-md" style={{ animationDelay: "0.7s" }} />
+      <div
+        className="absolute top-40 left-[8%] w-3 h-3 bg-cyan-400 rounded-full animate-bounce-subtle shadow-md"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-40 right-[10%] w-2 h-2 bg-green-400 rounded-full animate-bounce-gentle shadow-md [animation-delay:700ms]"
+        aria-hidden="true"
+      />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
+        <header className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
             Your AI team
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl">
+          <h2
+            id="agents-heading"
+            className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl"
+          >
             8 agents. One mission:{" "}
             <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-green-600 bg-clip-text text-transparent">
               your money, handled.
@@ -135,24 +164,38 @@ export function AgentsSection() {
           <p className="mt-4 text-lg leading-8 text-body">
             Three agents are live today on the Oluto desktop and mobile app. Five more ship this year. Each one handles a specific part of your financial operations — autonomously.
           </p>
-        </div>
+        </header>
 
         {/* Live agents — larger cards */}
-        <div className="mx-auto mt-16 sm:mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {liveAgents.map((agent, i) => (
-            <div
-              key={i}
-              className="feature-card group cursor-pointer relative"
-              style={{ animationDelay: `${i * 0.1}s` }}
+        <div
+          className="mx-auto mt-16 sm:mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3"
+          role="list"
+          aria-label="Live AI agents"
+        >
+          {liveAgents.map((agent, index) => (
+            <article
+              key={agent.title}
+              className={cn(
+                "feature-card group relative",
+                `[animation-delay:calc(var(--index)*100ms)]`
+              )}
+              style={{ "--index": index } as React.CSSProperties}
+              role="listitem"
             >
               {/* Live badge */}
               <span className="absolute top-4 right-4 inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-                <span className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse" />
+                <span
+                  className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"
+                  aria-hidden="true"
+                />
                 Live
               </span>
 
               {/* Icon */}
-              <div className={`inline-flex rounded-xl p-3 ring-1 ring-inset ${agent.color} feature-icon shadow-sm`}>
+              <div
+                className={`inline-flex rounded-xl p-3 ring-1 ring-inset ${agent.color} feature-icon shadow-sm`}
+                aria-hidden="true"
+              >
                 {agent.icon}
               </div>
 
@@ -165,24 +208,37 @@ export function AgentsSection() {
               <p className="mt-3 text-sm leading-6 text-body">
                 {agent.description}
               </p>
-            </div>
+            </article>
           ))}
         </div>
 
         {/* Divider */}
         <div className="mt-16 mb-10 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-edge to-transparent" />
-          <span className="text-sm font-bold text-muted uppercase tracking-wider">Coming soon</span>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-edge to-transparent" />
+          <div
+            className="flex-1 h-px bg-gradient-to-r from-transparent via-edge to-transparent"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-bold text-muted uppercase tracking-wider">
+            Coming soon
+          </span>
+          <div
+            className="flex-1 h-px bg-gradient-to-r from-transparent via-edge to-transparent"
+            aria-hidden="true"
+          />
         </div>
 
         {/* Coming soon agents — smaller cards, muted */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {comingAgents.map((agent, i) => (
-            <div
-              key={i}
-              className="group relative rounded-2xl border border-edge-subtle bg-surface p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 opacity-80 hover:opacity-100"
-              style={{ animationDelay: `${i * 0.1}s` }}
+        <div
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          role="list"
+          aria-label="Upcoming AI agents"
+        >
+          {comingAgents.map((agent, index) => (
+            <article
+              key={agent.title}
+              className="group relative rounded-2xl border border-edge-subtle bg-surface p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 opacity-80 hover:opacity-100 [animation-delay:calc(var(--index)*100ms)]"
+              style={{ "--index": index + liveAgents.length } as React.CSSProperties}
+              role="listitem"
             >
               {/* Timeline badge */}
               {agent.timeline && (
@@ -192,7 +248,10 @@ export function AgentsSection() {
               )}
 
               {/* Icon */}
-              <div className={`inline-flex rounded-lg p-2.5 ring-1 ring-inset ${agent.color} shadow-sm`}>
+              <div
+                className={`inline-flex rounded-lg p-2.5 ring-1 ring-inset ${agent.color} shadow-sm`}
+                aria-hidden="true"
+              >
                 {agent.icon}
               </div>
 
@@ -205,7 +264,7 @@ export function AgentsSection() {
               <p className="mt-2 text-sm leading-6 text-body">
                 {agent.description}
               </p>
-            </div>
+            </article>
           ))}
         </div>
       </div>

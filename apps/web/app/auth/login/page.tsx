@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { toastInfo } from "@/app/lib/toast";
 import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { ErrorAlert } from "@/app/components";
 
+/**
+ * Login page with proper form handling and accessibility.
+ * Features disabled states for non-functional OAuth providers.
+ */
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -14,7 +17,11 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Handle form submission with proper error handling.
+   * Redirects to onboarding if no business exists, otherwise to dashboard.
+   */
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -37,39 +44,58 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float" />
-      <div className="absolute top-1/2 left-[5%] w-32 h-32 bg-teal-200 dark:bg-teal-800 rounded-full opacity-15 blur-2xl animate-float-reverse" />
-
-      {/* Bouncing decorative dots */}
-      <div className="absolute top-32 right-[20%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
+    <main className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Decorative background elements - hidden from screen readers */}
       <div
-        className="absolute bottom-32 left-[15%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle"
-        style={{ animationDelay: "0.5s" }}
+        className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute top-1/2 left-[5%] w-32 h-32 bg-teal-200 dark:bg-teal-800 rounded-full opacity-15 blur-2xl animate-float-reverse"
+        aria-hidden="true"
       />
 
+      {/* Bouncing decorative dots */}
+      <div
+        className="absolute top-32 right-[20%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-32 left-[15%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle [animation-delay:500ms]"
+        aria-hidden="true"
+      />
+
+      {/* Page header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-heading">
+        <h1 className="mt-6 text-center text-3xl font-black tracking-tight text-heading">
           Sign in to your account
-        </h2>
+        </h1>
         <p className="mt-2 text-center text-sm text-body">
           Or{" "}
           <Link
             href="/auth/register"
-            className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors"
+            className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded"
           >
             create a new account
           </Link>
         </p>
       </div>
 
+      {/* Login form card */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/10 rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} />
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form
+            className="space-y-6"
+            onSubmit={handleSubmit}
+            aria-label="Sign in form"
+          >
+            {/* Email field */}
             <div>
               <label
                 htmlFor="email"
@@ -89,10 +115,13 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="you@example.com"
+                  aria-required="true"
+                  aria-describedby="email-error"
                 />
               </div>
             </div>
 
+            {/* Password field */}
             <div>
               <label
                 htmlFor="password"
@@ -112,17 +141,21 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] placeholder:text-caption focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6 transition-all duration-200 hover:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="••••••••"
+                  aria-required="true"
+                  aria-describedby="password-error"
                 />
               </div>
             </div>
 
+            {/* Remember me and forgot password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-edge text-cyan-600 focus:ring-cyan-600 cursor-pointer"
+                  disabled={loading}
+                  className="h-4 w-4 rounded border-edge text-cyan-600 focus:ring-cyan-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <label
                   htmlFor="remember-me"
@@ -135,18 +168,20 @@ export default function LoginPage() {
               <div className="text-sm">
                 <Link
                   href="/auth/forgot-password"
-                  className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors"
+                  className="font-bold text-cyan-600 hover:text-cyan-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded"
                 >
                   Forgot your password?
                 </Link>
               </div>
             </div>
 
+            {/* Submit button */}
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !email || !password}
                 className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold leading-6 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 btn-glow"
+                aria-busy={loading}
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -154,6 +189,7 @@ export default function LoginPage() {
                       className="animate-spin h-4 w-4"
                       fill="none"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <circle
                         className="opacity-25"
@@ -179,6 +215,7 @@ export default function LoginPage() {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -193,6 +230,7 @@ export default function LoginPage() {
             </div>
           </form>
 
+          {/* OAuth providers - visually indicated as coming soon */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -200,18 +238,20 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="bg-surface px-2 text-muted">
-                  Or continue with
+                  More options coming soon
                 </span>
               </div>
             </div>
 
+            {/* Disabled OAuth buttons */}
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => toastInfo("OAuth coming soon!")}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
+                disabled
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface-secondary px-3 py-2.5 text-sm font-bold text-muted shadow-sm ring-1 ring-inset ring-edge cursor-not-allowed opacity-60"
+                aria-label="Sign in with Google - coming soon"
               >
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 opacity-60" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -230,14 +270,16 @@ export default function LoginPage() {
                   />
                 </svg>
                 Google
+                <span className="sr-only">(coming soon)</span>
               </button>
               <button
                 type="button"
-                onClick={() => toastInfo("OAuth coming soon!")}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm font-bold text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] hover:bg-surface-hover hover:ring-gray-400 transition-all duration-200"
+                disabled
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-surface-secondary px-3 py-2.5 text-sm font-bold text-muted shadow-sm ring-1 ring-inset ring-edge cursor-not-allowed opacity-60"
+                aria-label="Sign in with GitHub - coming soon"
               >
                 <svg
-                  className="h-5 w-5"
+                  className="h-5 w-5 opacity-60"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -248,11 +290,12 @@ export default function LoginPage() {
                   />
                 </svg>
                 GitHub
+                <span className="sr-only">(coming soon)</span>
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
