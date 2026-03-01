@@ -1,0 +1,99 @@
+# =============================================================================
+# Keycloak — OIDC Identity Provider (PROD)
+# Uses external Azure PostgreSQL (keycloak_db). TLS terminated at ingress.
+# Realm import runs on first startup via ConfigMap mount.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: oluto
+  labels:
+    app: keycloak
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+        environment: production
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.5.4
+          args:
+            - start
+            - --import-realm
+          env:
+            - name: KC_DB
+              value: "postgres"
+            - name: KC_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: KEYCLOAK_DB_URL
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: KEYCLOAK_DB_USERNAME
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: KEYCLOAK_DB_PASSWORD
+            - name: KC_HOSTNAME
+              value: "auth.oluto.app"
+            - name: KC_PROXY_HEADERS
+              value: "xforwarded"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: KEYCLOAK_ADMIN
+              value: "kcadmin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: KEYCLOAK_ADMIN_PASSWORD
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9000
+              name: management
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 9000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          volumeMounts:
+            - name: realm-config
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+      volumes:
+        - name: realm-config
+          configMap:
+            name: keycloak-realm-config

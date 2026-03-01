@@ -49,3 +49,21 @@ spec:
       name: http
   selector:
     app: oluto-agent
+---
+# =============================================================================
+# Keycloak Service (OIDC identity provider on port 8080)
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: oluto
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: keycloak
