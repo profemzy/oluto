@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, ReactNode, useEffect } from "react";
+import { useState, ReactNode, useSyncExternalStore } from "react";
 import { useTokenRefresh } from "@/app/hooks/useTokenRefresh";
 import { defaultQueryClientConfig } from "@/app/lib/queryConfig";
 
@@ -25,18 +25,26 @@ function TokenRefreshHandler() {
   return null;
 }
 
+// Simple store for hydration-safe mounted state
+const getServerSnapshot = () => false;
+const getClientSnapshot = () => true;
+const subscribe = () => () => {};
+
 export function QueryProvider({ children }: QueryProviderProps) {
   const [queryClient] = useState(createQueryClient);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  
+  // Use useSyncExternalStore for hydration-safe mounted detection
+  // This avoids the setState-in-effect pattern that causes cascading renders
+  const isMounted = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {mounted && <TokenRefreshHandler />}
+      {isMounted && <TokenRefreshHandler />}
     </QueryClientProvider>
   );
 }

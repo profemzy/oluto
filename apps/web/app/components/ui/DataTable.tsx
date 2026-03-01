@@ -247,7 +247,7 @@ export function DataTable<T>({
     onFilter?.({});
     onSearch?.("");
     if (defaultSort) onSort?.(defaultSort);
-  }, [defaultSort, onFilter, onSearch, onSort, pageSize]);
+  }, [defaultSort, onFilter, onSearch, onSort, pageSize, setSearchQuery]);
 
   // Filter and sort data
   const processedData = useMemo(() => {
