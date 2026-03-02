@@ -1,6 +1,7 @@
 {
   "realm": "oluto",
   "enabled": true,
+  "loginTheme": "oluto",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "loginWithEmailAllowed": true,

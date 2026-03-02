@@ -14,8 +14,12 @@ services:
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-swift1FEMZY14}
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+      KC_SPI_THEME_CACHE_THEMES: "false"
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
     volumes:
       - ./keycloak/oluto-realm.json:/opt/keycloak/data/import/oluto-realm.json
+      - ./keycloak/themes/oluto:/opt/keycloak/themes/oluto
 
   # LedgerForge — Rust/Axum double-entry accounting API
   # Uses LAN PostgreSQL (192.168.1.65:34155) and Redis (192.168.1.65:37263)

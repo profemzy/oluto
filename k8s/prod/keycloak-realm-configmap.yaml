@@ -13,7 +13,9 @@ data:
     {
       "realm": "oluto",
       "enabled": true,
-      "registrationAllowed": false,
+      "loginTheme": "oluto",
+      "registrationAllowed": true,
+      "registrationEmailAsUsername": true,
       "loginWithEmailAllowed": true,
       "duplicateEmailsAllowed": false,
       "sslRequired": "external",

@@ -6,8 +6,8 @@
 # Note: Backend (LedgerForge) is deployed by its own CI/CD pipeline in the
 # ledger-forge repo. Agent (ZeroClaw) is deployed by its own CI/CD pipeline
 # in the zeroclaw repo (zeroclaw/azure-pipelines/ci-cd.yml).
-# This pipeline manages frontend + infra (namespace, redis, services, ingress,
-# secrets) and does NOT touch the backend or agent deployments.
+# This pipeline manages frontend + Keycloak + infra (namespace, redis, services,
+# ingress, secrets) and does NOT touch the backend or agent deployments.
 # =============================================================================
 
 trigger: none
@@ -175,6 +175,10 @@ stages:
                       k8s/dev/frontend-deployment.yaml
                       k8s/dev/services.yaml
                       k8s/dev/ingress.yaml
+                      k8s/dev/keycloak-realm-configmap.yaml
+                      k8s/dev/keycloak-theme-configmap.yaml
+                      k8s/dev/keycloak-deployment.yaml
+                      k8s/dev/keycloak-ingress.yaml
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Frontend"
@@ -186,6 +190,17 @@ stages:
                     namespace: "oluto"
                     command: "rollout"
                     arguments: "status deployment/oluto-frontend --timeout=300s"
+
+                - task: Kubernetes@1
+                  displayName: "Rollout Status - Keycloak"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-dev-rg"
+                    kubernetesCluster: "wackopscoach-dev-aks"
+                    namespace: "oluto"
+                    command: "rollout"
+                    arguments: "status deployment/keycloak --timeout=300s"
 
                 - task: Bash@3
                   displayName: "Verify DEV"
@@ -269,22 +284,37 @@ stages:
                       az aks install-cli
                       echo "##vso[task.prependpath]/usr/local/bin"
 
-                # Promote frontend image from DEV ACR to PROD ACR
+                # Build frontend image with PROD Keycloak URL and push to PROD ACR
+                # Cannot promote DEV image because NEXT_PUBLIC_* env vars are baked
+                # at build time — DEV image has auth.dev.oluto.app, PROD needs auth.oluto.app
                 - task: AzureCLI@2
-                  displayName: "Promote Frontend Image to PROD ACR"
+                  displayName: "Login to PROD ACR"
                   inputs:
                     azureSubscription: $(aksServiceConnection)
                     scriptType: "bash"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      echo "Promoting frontend image from $(acrLoginServer) to $(acrLoginServerProd)"
-                      echo "Tag: $(tag)"
-                      az acr import \
-                        --name wackopscoachprodacr \
-                        --source $(acrLoginServer)/$(frontendImageRepository):$(tag) \
-                        --image $(frontendImageRepository):$(tag) \
-                        --force
-                      echo "Frontend image promoted to PROD ACR"
+                      echo "Logging into PROD ACR: $(acrLoginServerProd)"
+                      az acr login --name $(acrLoginServerProd)
+
+                - task: Docker@2
+                  displayName: "Build Frontend Image (PROD)"
+                  inputs:
+                    command: "build"
+                    repository: "$(acrLoginServerProd)/$(frontendImageRepository)"
+                    Dockerfile: "$(Build.SourcesDirectory)/apps/web/Dockerfile"
+                    buildContext: "$(Build.SourcesDirectory)"
+                    tags: |
+                      $(tag)
+                    arguments: "--build-arg NEXT_PUBLIC_API_URL=/api/v1 --build-arg NEXT_PUBLIC_KEYCLOAK_URL=https://auth.oluto.app --build-arg NEXT_PUBLIC_KEYCLOAK_REALM=oluto --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=oluto-web"
+
+                - task: Docker@2
+                  displayName: "Push Frontend Image (PROD)"
+                  inputs:
+                    command: "push"
+                    repository: "$(acrLoginServerProd)/$(frontendImageRepository)"
+                    tags: |
+                      $(tag)
 
                 - task: KubernetesManifest@1
                   displayName: "Create Namespace (PROD)"
@@ -350,6 +380,10 @@ stages:
                       k8s/prod/frontend-deployment.yaml
                       k8s/prod/services.yaml
                       k8s/prod/ingress.yaml
+                      k8s/prod/keycloak-realm-configmap.yaml
+                      k8s/prod/keycloak-theme-configmap.yaml
+                      k8s/prod/keycloak-deployment.yaml
+                      k8s/prod/keycloak-ingress.yaml
 
                 - task: Kubernetes@1
                   displayName: "Rollout Status - Frontend"
@@ -361,6 +395,17 @@ stages:
                     namespace: "oluto"
                     command: "rollout"
                     arguments: "status deployment/oluto-frontend --timeout=300s"
+
+                - task: Kubernetes@1
+                  displayName: "Rollout Status - Keycloak"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(aksServiceConnection)
+                    azureResourceGroup: "wackopscoach-prod-rg"
+                    kubernetesCluster: "wackopscoach-prod-aks"
+                    namespace: "oluto"
+                    command: "rollout"
+                    arguments: "status deployment/keycloak --timeout=300s"
 
                 - task: Bash@3
                   displayName: "Verify PROD"

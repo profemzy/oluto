@@ -118,14 +118,29 @@ apps/web/                      # Next.js app (74 files, 16,400+ lines)
 apps/mobile/                   # React Native / Expo (scaffolded)
 packages/                      # Shared packages (scaffolded)
 
+keycloak/                      # Keycloak OIDC configuration
+  oluto-realm.json             # Realm import JSON (local/docker-compose)
+  themes/oluto/login/          # Custom login theme (FreeMarker)
+    theme.properties           # Theme config: parent=base, CSS ref
+    template.ftl               # Base HTML shell (logo, orbs, alerts, glass card)
+    login.ftl                  # Login form
+    register.ftl               # Registration form
+    login-reset-password.ftl   # Password reset form
+    resources/css/
+      oluto-login.css          # Full Oluto design system (dark/light mode, animations)
+
 k8s/                           # Kubernetes manifests
   dev/                         # DEV environment
     namespace.yaml
     redis.yaml
     backend-deployment.yaml    # LedgerForge (Rust/Axum)
-    frontend-deployment.yaml   # Next.js
+    frontend-deployment.yaml   # Next.js (with KEYCLOAK env vars)
+    keycloak-deployment.yaml   # Keycloak OIDC (with initContainer for theme)
+    keycloak-realm-configmap.yaml  # Realm import JSON
+    keycloak-theme-configmap.yaml  # Theme files (flat keys → initContainer)
+    keycloak-ingress.yaml      # auth.dev.oluto.app
     agent-ingress.yaml         # /agent/* ingress with 180s timeout (agent deployment managed by ZeroClaw CI/CD)
-    services.yaml              # Backend + frontend ClusterIP services
+    services.yaml              # Backend + frontend + agent + keycloak ClusterIP services
     ingress.yaml               # dev.oluto.app (path-based routing)
   prod/                        # PROD environment (same layout, 2 replicas)
   external-secrets/
@@ -153,8 +168,9 @@ azure-pipelines/               # Azure DevOps CI/CD
 
 - **Namespace:** `oluto` on each cluster
 - **Path-based routing:** Ingress routes `/api/*`, `/swagger-ui/*`, `/api-docs/*` → backend; `/agent/*` → ZeroClaw agent (180s timeout); `/*` → frontend
+- **Keycloak (OIDC):** Separate ingress on `auth.dev.oluto.app` (DEV) / `auth.oluto.app` (PROD). Uses initContainer pattern to copy theme files from ConfigMap into correct directory structure
 - **TLS:** cert-manager with Let's Encrypt (`letsencrypt-prod` ClusterIssuer, HTTP-01 solver)
-- **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret`
+- **Secrets:** ExternalSecrets Operator syncs Azure Key Vault → K8s `oluto-secret` (includes `KEYCLOAK_DB_URL`, `KEYCLOAK_DB_USERNAME`, `KEYCLOAK_DB_PASSWORD`, `KEYCLOAK_ADMIN_PASSWORD`)
 - **Redis:** In-cluster deployment (per-namespace), URL: `redis://redis:6379`
 - **Migrations:** LedgerForge runs migrations automatically on startup (no separate K8s Job needed)
 
@@ -162,13 +178,13 @@ azure-pipelines/               # Azure DevOps CI/CD
 
 | Pipeline | Repo | Trigger | Purpose |
 |----------|------|---------|---------|
-| `01-app-ci.yml` | Oluto | Push to `apps/**` or `packages/**` | Build & push frontend image to DEV ACR |
-| `02-app-cd.yml` | Oluto | CI success or manual | Deploy K8s manifests (frontend, infra, secrets), update image tags. Agent managed by ZeroClaw CI/CD. |
+| `01-app-ci.yml` | Oluto | Push to `apps/**`, `packages/**`, `keycloak/**`, `k8s/**` | Build & push frontend image to DEV ACR (with Keycloak build args) |
+| `02-app-cd.yml` | Oluto | CI success or manual | Deploy K8s manifests (frontend, Keycloak, infra, secrets). Agent managed by ZeroClaw CI/CD. |
 | `01-ci.yml` | LedgerForge | Push to `src/**`, `migrations/**`, `Cargo.*` | Build & push backend image to DEV ACR |
 | `02-cd.yml` | LedgerForge | CI success or manual | Update backend image on AKS, promote DEV → PROD |
 | `03-secrets-setup.yml` | Oluto | Manual | One-time Key Vault population |
 
-**CD flow:** Oluto CI pushes frontend image to DEV ACR. LedgerForge CI pushes backend image to DEV ACR. Each CD pipeline manages its own image promotion from DEV → PROD ACR.
+**CD flow:** Oluto CI builds frontend with DEV Keycloak URL (`auth.dev.oluto.app`) and pushes to DEV ACR. The CD pipeline deploys to DEV, then **rebuilds** the frontend with PROD Keycloak URL (`auth.oluto.app`) for PROD (cannot promote DEV image because `NEXT_PUBLIC_*` vars are baked at build time). LedgerForge CI/CD manages the backend independently.
 
 ### Terraform (separate repo: `infotitans-azure/terraform/oluto/`)
 
@@ -181,6 +197,10 @@ azure-pipelines/               # Azure DevOps CI/CD
 - **LedgerForge handles background jobs in-process** — no separate worker containers
 - **Ingress-nginx health probe:** Requires `service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path=/healthz` annotation
 - **Namespace before ExternalSecret:** Namespace must exist before deploying ExternalSecret resources
+- **NEXT_PUBLIC_* vars are build-time** — Keycloak URL, realm, and client ID are baked into the Next.js bundle at `docker build`. DEV and PROD need separate builds with different `--build-arg` values
+- **Keycloak realm import uses IGNORE_EXISTING** — ConfigMap realm JSON only applies on first startup. Runtime changes (loginTheme, registrationAllowed, User Profile attributes) must use the Keycloak Admin REST API
+- **Keycloak 26+ declarative User Profile** — Custom user attributes (e.g., `business_id`) must be declared in the realm's User Profile configuration before they can be stored on users. Without this, attributes are silently dropped
+- **Keycloak theme deployment** — Theme files are stored in a ConfigMap (`keycloak-theme-files`) and copied into the correct directory structure by a busybox initContainer before Keycloak starts
 
 ## Key Conventions
 
@@ -195,6 +215,8 @@ azure-pipelines/               # Azure DevOps CI/CD
 - **Chat UI:** Desktop-parity design with date-grouped messages, loading banner + typing indicator, drag-and-drop file upload, quick actions, markdown rendering, conversation sidebar
 - **Gateway proxy:** Chat messages route through Next.js API route (`/gateway/chat`) to ZeroClaw webhook, passing JWT for auth
 - **SSR-safe patterns:** `useSyncExternalStore` used in ThemeProvider and Navigation for safe localStorage/mount detection
+- **Authentication:** OIDC via Keycloak. Frontend uses `keycloak-js` for PKCE authorization code flow. Login/register/forgot-password are Keycloak-hosted pages with custom Oluto theme (FreeMarker templates). The app never handles passwords directly
+- **Keycloak theme development:** Theme files are vanilla FreeMarker + CSS (no React). Dark mode uses `prefers-color-scheme` CSS media queries. Test locally with `docker-compose up` (theme cache disabled). FreeMarker null-safety: use `${(var.field)!'default'}` pattern for nullable chains
 
 ## Access Points
 
@@ -204,6 +226,8 @@ azure-pipelines/               # Azure DevOps CI/CD
 |---------|-----|
 | Web App | http://localhost:3001 |
 | API | http://localhost:3000 |
+| Keycloak | http://localhost:8080 |
+| Keycloak Admin | http://localhost:8080/admin (kcadmin / see docker-compose) |
 | Swagger UI | http://localhost:3000/swagger-ui/ |
 | OpenAPI JSON | http://localhost:3000/api-docs/openapi.json |
 | Health | http://localhost:3000/api/v1/health |
@@ -213,6 +237,8 @@ azure-pipelines/               # Azure DevOps CI/CD
 | Service | DEV | PROD |
 |---------|-----|------|
 | Web App | https://dev.oluto.app | https://oluto.app |
+| Keycloak | https://auth.dev.oluto.app | https://auth.oluto.app |
+| Keycloak Admin | https://auth.dev.oluto.app/admin | https://auth.oluto.app/admin |
 | API | https://dev.oluto.app/api/v1 | https://oluto.app/api/v1 |
 | Swagger UI | https://dev.oluto.app/swagger-ui/ | https://oluto.app/swagger-ui/ |
 | Health | https://dev.oluto.app/api/v1/health | https://oluto.app/api/v1/health |
@@ -221,9 +247,12 @@ azure-pipelines/               # Azure DevOps CI/CD
 
 - `concept.md` — Full product specification
 - `AGENTS.md` — Agent instructions
-- `docker-compose.yml` — Full stack (LedgerForge backend + frontend + Redis)
+- `docker-compose.yml` — Full stack (LedgerForge backend + frontend + Redis + Keycloak)
 - `apps/web/app/lib/api.ts` — API client (all backend calls)
+- `apps/web/app/lib/keycloak.ts` — Keycloak OIDC client configuration
 - `apps/web/app/hooks/useAuth.ts` — Auth check + redirect hook
 - `apps/web/app/components/Navigation.tsx` — App navigation
+- `keycloak/oluto-realm.json` — Keycloak realm definition (clients, scopes, mappers, roles)
+- `keycloak/themes/oluto/login/` — Custom login theme (FreeMarker templates + CSS)
 - `k8s/` — Kubernetes manifests per environment
 - `azure-pipelines/` — CI/CD pipeline definitions

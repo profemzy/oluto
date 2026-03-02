@@ -16,6 +16,8 @@ trigger:
       - apps/**
       - packages/**
       - package.json
+      - keycloak/**
+      - k8s/**
 
 pr:
   branches:
@@ -62,7 +64,7 @@ stages:
               tags: |
                 $(tag)
                 $(latestTag)
-              arguments: "--build-arg NEXT_PUBLIC_API_URL=/api/v1"
+              arguments: "--build-arg NEXT_PUBLIC_API_URL=/api/v1 --build-arg NEXT_PUBLIC_KEYCLOAK_URL=https://auth.dev.oluto.app --build-arg NEXT_PUBLIC_KEYCLOAK_REALM=oluto --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=oluto-web"
 
           - task: Docker@2
             displayName: "Push Frontend Image"

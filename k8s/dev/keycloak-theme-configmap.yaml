@@ -1,0 +1,884 @@
+# =============================================================================
+# ConfigMap for Keycloak Oluto Login Theme (DEV)
+# Flat keys — initContainer in keycloak-deployment.yaml copies these into
+# the correct directory structure at /opt/keycloak/themes/oluto/login/.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-theme-files
+  namespace: oluto
+data:
+  theme.properties: |
+    parent=base
+    import=common/keycloak
+
+    styles=css/oluto-login.css
+
+  template.ftl: |
+    <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
+    <!DOCTYPE html>
+    <html lang="${(locale.currentLanguageTag)!'en'}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noindex, nofollow">
+        <title>${msg("loginTitle",(realm.displayName!''))}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <#if properties.styles?has_content>
+            <#list properties.styles?split(' ') as style>
+                <link href="${url.resourcesPath}/${style}" rel="stylesheet" />
+            </#list>
+        </#if>
+    </head>
+    <body class="oluto-body ${bodyClass}">
+        <!-- Animated background orbs -->
+        <div class="orb orb-cyan" aria-hidden="true"></div>
+        <div class="orb orb-green" aria-hidden="true"></div>
+        <div class="orb orb-teal" aria-hidden="true"></div>
+
+        <div class="oluto-container">
+            <!-- Logo -->
+            <div class="oluto-logo">
+                <a href="${properties.kcLogoLink!'#'}" class="oluto-logo-link">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="oluto-grad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#14b8a6" />
+                                <stop offset="50%" stop-color="#0d9488" />
+                                <stop offset="100%" stop-color="#0f766e" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="2" width="32" height="32" rx="9" fill="url(#oluto-grad)" />
+                        <path d="M12 24L24 12M24 12H16M24 12V20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="oluto-wordmark">
+                        <span class="oluto-name">Oluto</span>
+                        <span class="oluto-tagline">Direct Your Wealth.</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Glass card -->
+            <div class="oluto-card">
+                <div class="oluto-card-header">
+                    <#nested "header">
+                </div>
+
+                <#-- Global alert messages (wrong credentials, account locked, etc.) -->
+                <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
+                    <div class="oluto-alert oluto-alert-${message.type}">
+                        <#if message.type = 'success'>
+                            <svg class="oluto-alert-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                        <#elseif message.type = 'error'>
+                            <svg class="oluto-alert-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                        <#elseif message.type = 'warning'>
+                            <svg class="oluto-alert-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                        <#else>
+                            <svg class="oluto-alert-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" /></svg>
+                        </#if>
+                        <span>${kcSanitize(message.summary)?no_esc}</span>
+                    </div>
+                </#if>
+
+                <!-- Form content -->
+                <#nested "form">
+
+                <!-- Social providers (future OAuth) -->
+                <#nested "socialProviders">
+            </div>
+
+            <!-- Footer links -->
+            <#nested "info">
+        </div>
+    </body>
+    </html>
+    </#macro>
+
+  login.ftl: |
+    <#import "template.ftl" as layout>
+    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password'); section>
+        <#if section = "header">
+            <h1 class="oluto-heading">Sign in to your account</h1>
+            <p class="oluto-subheading">Welcome back. Enter your credentials to continue.</p>
+        <#elseif section = "form">
+            <form id="kc-form-login" action="${url.loginAction}" method="post">
+                <div class="oluto-form-group">
+                    <label for="username" class="oluto-label">${msg("email")}</label>
+                    <input id="username" name="username" type="text" autofocus autocomplete="email"
+                           value="${(login.username!'')}"
+                           class="oluto-input <#if messagesPerField.existsError('username','password')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"
+                           placeholder="you@company.com" />
+                    <#if messagesPerField.existsError('username','password')>
+                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('username','password'))?no_esc}</span>
+                    </#if>
+                </div>
+
+                <div class="oluto-form-group">
+                    <div class="oluto-label-row">
+                        <label for="password" class="oluto-label">${msg("password")}</label>
+                        <#if realm.resetPasswordAllowed>
+                            <a href="${url.loginResetCredentialsUrl}" class="oluto-link-small">Forgot password?</a>
+                        </#if>
+                    </div>
+                    <input id="password" name="password" type="password" autocomplete="current-password"
+                           class="oluto-input <#if messagesPerField.existsError('username','password')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>" />
+                </div>
+
+                <#if realm.rememberMe && !usernameHidden??>
+                    <div class="oluto-checkbox-group">
+                        <input id="rememberMe" name="rememberMe" type="checkbox"
+                               <#if login.rememberMe??>checked</#if>
+                               class="oluto-checkbox" />
+                        <label for="rememberMe" class="oluto-checkbox-label">${msg("rememberMe")}</label>
+                    </div>
+                </#if>
+
+                <button type="submit" class="oluto-btn-primary">
+                    Sign in
+                </button>
+            </form>
+        <#elseif section = "socialProviders">
+            <#if realm.password && social?? && social.providers?has_content>
+                <div class="oluto-divider">
+                    <span>or continue with</span>
+                </div>
+                <div class="oluto-social-providers">
+                    <#list social.providers as p>
+                        <a id="social-${p.alias}" href="${p.loginUrl}" class="oluto-btn-social">
+                            <#if p.iconClasses?has_content>
+                                <i class="${p.iconClasses!}" aria-hidden="true"></i>
+                            </#if>
+                            <span>${p.displayName!}</span>
+                        </a>
+                    </#list>
+                </div>
+            </#if>
+        <#elseif section = "info">
+            <#if realm.registrationAllowed>
+                <p class="oluto-footer-text">
+                    Don't have an account?
+                    <a href="${url.registrationUrl}" class="oluto-link">Create one</a>
+                </p>
+            </#if>
+        </#if>
+    </@layout.registrationLayout>
+
+  register.ftl: |
+    <#import "template.ftl" as layout>
+    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm'); section>
+        <#if section = "header">
+            <h1 class="oluto-heading">Create your account</h1>
+            <p class="oluto-subheading">Start managing your finances with Oluto.</p>
+        <#elseif section = "form">
+            <form id="kc-register-form" action="${url.registrationAction}" method="post">
+                <div class="oluto-form-row">
+                    <div class="oluto-form-group oluto-form-half">
+                        <label for="firstName" class="oluto-label">${msg("firstName")}</label>
+                        <input id="firstName" name="firstName" type="text" autocomplete="given-name"
+                               value="${(register.formData.firstName!'')}"
+                               class="oluto-input <#if messagesPerField.existsError('firstName')>oluto-input-error</#if>"
+                               aria-invalid="<#if messagesPerField.existsError('firstName')>true</#if>" />
+                        <#if messagesPerField.existsError('firstName')>
+                            <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('firstName'))?no_esc}</span>
+                        </#if>
+                    </div>
+                    <div class="oluto-form-group oluto-form-half">
+                        <label for="lastName" class="oluto-label">${msg("lastName")}</label>
+                        <input id="lastName" name="lastName" type="text" autocomplete="family-name"
+                               value="${(register.formData.lastName!'')}"
+                               class="oluto-input <#if messagesPerField.existsError('lastName')>oluto-input-error</#if>"
+                               aria-invalid="<#if messagesPerField.existsError('lastName')>true</#if>" />
+                        <#if messagesPerField.existsError('lastName')>
+                            <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('lastName'))?no_esc}</span>
+                        </#if>
+                    </div>
+                </div>
+
+                <div class="oluto-form-group">
+                    <label for="email" class="oluto-label">${msg("email")}</label>
+                    <input id="email" name="email" type="email" autocomplete="email"
+                           value="${(register.formData.email!'')}"
+                           class="oluto-input <#if messagesPerField.existsError('email')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('email')>true</#if>"
+                           placeholder="you@company.com" />
+                    <#if messagesPerField.existsError('email')>
+                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('email'))?no_esc}</span>
+                    </#if>
+                </div>
+
+                <div class="oluto-form-group">
+                    <label for="password" class="oluto-label">${msg("password")}</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password"
+                           class="oluto-input <#if messagesPerField.existsError('password')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('password')>true</#if>" />
+                    <#if messagesPerField.existsError('password')>
+                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('password'))?no_esc}</span>
+                    </#if>
+                </div>
+
+                <div class="oluto-form-group">
+                    <label for="password-confirm" class="oluto-label">${msg("passwordConfirm")}</label>
+                    <input id="password-confirm" name="password-confirm" type="password" autocomplete="new-password"
+                           class="oluto-input <#if messagesPerField.existsError('password-confirm')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('password-confirm')>true</#if>" />
+                    <#if messagesPerField.existsError('password-confirm')>
+                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('password-confirm'))?no_esc}</span>
+                    </#if>
+                </div>
+
+                <button type="submit" class="oluto-btn-primary">
+                    Create account
+                </button>
+            </form>
+        <#elseif section = "info">
+            <p class="oluto-footer-text">
+                Already have an account?
+                <a href="${url.loginUrl}" class="oluto-link">Sign in</a>
+            </p>
+        </#if>
+    </@layout.registrationLayout>
+
+  login-reset-password.ftl: |
+    <#import "template.ftl" as layout>
+    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username'); section>
+        <#if section = "header">
+            <h1 class="oluto-heading">Reset your password</h1>
+            <p class="oluto-subheading">Enter your email and we'll send you a reset link.</p>
+        <#elseif section = "form">
+            <form id="kc-reset-password-form" action="${url.loginAction}" method="post">
+                <div class="oluto-form-group">
+                    <label for="username" class="oluto-label">${msg("email")}</label>
+                    <input id="username" name="username" type="text" autofocus autocomplete="email"
+                           class="oluto-input <#if messagesPerField.existsError('username')>oluto-input-error</#if>"
+                           aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"
+                           placeholder="you@company.com" />
+                    <#if messagesPerField.existsError('username')>
+                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('username'))?no_esc}</span>
+                    </#if>
+                </div>
+
+                <button type="submit" class="oluto-btn-primary">
+                    Send reset link
+                </button>
+            </form>
+        <#elseif section = "info">
+            <p class="oluto-footer-text">
+                Remember your password?
+                <a href="${url.loginUrl}" class="oluto-link">Back to sign in</a>
+            </p>
+        </#if>
+    </@layout.registrationLayout>
+
+  oluto-login.css: |
+    /* =============================================================================
+       Oluto — Keycloak Login Theme
+       Design system ported from Oluto web app (globals.css, HeroSection, ThemeLogo)
+       ============================================================================= */
+
+    /* ---------- Reset & Base ---------- */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f9fafb;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --text-tertiary: #6b7280;
+        --text-muted: #9ca3af;
+        --border-primary: #e5e7eb;
+        --border-secondary: #f3f4f6;
+        --surface-glass: rgba(255, 255, 255, 0.7);
+        --surface-glass-strong: rgba(255, 255, 255, 0.85);
+        --surface-glass-border: rgba(255, 255, 255, 0.3);
+        --shadow-base: rgba(0, 0, 0, 0.1);
+        --shadow-heavy: rgba(0, 0, 0, 0.15);
+        --ring-default: #d1d5db;
+        --brand-cyan: #06b6d4;
+        --brand-cyan-dark: #0891b2;
+        --brand-teal: #14b8a6;
+        --brand-green: #10b981;
+        --error-bg: #fef2f2;
+        --error-text: #991b1b;
+        --error-border: #fecaca;
+        --error-icon: #ef4444;
+        --success-bg: #f0fdf4;
+        --success-text: #166534;
+        --success-border: #bbf7d0;
+        --success-icon: #22c55e;
+        --warning-bg: #fffbeb;
+        --warning-text: #92400e;
+        --warning-border: #fde68a;
+        --warning-icon: #f59e0b;
+        --info-bg: #eff6ff;
+        --info-text: #1e40af;
+        --info-border: #bfdbfe;
+        --info-icon: #3b82f6;
+        --orb-cyan: rgba(6, 182, 212, 0.15);
+        --orb-green: rgba(16, 185, 129, 0.15);
+        --orb-teal: rgba(20, 184, 166, 0.12);
+        --logo-text: #0f172a;
+        --tagline-text: #94a3b8;
+        --checkbox-bg: #ffffff;
+        --checkbox-border: #d1d5db;
+        --checkbox-checked-bg: #06b6d4;
+        --link-color: #0891b2;
+        --link-hover: #0e7490;
+        --social-bg: #ffffff;
+        --social-border: #e5e7eb;
+        --social-text: #374151;
+        --social-hover-bg: #f9fafb;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --text-muted: #64748b;
+            --border-primary: #334155;
+            --border-secondary: #1e293b;
+            --surface-glass: rgba(15, 23, 42, 0.7);
+            --surface-glass-strong: rgba(15, 23, 42, 0.85);
+            --surface-glass-border: rgba(51, 65, 85, 0.3);
+            --shadow-base: rgba(0, 0, 0, 0.3);
+            --shadow-heavy: rgba(0, 0, 0, 0.4);
+            --ring-default: #475569;
+            --error-bg: rgba(127, 29, 29, 0.2);
+            --error-text: #fca5a5;
+            --error-border: rgba(239, 68, 68, 0.3);
+            --error-icon: #f87171;
+            --success-bg: rgba(22, 101, 52, 0.2);
+            --success-text: #86efac;
+            --success-border: rgba(34, 197, 94, 0.3);
+            --success-icon: #4ade80;
+            --warning-bg: rgba(146, 64, 14, 0.2);
+            --warning-text: #fcd34d;
+            --warning-border: rgba(245, 158, 11, 0.3);
+            --warning-icon: #fbbf24;
+            --info-bg: rgba(30, 64, 175, 0.2);
+            --info-text: #93c5fd;
+            --info-border: rgba(59, 130, 246, 0.3);
+            --info-icon: #60a5fa;
+            --orb-cyan: rgba(6, 182, 212, 0.08);
+            --orb-green: rgba(16, 185, 129, 0.08);
+            --orb-teal: rgba(20, 184, 166, 0.06);
+            --logo-text: #f1f5f9;
+            --tagline-text: #64748b;
+            --checkbox-bg: #1e293b;
+            --checkbox-border: #475569;
+            --checkbox-checked-bg: #06b6d4;
+            --link-color: #22d3ee;
+            --link-hover: #67e8f9;
+            --social-bg: #1e293b;
+            --social-border: #334155;
+            --social-text: #e2e8f0;
+            --social-hover-bg: #334155;
+        }
+    }
+
+    html {
+        height: 100%;
+    }
+
+    body.oluto-body {
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+            Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ---------- Animated Background Orbs ---------- */
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(2deg); }
+    }
+
+    @keyframes float-reverse {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(20px) rotate(-2deg); }
+    }
+
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-14px) rotate(1deg); }
+    }
+
+    .orb {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .orb-cyan {
+        width: 22rem;
+        height: 22rem;
+        top: 8%;
+        left: 8%;
+        background: radial-gradient(circle, var(--orb-cyan) 0%, transparent 70%);
+        filter: blur(60px);
+        animation: float-slow 7s ease-in-out infinite;
+    }
+
+    .orb-green {
+        width: 26rem;
+        height: 26rem;
+        top: 20%;
+        right: 10%;
+        background: radial-gradient(circle, var(--orb-green) 0%, transparent 70%);
+        filter: blur(70px);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .orb-teal {
+        width: 16rem;
+        height: 16rem;
+        bottom: 12%;
+        left: 28%;
+        background: radial-gradient(circle, var(--orb-teal) 0%, transparent 70%);
+        filter: blur(50px);
+        animation: float-reverse 5s ease-in-out infinite;
+    }
+
+    /* ---------- Container ---------- */
+    .oluto-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem 1.25rem;
+    }
+
+    /* ---------- Logo ---------- */
+    .oluto-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .oluto-logo-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .oluto-wordmark {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .oluto-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: var(--logo-text);
+    }
+
+    .oluto-tagline {
+        font-size: 0.625rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--tagline-text);
+    }
+
+    /* ---------- Glass Card ---------- */
+    .oluto-card {
+        background: var(--surface-glass-strong);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--surface-glass-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 var(--shadow-heavy);
+    }
+
+    .oluto-card-header {
+        margin-bottom: 1.5rem;
+    }
+
+    /* ---------- Typography ---------- */
+    .oluto-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+    }
+
+    .oluto-subheading {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-top: 0.375rem;
+        line-height: 1.5;
+    }
+
+    /* ---------- Alert Messages ---------- */
+    .oluto-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+        border: 1px solid;
+    }
+
+    .oluto-alert-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+        flex-shrink: 0;
+        margin-top: 0.0625rem;
+    }
+
+    .oluto-alert-error {
+        background: var(--error-bg);
+        color: var(--error-text);
+        border-color: var(--error-border);
+    }
+
+    .oluto-alert-error .oluto-alert-icon {
+        color: var(--error-icon);
+    }
+
+    .oluto-alert-success {
+        background: var(--success-bg);
+        color: var(--success-text);
+        border-color: var(--success-border);
+    }
+
+    .oluto-alert-success .oluto-alert-icon {
+        color: var(--success-icon);
+    }
+
+    .oluto-alert-warning {
+        background: var(--warning-bg);
+        color: var(--warning-text);
+        border-color: var(--warning-border);
+    }
+
+    .oluto-alert-warning .oluto-alert-icon {
+        color: var(--warning-icon);
+    }
+
+    .oluto-alert-info {
+        background: var(--info-bg);
+        color: var(--info-text);
+        border-color: var(--info-border);
+    }
+
+    .oluto-alert-info .oluto-alert-icon {
+        color: var(--info-icon);
+    }
+
+    /* ---------- Form ---------- */
+    .oluto-form-group {
+        margin-bottom: 1.125rem;
+    }
+
+    .oluto-form-row {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .oluto-form-half {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .oluto-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.375rem;
+    }
+
+    .oluto-label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.375rem;
+    }
+
+    .oluto-label-row .oluto-label {
+        margin-bottom: 0;
+    }
+
+    .oluto-input {
+        display: block;
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        border: 1px solid var(--border-primary);
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        outline: none;
+    }
+
+    .oluto-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .oluto-input:focus {
+        border-color: var(--brand-cyan);
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+    }
+
+    .oluto-input-error {
+        border-color: var(--error-icon);
+    }
+
+    .oluto-input-error:focus {
+        border-color: var(--error-icon);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    }
+
+    .oluto-field-error {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--error-icon);
+        margin-top: 0.25rem;
+    }
+
+    /* ---------- Checkbox ---------- */
+    .oluto-checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .oluto-checkbox {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid var(--checkbox-border);
+        border-radius: 0.25rem;
+        background: var(--checkbox-bg);
+        cursor: pointer;
+        accent-color: var(--brand-cyan);
+    }
+
+    .oluto-checkbox-label {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    /* ---------- Primary Button ---------- */
+    .oluto-btn-primary {
+        display: block;
+        width: 100%;
+        padding: 0.6875rem 1.5rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #ffffff;
+        background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 50%, #10b981 100%);
+        border: none;
+        border-radius: 0.625rem;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 14px -2px rgba(6, 182, 212, 0.3);
+        position: relative;
+        overflow: hidden;
+        margin-top: 0.25rem;
+    }
+
+    .oluto-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px -4px rgba(6, 182, 212, 0.45);
+    }
+
+    .oluto-btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px -2px rgba(6, 182, 212, 0.3);
+    }
+
+    .oluto-btn-primary:focus-visible {
+        outline: 2px solid var(--brand-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Glow sweep on hover */
+    .oluto-btn-primary::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.25),
+            transparent
+        );
+        transition: left 0.5s ease;
+    }
+
+    .oluto-btn-primary:hover::before {
+        left: 100%;
+    }
+
+    /* ---------- Links ---------- */
+    .oluto-link {
+        color: var(--link-color);
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    .oluto-link:hover {
+        color: var(--link-hover);
+        text-decoration: underline;
+    }
+
+    .oluto-link-small {
+        font-size: 0.8125rem;
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.15s ease;
+    }
+
+    .oluto-link-small:hover {
+        color: var(--link-hover);
+        text-decoration: underline;
+    }
+
+    /* ---------- Footer Text ---------- */
+    .oluto-footer-text {
+        text-align: center;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        margin-top: 1.5rem;
+    }
+
+    /* ---------- Social Providers ---------- */
+    .oluto-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+
+    .oluto-divider::before,
+    .oluto-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-primary);
+    }
+
+    .oluto-social-providers {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .oluto-btn-social {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.625rem 1rem;
+        font-family: inherit;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--social-text);
+        background: var(--social-bg);
+        border: 1px solid var(--social-border);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .oluto-btn-social:hover {
+        background: var(--social-hover-bg);
+        border-color: var(--ring-default);
+    }
+
+    /* ---------- Accessibility ---------- */
+    *:focus-visible {
+        outline: 2px solid var(--brand-cyan);
+        outline-offset: 2px;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 480px) {
+        .oluto-container {
+            padding: 1.5rem 1rem;
+            max-width: 100%;
+        }
+
+        .oluto-card {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .oluto-form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .oluto-heading {
+            font-size: 1.25rem;
+        }
+
+        .orb-cyan {
+            width: 14rem;
+            height: 14rem;
+        }
+
+        .orb-green {
+            width: 16rem;
+            height: 16rem;
+        }
+
+        .orb-teal {
+            width: 10rem;
+            height: 10rem;
+        }
+    }
+
+    /* ---------- Hide Keycloak default elements ---------- */
+    #kc-locale,
+    #kc-logo,
+    .kc-logo-text {
+        display: none !important;
+    }
