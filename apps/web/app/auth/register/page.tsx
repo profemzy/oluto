@@ -1,15 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
-import { getKeycloakRegistrationUrl } from "@/app/lib/keycloak";
+import { useEffect, useRef } from "react";
+import { useAuthContext } from "@/app/components/AuthProvider";
+import { useRouter } from "next/navigation";
+import { getUserManager } from "@/app/lib/keycloak";
 
 /**
- * Register page — redirects to Keycloak registration form.
+ * Register page — redirects to Keycloak registration form via OIDC flow.
+ * Uses signinRedirect with kc_action=register so oidc-client-ts manages state.
  */
 export default function RegisterPage() {
+  const { isAuthenticated, isLoading } = useAuthContext();
+  const router = useRouter();
+  const redirecting = useRef(false);
+
   useEffect(() => {
-    window.location.href = getKeycloakRegistrationUrl();
-  }, []);
+    if (isLoading) return;
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+      return;
+    }
+    if (!redirecting.current) {
+      redirecting.current = true;
+      getUserManager().signinRedirect({
+        extraQueryParams: { kc_action: "register" },
+      }).catch((err) => {
+        console.error("signinRedirect (register) failed:", err);
+      });
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
@@ -33,7 +52,7 @@ export default function RegisterPage() {
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         />
       </svg>
-      <p className="mt-4 text-sm text-muted">Redirecting to create account...</p>
+      <p className="mt-4 text-sm text-muted">Redirecting to sign up...</p>
     </div>
   );
 }

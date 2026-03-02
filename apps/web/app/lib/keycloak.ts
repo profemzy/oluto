@@ -25,13 +25,6 @@ export function getUserManager(): UserManager {
   return userManagerInstance;
 }
 
-export function getKeycloakRegistrationUrl(): string {
-  const redirectUri = encodeURIComponent(
-    `${window.location.origin}/auth/callback`
-  );
-  return `${OIDC_AUTHORITY}/protocol/openid-connect/registrations?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=openid+profile+email`;
-}
-
 export function getKeycloakPasswordResetUrl(): string {
   return `${OIDC_AUTHORITY}/login-actions/reset-credentials?client_id=${CLIENT_ID}`;
 }
