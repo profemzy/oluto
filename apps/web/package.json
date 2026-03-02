@@ -16,6 +16,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
     "next": "16.1.6",
+    "oidc-client-ts": "^3.4.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hot-toast": "^2.6.0",

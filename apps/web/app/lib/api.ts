@@ -922,82 +922,24 @@ export interface TokenResponseWithRefresh extends TokenResponse {
 
 class ApiClient {
   private baseUrl: string;
-  private refreshPromise: Promise<void> | null = null;
+  private tokenProvider: (() => Promise<string | null>) | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  /**
-   * Perform the actual token refresh
-   */
-  private async performRefresh(): Promise<void> {
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      });
+  setTokenProvider(provider: () => Promise<string | null>): void {
+    this.tokenProvider = provider;
+  }
 
-      if (!response.ok) {
-        // Refresh failed - clear auth state and throw
-        this.clearAuthState();
-        throw new Error('Session expired. Please log in again.');
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    if (this.tokenProvider) {
+      const token = await this.tokenProvider();
+      if (token) {
+        return { Authorization: `Bearer ${token}` };
       }
-
-      const json = await response.json();
-      const data = json.data !== undefined ? json.data : json;
-
-      // Update auth state expiry
-      const expiresIn = data.expires_in || 3600;
-      this.setAuthState(expiresIn);
-    } catch (error) {
-      this.clearAuthState();
-      throw error;
     }
-  }
-
-  /**
-   * Refresh token with deduplication (prevents multiple concurrent refresh calls)
-   */
-  async refreshToken(): Promise<void> {
-    if (this.refreshPromise) {
-      return this.refreshPromise;
-    }
-
-    this.refreshPromise = this.performRefresh();
-    try {
-      await this.refreshPromise;
-    } finally {
-      this.refreshPromise = null;
-    }
-  }
-
-  /**
-   * Get token expiration time from auth state
-   */
-  getTokenExpiry(): number | null {
-    if (typeof window === "undefined") return null;
-    try {
-      const state = localStorage.getItem("auth_state");
-      if (!state) return null;
-      const parsed = JSON.parse(state);
-      return parsed.expiresAt || null;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Check if token needs refresh (expires within threshold)
-   */
-  shouldRefreshToken(thresholdMs: number = 5 * 60 * 1000): boolean {
-    const expiry = this.getTokenExpiry();
-    if (!expiry) return false;
-    return expiry - Date.now() < thresholdMs;
+    return {};
   }
 
   private async makeRequest<T>(
@@ -1005,17 +947,17 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    const authHeaders = await this.getAuthHeaders();
 
     const config: RequestInit = {
+      ...options,
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
         ...options.headers,
       },
-      ...options,
     };
 
-    // Auth is handled via httpOnly cookies — no Bearer header needed
-    config.credentials = 'include';
     const response = await fetch(url, config);
 
     if (!response.ok) {
@@ -1038,31 +980,11 @@ class ApiClient {
     return json.data !== undefined ? json.data : json;
   }
 
-  /**
-   * Main request method with automatic token refresh on 401
-   */
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    try {
-      return await this.makeRequest<T>(endpoint, options);
-    } catch (error) {
-      if (error instanceof ApiError && error.statusCode === 401) {
-        // Token expired, try refresh once
-        try {
-          await this.refreshToken();
-          return await this.makeRequest<T>(endpoint, options);
-        } catch (refreshError) {
-          // Refresh failed, redirect to login
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login?reason=session_expired';
-          }
-          throw refreshError;
-        }
-      }
-      throw error;
-    }
+    return this.makeRequest<T>(endpoint, options);
   }
 
   private async uploadRequest<T>(
@@ -1070,12 +992,12 @@ class ApiClient {
     formData: FormData
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    const authHeaders = await this.getAuthHeaders();
 
-    // Auth is handled via httpOnly cookies — no Bearer header needed
     // Do NOT set Content-Type — browser sets it with boundary for multipart
     const response = await fetch(url, {
       method: "POST",
-      credentials: 'include',
+      headers: authHeaders,
       body: formData,
     });
 
@@ -1094,94 +1016,8 @@ class ApiClient {
 
   // --- Auth endpoints ---
 
-  async login(credentials: LoginCredentials): Promise<TokenResponseWithRefresh> {
-    // OAuth2 form data format
-    const formData = new URLSearchParams();
-    formData.append("username", credentials.username);
-    formData.append("password", credentials.password);
-
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      credentials: 'include',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: "Invalid credentials" }));
-      throw new ApiError(
-        error.error || error.detail || "Login failed",
-        response.status,
-        error.code
-      );
-    }
-
-    const json = await response.json();
-    // LedgerForge wraps responses in { success, data }
-    const data = json.data !== undefined ? json.data : json;
-
-    // Store auth state indicator (non-sensitive) — tokens are in httpOnly cookies
-    const expiresIn = data.expires_in || 3600;
-    this.setAuthState(expiresIn);
-
-    return data;
-  }
-
-  async register(data: RegisterData): Promise<User> {
-    return this.request<User>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
   async getCurrentUser(): Promise<User> {
     return this.request<User>("/auth/me");
-  }
-
-  async logout(): Promise<void> {
-    try {
-      await fetch(`${this.baseUrl}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch {
-      // Best-effort — clear local state regardless
-    }
-    this.clearAuthState();
-  }
-
-  // --- Auth state management (non-sensitive indicator — tokens live in httpOnly cookies) ---
-
-  setAuthState(expiresInSecs: number): void {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("auth_state", JSON.stringify({
-        loggedIn: true,
-        expiresAt: Date.now() + expiresInSecs * 1000,
-      }));
-    }
-  }
-
-  clearAuthState(): void {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("auth_state");
-      // Clean up legacy keys if present
-      localStorage.removeItem("token");
-      localStorage.removeItem("refresh_token");
-    }
-  }
-
-  isAuthenticated(): boolean {
-    if (typeof window === "undefined") return false;
-    try {
-      const state = localStorage.getItem("auth_state");
-      if (!state) return false;
-      const parsed = JSON.parse(state);
-      return !!parsed.loggedIn;
-    } catch {
-      return false;
-    }
   }
 
   // --- Business endpoints ---
@@ -1739,12 +1575,13 @@ class ApiClient {
   // --- Chat gateway endpoints ---
 
   async sendChatMessage(message: string, businessId: string, timezone?: string): Promise<SendChatResponse> {
+    const authHeaders = await this.getAuthHeaders();
     const res = await fetch("/gateway/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
-      credentials: 'include',
       body: JSON.stringify({ message, business_id: businessId, timezone }),
     });
     if (!res.ok) {
@@ -1755,6 +1592,7 @@ class ApiClient {
   }
 
   async sendChatMessageWithFile(message: string, file: File, businessId: string, timezone?: string): Promise<SendChatResponse> {
+    const authHeaders = await this.getAuthHeaders();
     const formData = new FormData();
     formData.append("message", message);
     formData.append("files", file);
@@ -1762,7 +1600,7 @@ class ApiClient {
     if (timezone) formData.append("timezone", timezone);
     const res = await fetch("/gateway/chat", {
       method: "POST",
-      credentials: 'include',
+      headers: authHeaders,
       body: formData,
     });
     if (!res.ok) {

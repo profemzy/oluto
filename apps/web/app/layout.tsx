@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navigation, Footer } from "./components";
 import { QueryProvider } from "./components/QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { AuthProviderWrapper } from "./components/AuthProviderWrapper";
 import { Toast } from "./components/ui/Toast";
 import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { SkipLink } from "./components/SkipLink";
@@ -165,19 +166,21 @@ export default async function RootLayout({
         <SkipLink />
         <QueryProvider>
           <ThemeProvider>
-            <LiveRegion />
-            <Toast />
-            <div className="flex flex-col min-h-screen">
-              <Navigation />
-              <main
-                id="main-content"
-                className="flex-1 pt-16"
-                tabIndex={-1}
-              >
-                <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
-              </main>
-              <Footer />
-            </div>
+            <AuthProviderWrapper>
+              <LiveRegion />
+              <Toast />
+              <div className="flex flex-col min-h-screen">
+                <Navigation />
+                <main
+                  id="main-content"
+                  className="flex-1 pt-16"
+                  tabIndex={-1}
+                >
+                  <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
+                </main>
+                <Footer />
+              </div>
+            </AuthProviderWrapper>
           </ThemeProvider>
         </QueryProvider>
       </body>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, User } from "@/app/lib/api";
+import { useAuthContext } from "@/app/components/AuthProvider";
 
 interface UseAuthOptions {
   /** If true (default), redirect to onboarding when business_id is null. */
@@ -12,8 +13,9 @@ interface UseAuthOptions {
 /**
  * Shared auth gate used by every authenticated page.
  *
- * Checks the JWT token, fetches the current user, and optionally
- * redirects to onboarding if the user has no business yet.
+ * Consumes the OIDC AuthProvider context, fetches the current user from
+ * LedgerForge, and optionally redirects to onboarding if the user has
+ * no business yet.
  *
  * Also fetches the business timezone (derived from province by the API)
  * so pages can generate correct local dates.
@@ -22,14 +24,17 @@ interface UseAuthOptions {
  */
 export function useAuth(options: UseAuthOptions = {}) {
   const { requireBusiness = true } = options;
+  const { isAuthenticated, isLoading: authLoading, login } = useAuthContext();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [timezone, setTimezone] = useState("America/Toronto");
 
   useEffect(() => {
-    if (!api.isAuthenticated()) {
-      router.push("/auth/login");
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      login();
       return;
     }
 
@@ -53,10 +58,9 @@ export function useAuth(options: UseAuthOptions = {}) {
         }
       })
       .catch(() => {
-        api.clearAuthState();
-        router.push("/auth/login");
+        login();
       });
-  }, [router, requireBusiness]);
+  }, [authLoading, isAuthenticated, router, requireBusiness, login]);
 
-  return { user, loading, timezone };
+  return { user, loading: loading || authLoading, timezone };
 }

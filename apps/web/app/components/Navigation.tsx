@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { api } from "@/app/lib/api";
+import { usePathname } from "next/navigation";
+import { useAuthContext } from "./AuthProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeLogo } from "./ThemeLogo";
 
@@ -346,13 +346,13 @@ const getMountedServer = () => false;
 
 export function Navigation() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading, logout } = useAuthContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const hasMounted = useSyncExternalStore(emptySubscribe, getMountedClient, getMountedServer);
   const [scrolled, setScrolled] = useState(false);
 
-  // Compute auth state synchronously
-  const isAuthenticated = hasMounted && api.isAuthenticated();
+  // Auth state comes from OIDC context; gate on hasMounted for SSR safety
+  const authed = hasMounted && !authLoading && isAuthenticated;
 
   // Scroll listener
   useEffect(() => {
@@ -378,13 +378,8 @@ export function Navigation() {
     pathname.startsWith("/chat");
 
   // Until client mounts, always show marketing links to match SSR output
-  const showAppNav = hasMounted && isAppPage && isAuthenticated;
-  const showAuth = !hasMounted || !isAppPage || !isAuthenticated;
-
-  const handleLogout = async () => {
-    await api.logout();
-    router.push("/");
-  };
+  const showAppNav = hasMounted && isAppPage && authed;
+  const showAuth = !hasMounted || !isAppPage || !authed;
 
   return (
     <nav
@@ -399,7 +394,7 @@ export function Navigation() {
           {/* Logo - Fixed width, never shrinks */}
           <div className="flex-shrink-0">
             <Link
-              href={hasMounted && isAuthenticated && isAppPage ? "/dashboard" : "/"}
+              href={hasMounted && authed && isAppPage ? "/dashboard" : "/"}
               className="flex items-center group"
             >
               <ThemeLogo />
@@ -562,7 +557,7 @@ export function Navigation() {
                 </Link>
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="text-sm font-bold text-body hover:text-red-600 transition-colors px-2 whitespace-nowrap"
                 >
                   Logout
@@ -690,7 +685,7 @@ export function Navigation() {
                   <button
                     type="button"
                     onClick={() => {
-                      handleLogout();
+                      logout();
                       setMobileMenuOpen(false);
                     }}
                     className="block w-full text-left py-2 text-base font-medium text-heading hover:text-red-600"

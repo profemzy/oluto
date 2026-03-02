@@ -93,6 +93,9 @@ echo ""
 echo "Building frontend image: $FULL_IMAGE"
 docker buildx build --platform linux/amd64 \
     -f "$REPO_ROOT/$DOCKERFILE" \
+    --build-arg NEXT_PUBLIC_KEYCLOAK_URL=https://auth.dev.oluto.app \
+    --build-arg NEXT_PUBLIC_KEYCLOAK_REALM=oluto \
+    --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=oluto-web \
     -t "$FULL_IMAGE" \
     --load \
     "$REPO_ROOT"
@@ -102,6 +105,10 @@ echo ""
 echo "Pushing frontend image..."
 docker push "$FULL_IMAGE"
 echo ""
+
+# Apply K8s manifest (picks up env var changes)
+echo "Applying deployment manifest..."
+kubectl apply -f "$REPO_ROOT/k8s/dev/frontend-deployment.yaml"
 
 # Deploy
 echo "Setting image on deployment/$DEPLOY_NAME"
