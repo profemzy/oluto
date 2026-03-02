@@ -7,7 +7,7 @@ import { getUserManager } from "@/app/lib/keycloak";
 
 /**
  * Register page — redirects to Keycloak registration form via OIDC flow.
- * Uses signinRedirect with kc_action=register so oidc-client-ts manages state.
+ * Uses signinRedirect with prompt=create (OIDC standard, Keycloak 26.1+).
  */
 export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuthContext();
@@ -23,7 +23,7 @@ export default function RegisterPage() {
     if (!redirecting.current) {
       redirecting.current = true;
       getUserManager().signinRedirect({
-        extraQueryParams: { kc_action: "register" },
+        prompt: "create",
       }).catch((err) => {
         console.error("signinRedirect (register) failed:", err);
       });

@@ -2,6 +2,7 @@
   "realm": "oluto",
   "enabled": true,
   "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "sslRequired": "external",
