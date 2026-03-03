@@ -1,0 +1,78 @@
+# =============================================================================
+# Pipeline: cd-infra-dev.yml
+# Purpose: Deploy shared infrastructure to DEV AKS cluster
+# Triggers: Changes to K8s manifests, external-secrets, or Keycloak config
+#
+# Deploys: namespace, external-secrets, redis, services, ingress,
+#          agent-ingress, keycloak (configmaps + deployment + ingress).
+# Does NOT deploy: frontend, backend, or agent app deployments.
+# =============================================================================
+
+trigger:
+  branches:
+    include:
+      - master
+      - main
+  paths:
+    include:
+      - k8s/dev/**
+      - k8s/external-secrets/dev/**
+      - keycloak/**
+
+pr: none
+
+variables:
+  azureServiceConnection: "terraformiacdevops1"
+
+stages:
+  - stage: Deploy_Infra_DEV
+    displayName: "Deploy Infra to DEV"
+    jobs:
+      - deployment: Deploy_Infra_DEV_AKS
+        displayName: "Deploy Shared Infra to DEV AKS"
+        pool:
+          vmImage: "ubuntu-24.04"
+        environment: "dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@2
+                  displayName: "Deploy Shared Infra (DEV)"
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az aks install-cli
+                      az aks get-credentials \
+                        --resource-group wackopscoach-dev-rg \
+                        --name wackopscoach-dev-aks \
+                        --overwrite-existing
+                      kubelogin convert-kubeconfig -l azurecli
+
+                      echo "--- Applying namespace ---"
+                      kubectl apply -f k8s/dev/namespace.yaml
+
+                      echo "--- Applying ExternalSecrets ---"
+                      kubectl apply -f k8s/external-secrets/dev/external-secret.yaml -n oluto
+
+                      echo "--- Waiting for secrets sync ---"
+                      kubectl wait --for=condition=ready externalsecret/oluto-secrets -n oluto --timeout=120s || true
+
+                      echo "--- Applying shared infra ---"
+                      kubectl apply \
+                        -f k8s/dev/redis.yaml \
+                        -f k8s/dev/services.yaml \
+                        -f k8s/dev/ingress.yaml \
+                        -f k8s/dev/agent-ingress.yaml \
+                        -f k8s/dev/keycloak-realm-configmap.yaml \
+                        -f k8s/dev/keycloak-theme-configmap.yaml \
+                        -f k8s/dev/keycloak-deployment.yaml \
+                        -f k8s/dev/keycloak-ingress.yaml \
+                        -n oluto
+
+                      echo "--- Waiting for Keycloak rollout ---"
+                      kubectl rollout status deployment/keycloak -n oluto --timeout=300s

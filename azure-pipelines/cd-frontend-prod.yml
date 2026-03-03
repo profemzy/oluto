@@ -1,0 +1,103 @@
+# =============================================================================
+# Pipeline: cd-frontend-prod.yml (Frontend-CD-PROD)
+# Purpose: Rebuild frontend with PROD Keycloak URL and deploy to PROD AKS
+# Triggers: Manual only — operator provides imageTag from a verified DEV build
+#
+# Cannot promote DEV image because NEXT_PUBLIC_* env vars are baked at build
+# time — DEV image has auth.dev.oluto.app, PROD needs auth.oluto.app.
+# =============================================================================
+
+trigger: none
+pr: none
+
+variables:
+  acrLoginServerProd: "wackopscoachprodacr.azurecr.io"
+  azureServiceConnection: "terraformiacdevops1"
+  frontendImageRepository: "oluto-frontend"
+
+parameters:
+  - name: imageTag
+    displayName: "Image Tag (Build ID from a verified DEV deployment)"
+    type: string
+
+stages:
+  - stage: Deploy_Frontend_PROD
+    displayName: "Build & Deploy Frontend to PROD"
+    jobs:
+      - deployment: Deploy_Frontend_PROD_AKS
+        displayName: "Rebuild & Deploy Frontend to PROD AKS"
+        pool:
+          vmImage: "ubuntu-24.04"
+        environment: "prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                # Build frontend image with PROD Keycloak URL
+                - task: AzureCLI@2
+                  displayName: "Login to PROD ACR"
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      echo "Logging into PROD ACR: $(acrLoginServerProd)"
+                      az acr login --name $(acrLoginServerProd)
+
+                - task: Docker@2
+                  displayName: "Build Frontend Image (PROD)"
+                  inputs:
+                    command: "build"
+                    repository: "$(acrLoginServerProd)/$(frontendImageRepository)"
+                    Dockerfile: "$(Build.SourcesDirectory)/apps/web/Dockerfile"
+                    buildContext: "$(Build.SourcesDirectory)"
+                    tags: |
+                      ${{ parameters.imageTag }}
+                    arguments: "--build-arg NEXT_PUBLIC_API_URL=/api/v1 --build-arg NEXT_PUBLIC_KEYCLOAK_URL=https://auth.oluto.app --build-arg NEXT_PUBLIC_KEYCLOAK_REALM=oluto --build-arg NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=oluto-web"
+
+                - task: Docker@2
+                  displayName: "Push Frontend Image (PROD)"
+                  inputs:
+                    command: "push"
+                    repository: "$(acrLoginServerProd)/$(frontendImageRepository)"
+                    tags: |
+                      ${{ parameters.imageTag }}
+
+                # Sed the real tag into the manifest
+                - task: Bash@3
+                  displayName: "Update PROD Frontend Manifest"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      echo "Deploying frontend: $(acrLoginServerProd)/$(frontendImageRepository):${{ parameters.imageTag }}"
+                      sed -i "s|image:.*oluto-frontend:.*|image: $(acrLoginServerProd)/$(frontendImageRepository):${{ parameters.imageTag }}|g" k8s/prod/frontend-deployment.yaml
+                      echo "--- Frontend deployment image:"
+                      grep "image:" k8s/prod/frontend-deployment.yaml
+
+                - task: AzureCLI@2
+                  displayName: "Apply Frontend Deployment (PROD)"
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az aks install-cli
+                      az aks get-credentials \
+                        --resource-group wackopscoach-prod-rg \
+                        --name wackopscoach-prod-aks \
+                        --overwrite-existing
+                      kubelogin convert-kubeconfig -l azurecli
+                      kubectl apply -f k8s/prod/frontend-deployment.yaml -n oluto
+                      kubectl rollout status deployment/oluto-frontend -n oluto --timeout=300s
+
+                - task: Bash@3
+                  displayName: "Verify PROD"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      echo "Verifying PROD at https://oluto.app"
+                      sleep 10
+                      curl -sf https://oluto.app/api/v1/health || exit 1
+                      echo "PROD deployment verified!"
