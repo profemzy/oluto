@@ -19,6 +19,7 @@ export { ThemeProvider, useTheme } from "./ThemeProvider";
 export type { Theme } from "./ThemeProvider";
 export { ThemeToggle } from "./ThemeToggle";
 export { ThemeLogo } from "./ThemeLogo";
+export { ReadOnlyBanner } from "./ui/ReadOnlyBanner";
 export { DataTable } from "./ui/DataTable";
 export type { DataTableColumn, DataTableAction, SortState, FilterState } from "./ui/DataTable";
 export { FilterBar, FilterPanel, FilterSelect } from "./ui/FilterBar";

@@ -47,7 +47,7 @@ Transition small business owners from reactive record-keeping to proactive finan
 | Framework      | Axum (Rust)                                         |
 | Database       | PostgreSQL, raw SQLx queries                        |
 | Cache          | Redis                                               |
-| Auth           | JWT (jsonwebtoken crate), Argon2                    |
+| Auth           | Keycloak OIDC (PKCE) + LedgerForge JWT validation   |
 | AI             | Fuelix (OpenAI-compatible) for CRA T2125 categories |
 | PDF Processing | Mistral Document AI OCR via Azure                   |
 | API Docs       | utoipa + Swagger UI                                 |
@@ -146,9 +146,9 @@ draft → posted → void
 | Page             | Path                         | Description                                           |
 | ---------------- | ---------------------------- | ----------------------------------------------------- |
 | Landing          | `/`                          | Marketing page with hero, features, CTA               |
-| Login            | `/auth/login`                | JWT authentication                                    |
-| Register         | `/auth/register`             | User registration                                     |
-| Forgot Password  | `/auth/forgot-password`      | Password reset                                        |
+| Login            | `/auth/login`                | Redirects to Keycloak OIDC login                      |
+| Register         | `/auth/register`             | Redirects to Keycloak registration                    |
+| Forgot Password  | `/auth/forgot-password`      | Redirects to Keycloak password reset                  |
 | Business Setup   | `/onboarding/setup-business` | Create business workspace                             |
 | Dashboard        | `/dashboard`                 | Safe-to-Spend, revenue/expenses, cashflow, overdue items |
 | Transactions     | `/transactions`              | List, filter, bulk status, inline status change       |
@@ -211,10 +211,12 @@ draft → posted → void
 ## API Endpoints (LedgerForge — 80+ total)
 
 ### Authentication
-- `POST /api/v1/auth/register` — User registration
-- `POST /api/v1/auth/login` — Login (form-urlencoded)
+- `POST /api/v1/auth/register` — User registration (legacy/direct API path)
+- `POST /api/v1/auth/login` — Login (`username` + `password`, legacy/direct API path)
 - `POST /api/v1/auth/refresh` — Refresh access token
 - `GET /api/v1/auth/me` — Current user profile
+
+> Note: the web app uses Keycloak OIDC for sign-in and does not submit local login/register forms directly to LedgerForge.
 
 ### Businesses
 - `POST /api/v1/businesses` — Create business

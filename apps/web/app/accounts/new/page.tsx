@@ -11,7 +11,7 @@ const ACCOUNT_TYPES = ["Asset", "Liability", "Equity", "Revenue", "Expense"] as 
 
 export default function NewAccountPage() {
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [existingAccounts, setExistingAccounts] = useState<Account[]>([]);
@@ -51,6 +51,11 @@ export default function NewAccountPage() {
   };
 
   if (authLoading) return <PageLoader />;
+
+  if (!canWrite) {
+    router.push("/accounts");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

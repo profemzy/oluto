@@ -16,7 +16,7 @@ export default function EditTransactionPage({
 }) {
   const { id: transactionId } = use(params);
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canWrite } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -206,6 +206,11 @@ export default function EditTransactionPage({
 
   if (authLoading || loading) {
     return <FormSkeleton title="Edit Transaction" fieldCount={6} showReceiptUpload />;
+  }
+
+  if (!canWrite) {
+    router.push("/transactions");
+    return null;
   }
 
   return (

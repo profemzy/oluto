@@ -87,7 +87,7 @@ function FileUploadArea({ label, fileKey, files, setFiles }: {
 }
 
 export default function QuickBooksImportPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canAdmin } = useAuth();
   const [step, setStep] = useState<Step>("upload");
   const [files, setFiles] = useState<Record<string, File>>({});
   const [loading, setLoading] = useState(false);
@@ -98,6 +98,10 @@ export default function QuickBooksImportPage() {
   const [importResult, setImportResult] = useState<QbImportConfirmResponse | null>(null);
 
   if (authLoading) return <PageLoader />;
+
+  if (!canAdmin) {
+    return null; // Only admins can import from QuickBooks
+  }
 
   const handleParse = async () => {
     if (!user?.business_id || Object.keys(files).length === 0) return;

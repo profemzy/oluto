@@ -9,7 +9,7 @@ import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, D
 import { formatCurrency, formatDate } from "@/app/lib/format";
 
 export default function PaymentsPage() {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
@@ -170,15 +170,17 @@ export default function PaymentsPage() {
           Customer payments received. Bill payments can be recorded from
           individual bill pages.
         </p>
-        <Link
-          href="/payments/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Record Payment
-        </Link>
+        {canWrite && (
+          <Link
+            href="/payments/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Record Payment
+          </Link>
+        )}
       </div>
 
       {/* Data Table */}
@@ -186,7 +188,7 @@ export default function PaymentsPage() {
         columns={columns}
         data={filteredPayments}
         keyExtractor={(pmt) => pmt.id}
-        actions={actions}
+        actions={canWrite ? actions : []}
         searchFields={["payment_number"]}
         searchPlaceholder="Search by payment number or customer..."
         searchQuery={searchQuery}
@@ -198,8 +200,8 @@ export default function PaymentsPage() {
         pageSize={25}
         emptyState={{
           title: "No payments yet",
-          description: "Record customer payments to track receivables.",
-          action: { label: "Record Payment", href: "/payments/new" },
+          description: canWrite ? "Record customer payments to track receivables." : "No payments have been recorded yet.",
+          action: canWrite ? { label: "Record Payment", href: "/payments/new" } : undefined,
         }}
         noResultsState={{
           title: "No payments match your search",

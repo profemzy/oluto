@@ -327,9 +327,13 @@ function NewBillPaymentForm() {
 }
 
 export default function NewBillPaymentPage() {
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, canWrite } = useAuth();
 
   if (authLoading) return <PageLoader />;
+
+  if (!canWrite) {
+    return null; // Viewers cannot record bill payments
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

@@ -73,7 +73,7 @@ export default function TransactionsPage() {
 }
 
 function TransactionsContent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canWrite, canAdmin } = useAuth();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get("status") || "";
@@ -458,56 +458,60 @@ function TransactionsContent() {
       <ErrorAlert error={error} className="mb-6" />
 
       {/* Action buttons */}
-      <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
-        {draftTransactions.length > 0 && (
-          <button
-            onClick={handlePostAllDrafts}
-            disabled={bulkPostMutation.isPending}
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+      {canWrite && (
+        <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
+          {draftTransactions.length > 0 && (
+            <button
+              onClick={handlePostAllDrafts}
+              disabled={bulkPostMutation.isPending}
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            >
+              {bulkPostMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Posting...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Post {draftTransactions.length} Draft{draftTransactions.length === 1 ? "" : "s"}
+                </>
+              )}
+            </button>
+          )}
+          <Link
+            href="/transactions/import"
+            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
           >
-            {bulkPostMutation.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Posting...
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Post {draftTransactions.length} Draft{draftTransactions.length === 1 ? "" : "s"}
-              </>
-            )}
-          </button>
-        )}
-        <Link
-          href="/transactions/import"
-          className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
-          Import Statements
-        </Link>
-        <Link
-          href="/transactions/import-quickbooks"
-          className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-          </svg>
-          QuickBooks Import
-        </Link>
-        <Link
-          href="/transactions/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Transaction
-        </Link>
-      </div>
+            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Import Statements
+          </Link>
+          {canAdmin && (
+            <Link
+              href="/transactions/import-quickbooks"
+              className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              QuickBooks Import
+            </Link>
+          )}
+          <Link
+            href="/transactions/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Transaction
+          </Link>
+        </div>
+      )}
 
       {/* Summary stats */}
       {filteredTransactions.length > 0 && (
@@ -620,19 +624,19 @@ function TransactionsContent() {
         columns={columns}
         data={filteredTransactions}
         keyExtractor={(txn) => txn.id}
-        actions={actions}
-        bulkActions={bulkActions}
+        actions={canWrite ? actions : []}
+        bulkActions={canWrite ? bulkActions : []}
         searchFields={["vendor_name", "description", "category"]}
         searchPlaceholder="Search by vendor, description, or category..."
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
         loading={loading}
-        enableRowSelection
+        enableRowSelection={canWrite}
         pageSize={25}
         emptyState={{
           title: "No transactions yet",
-          description: "Start by adding your first transaction.",
-          action: { label: "Add Transaction", href: "/transactions/new" },
+          description: canWrite ? "Start by adding your first transaction." : "No transactions have been recorded yet.",
+          action: canWrite ? { label: "Add Transaction", href: "/transactions/new" } : undefined,
         }}
         noResultsState={{
           title: "No transactions match your filters",

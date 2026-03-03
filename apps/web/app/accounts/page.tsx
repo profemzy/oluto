@@ -11,7 +11,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { ACCOUNT_TYPE_COLORS, ACCOUNT_TYPE_FILTERS } from "@/app/lib/status";
 
 export default function AccountsPage() {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -188,15 +188,17 @@ export default function AccountsPage() {
             </button>
           )}
         </div>
-        <Link
-          href="/accounts/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Account
-        </Link>
+        {canWrite && (
+          <Link
+            href="/accounts/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Account
+          </Link>
+        )}
       </div>
 
       {/* Data Table */}
@@ -204,7 +206,7 @@ export default function AccountsPage() {
         columns={columns}
         data={filteredAccounts}
         keyExtractor={(account) => account.id}
-        actions={actions}
+        actions={canWrite ? actions : []}
         searchFields={["name", "code"]}
         searchPlaceholder="Search by name or code..."
         searchQuery={searchQuery}
@@ -214,8 +216,8 @@ export default function AccountsPage() {
         rowClassName={(account) => (!account.is_active ? "opacity-50" : "")}
         emptyState={{
           title: "No accounts yet",
-          description: "Set up your chart of accounts to start tracking finances.",
-          action: { label: "Add Account", href: "/accounts/new" },
+          description: canWrite ? "Set up your chart of accounts to start tracking finances." : "No accounts have been set up yet.",
+          action: canWrite ? { label: "Add Account", href: "/accounts/new" } : undefined,
         }}
         noResultsState={{
           title: "No accounts match your search",

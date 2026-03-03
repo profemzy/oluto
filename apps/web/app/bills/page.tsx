@@ -11,7 +11,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { BILL_STATUS_COLORS, BILL_STATUS_OPTIONS } from "@/app/lib/status";
 
 export default function BillsPage() {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -254,15 +254,17 @@ export default function BillsPage() {
             </button>
           )}
         </div>
-        <Link
-          href="/bills/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Bill
-        </Link>
+        {canWrite && (
+          <Link
+            href="/bills/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Bill
+          </Link>
+        )}
       </div>
 
       {/* Data Table */}
@@ -270,7 +272,7 @@ export default function BillsPage() {
         columns={columns}
         data={filteredBills}
         keyExtractor={(bill) => bill.id}
-        actions={actions}
+        actions={canWrite ? actions : []}
         searchFields={["bill_number"]}
         searchPlaceholder="Search by bill number or vendor..."
         searchQuery={searchQuery}
@@ -282,8 +284,8 @@ export default function BillsPage() {
         pageSize={25}
         emptyState={{
           title: "No bills yet",
-          description: "Record bills from your vendors to track payables.",
-          action: { label: "New Bill", href: "/bills/new" },
+          description: canWrite ? "Record bills from your vendors to track payables." : "No bills have been recorded yet.",
+          action: canWrite ? { label: "New Bill", href: "/bills/new" } : undefined,
         }}
         noResultsState={{
           title: "No bills match your search",

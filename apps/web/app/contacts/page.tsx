@@ -11,7 +11,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { CONTACT_TYPE_COLORS, CONTACT_TYPE_FILTERS } from "@/app/lib/status";
 
 export default function ContactsPage() {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -176,15 +176,17 @@ export default function ContactsPage() {
             </button>
           )}
         </div>
-        <Link
-          href="/contacts/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Contact
-        </Link>
+        {canWrite && (
+          <Link
+            href="/contacts/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Contact
+          </Link>
+        )}
       </div>
 
       {/* Data Table */}
@@ -192,7 +194,7 @@ export default function ContactsPage() {
         columns={columns}
         data={filteredContacts}
         keyExtractor={(contact) => contact.id}
-        actions={actions}
+        actions={canWrite ? actions : []}
         searchFields={["name", "email", "phone"]}
         searchPlaceholder="Search by name, email, or phone..."
         searchQuery={searchQuery}
@@ -201,8 +203,8 @@ export default function ContactsPage() {
         pageSize={25}
         emptyState={{
           title: "No contacts yet",
-          description: "Add customers, vendors, or employees.",
-          action: { label: "Add Contact", href: "/contacts/new" },
+          description: canWrite ? "Add customers, vendors, or employees." : "No contacts have been added yet.",
+          action: canWrite ? { label: "Add Contact", href: "/contacts/new" } : undefined,
         }}
         noResultsState={{
           title: "No contacts match your search",

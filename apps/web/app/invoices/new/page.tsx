@@ -38,7 +38,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewInvoicePage() {
   const router = useRouter();
-  const { loading: authLoading, user, timezone } = useAuth();
+  const { loading: authLoading, user, timezone, canWrite } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -159,6 +159,11 @@ export default function NewInvoicePage() {
   };
 
   if (authLoading || dataLoading) return <FormSkeleton title="New Invoice" fieldCount={5} />;
+
+  if (!canWrite) {
+    router.push("/invoices");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

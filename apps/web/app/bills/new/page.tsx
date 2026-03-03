@@ -23,7 +23,7 @@ const emptyLine = (): LineItemRow => ({
 
 export default function NewBillPage() {
   const router = useRouter();
-  const { loading: authLoading, user, timezone } = useAuth();
+  const { loading: authLoading, user, timezone, canWrite } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -185,6 +185,11 @@ export default function NewBillPage() {
   };
 
   if (authLoading || dataLoading) return <FormSkeleton title="New Bill" fieldCount={5} showReceiptUpload />;
+
+  if (!canWrite) {
+    router.push("/bills");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

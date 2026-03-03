@@ -9,7 +9,7 @@ import { CompactFormSkeleton, PageHeader, ErrorAlert } from "@/app/components";
 
 export default function NewContactPage() {
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,6 +43,11 @@ export default function NewContactPage() {
   };
 
   if (authLoading) return <CompactFormSkeleton fieldCount={4} />;
+
+  if (!canWrite) {
+    router.push("/contacts");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

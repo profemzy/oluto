@@ -18,7 +18,7 @@ import { CRA_CATEGORIES, CLASSIFICATION_OPTIONS } from "@/app/lib/constants";
 type ImportStep = "upload" | "processing" | "preview" | "success";
 
 export default function ImportTransactionsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<ImportStep>("upload");
   const [error, setError] = useState("");
@@ -282,6 +282,10 @@ export default function ImportTransactionsPage() {
 
   if (authLoading) {
     return <PageLoader />;
+  }
+
+  if (!canWrite) {
+    return null; // Viewers redirected via list page — no direct access to import
   }
 
   return (

@@ -14,7 +14,7 @@ export default function EditAccountPage({
 }) {
   const { id: accountId } = use(params);
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -65,6 +65,11 @@ export default function EditAccountPage({
   };
 
   if (authLoading || loading) return <PageLoader />;
+
+  if (!canWrite) {
+    router.push("/accounts");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">

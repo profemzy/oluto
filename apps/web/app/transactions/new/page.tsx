@@ -12,7 +12,7 @@ import { todayInTimezone } from "@/app/lib/format";
 
 export default function NewTransactionPage() {
   const router = useRouter();
-  const { user, loading: authLoading, timezone } = useAuth();
+  const { user, loading: authLoading, timezone, canWrite } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -176,6 +176,11 @@ export default function NewTransactionPage() {
 
   if (authLoading) {
     return <FormSkeleton title="Add Transaction" fieldCount={6} showReceiptUpload />;
+  }
+
+  if (!canWrite) {
+    router.push("/transactions");
+    return null;
   }
 
   return (

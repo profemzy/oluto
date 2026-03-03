@@ -13,7 +13,7 @@ import {
 } from "@/app/lib/status";
 
 export default function InvoicesPage() {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -232,15 +232,17 @@ export default function InvoicesPage() {
             </button>
           )}
         </div>
-        <Link
-          href="/invoices/new"
-          className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Invoice
-        </Link>
+        {canWrite && (
+          <Link
+            href="/invoices/new"
+            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Invoice
+          </Link>
+        )}
       </div>
 
       {/* Data Table */}
@@ -248,7 +250,7 @@ export default function InvoicesPage() {
         columns={columns}
         data={filteredInvoices}
         keyExtractor={(invoice) => invoice.id}
-        actions={actions}
+        actions={canWrite ? actions : []}
         searchFields={["invoice_number"]}
         searchPlaceholder="Search by invoice number..."
         searchQuery={searchQuery}
@@ -261,7 +263,7 @@ export default function InvoicesPage() {
         emptyState={{
           title: "No invoices yet",
           description: "Create your first invoice to start tracking receivables.",
-          action: { label: "New Invoice", href: "/invoices/new" },
+          action: canWrite ? { label: "New Invoice", href: "/invoices/new" } : undefined,
         }}
         noResultsState={{
           title: "No invoices match your search",

@@ -43,7 +43,7 @@ function invalidateAll(queryClient: ReturnType<typeof useQueryClient>) {
 }
 
 export default function ReconciliationPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const businessId = user?.business_id;
 
@@ -237,6 +237,19 @@ export default function ReconciliationPage() {
     authLoading || summaryLoading || suggestionsLoading || unreconciledLoading;
   if (loadingState) {
     return <ListSkeleton title="Reconciliation" rowCount={8} />;
+  }
+
+  if (!canWrite) {
+    return (
+      <ListPageLayout
+        title="Bank Reconciliation"
+        subtitle="View-only — your role does not allow reconciliation"
+      >
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+          <span><strong>View-only mode</strong> — your role does not allow you to reconcile transactions. Contact your administrator to upgrade your permissions.</span>
+        </div>
+      </ListPageLayout>
+    );
   }
 
   return (
