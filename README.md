@@ -144,8 +144,9 @@ oluto/
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string |
-| `JWT_SECRET` | JWT signing key |
 | `REDIS_URL` | Redis connection string |
+| `KEYCLOAK_URL` | Keycloak server URL (e.g. `http://keycloak:8080`) |
+| `KEYCLOAK_REALM` | Keycloak realm name (default: `oluto`) |
 | `FUELIX_API_KEY` | AI categorization API key (optional) |
 | `AZURE_API_KEY` | Azure OCR API key for PDF import (optional) |
 

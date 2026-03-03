@@ -32,11 +32,6 @@ spec:
                 secretKeyRef:
                   name: oluto-secret
                   key: DATABASE_URL
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: JWT_SECRET
             - name: REDIS_URL
               value: "redis://redis:6379"
             - name: FUELIX_API_KEY

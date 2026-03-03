@@ -347,7 +347,6 @@ Two independent pipelines:
 | Key Vault Secret        | K8s Env Var       | Used By |
 | ----------------------- | ----------------- | ------- |
 | `oluto-database-url`    | `DATABASE_URL`    | Backend |
-| `oluto-jwt-secret`      | `JWT_SECRET`      | Backend |
 | `oluto-fuelix-api-key`  | `FUELIX_API_KEY`  | Backend |
 | `oluto-fuelix-base-url` | `FUELIX_BASE_URL` | Backend |
 | `oluto-fuelix-model`    | `FUELIX_MODEL`    | Backend |
