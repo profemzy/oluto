@@ -2,6 +2,9 @@
 # ZeroClaw Agent Gateway — Rust/Axum (DEV)
 # Runs with --target dev Docker stage (skills baked into image).
 # Image is built and pushed by the ZeroClaw CI pipeline.
+#
+# Config loaded from zeroclaw-config ConfigMap (config.toml + oluto-config.json).
+# API key injected via ZEROCLAW_API_KEY env var from zeroclaw-secrets secret.
 # =============================================================================
 apiVersion: apps/v1
 kind: Deployment
@@ -27,38 +30,35 @@ spec:
           image: wackopscoachdevacr.azurecr.io/oluto-agent:latest
           imagePullPolicy: Always
           env:
+            - name: HOME
+              value: "/zeroclaw-data"
+            - name: ZEROCLAW_WORKSPACE
+              value: "/zeroclaw-data/workspace"
             - name: ZEROCLAW_GATEWAY_PORT
               value: "18790"
-            - name: PROVIDER
-              value: "fuelix"
-            - name: API_KEY
+            - name: ZEROCLAW_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: oluto-secret
-                  key: FUELIX_API_KEY
-            - name: API_BASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: FUELIX_BASE_URL
+                  name: zeroclaw-secrets
+                  key: api-key
             - name: ZEROCLAW_MODEL
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
                   key: ZEROCLAW_FUELIX_MODEL
-            - name: KEYCLOAK_URL
-              value: "https://auth.dev.oluto.app"
-            - name: KEYCLOAK_REALM
-              value: "oluto"
-            - name: KEYCLOAK_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: oluto-secret
-                  key: KEYCLOAK_CLIENT_SECRET
             - name: OLUTO_API_BASE_URL
               value: "http://oluto-backend"
             - name: RUST_LOG
               value: "info"
+          volumeMounts:
+            - name: zeroclaw-config
+              mountPath: /zeroclaw-data/.zeroclaw/config.toml
+              subPath: config.toml
+              readOnly: true
+            - name: zeroclaw-config
+              mountPath: /zeroclaw-data/.oluto-config.json
+              subPath: oluto-config.json
+              readOnly: true
           ports:
             - containerPort: 18790
               name: http
@@ -83,3 +83,7 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+      volumes:
+        - name: zeroclaw-config
+          configMap:
+            name: zeroclaw-config
