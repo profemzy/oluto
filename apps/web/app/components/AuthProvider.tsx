@@ -93,8 +93,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    getUserManager().signoutRedirect().catch((err) => {
+    const um = getUserManager();
+    um.signoutRedirect().catch((err) => {
       console.error("signoutRedirect failed:", err);
+      // If Keycloak is unreachable, clear local session so the user isn't stuck
+      um.removeUser().then(() => {
+        setUser(null);
+        window.location.href = "/";
+      });
     });
   }, []);
 
