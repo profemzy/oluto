@@ -22,6 +22,9 @@ data:
       "accessTokenLifespan": 1800,
       "ssoSessionIdleTimeout": 3600,
       "ssoSessionMaxLifespan": 36000,
+      "attributes": {
+        "userProfileEnabled": "true"
+      },
       "roles": {
         "realm": [
           {
