@@ -139,19 +139,22 @@ k8s/                           # Kubernetes manifests
     keycloak-realm-configmap.yaml  # Realm import JSON
     keycloak-theme-configmap.yaml  # Theme files (flat keys → initContainer)
     keycloak-ingress.yaml      # auth.dev.oluto.app
-    agent-ingress.yaml         # /agent/* ingress with 180s timeout (agent deployment managed by ZeroClaw CI/CD)
+    agent-deployment.yaml      # ZeroClaw agent (mounts zeroclaw-config ConfigMap)
+    agent-ingress.yaml         # /agent/* ingress with 180s timeout
     services.yaml              # Backend + frontend + agent + keycloak ClusterIP services
     ingress.yaml               # dev.oluto.app (path-based routing)
   prod/                        # PROD environment (same layout, 2 replicas)
   external-secrets/
     dev/
       external-secret.yaml    # Maps Azure Key Vault → K8s oluto-secret
-      # ZeroClaw agent config is managed by ZeroClaw CI/CD pipeline (zeroclaw/azure-pipelines/ci-cd.yml)
     prod/                      # Same layout as dev
 
 azure-pipelines/               # Azure DevOps CI/CD
-  01-app-ci.yml                # Build & push frontend image to DEV ACR
-  02-app-cd.yml                # Deploy DEV → (approve) → PROD
+  ci-frontend.yml              # Frontend-CI: Build & push frontend image to DEV ACR
+  cd-frontend-dev.yml          # Frontend-CD-DEV: Deploy frontend to DEV
+  cd-frontend-prod.yml         # Frontend-CD-PROD: Rebuild with PROD Keycloak URL + deploy
+  cd-infra-dev.yml             # Infra-CD-DEV: Deploy shared infra (namespace, redis, keycloak, ingress, external-secrets)
+  cd-infra-prod.yml            # Infra-CD-PROD: Deploy shared infra to PROD
   03-secrets-setup.yml         # One-time Key Vault secret population
 ```
 
@@ -176,15 +179,24 @@ azure-pipelines/               # Azure DevOps CI/CD
 
 ### CI/CD Pipelines
 
+Each service has separate CI, CD-DEV, and CD-PROD pipelines. PROD deploys are manual-trigger only.
+
 | Pipeline | Repo | Trigger | Purpose |
 |----------|------|---------|---------|
-| `01-app-ci.yml` | Oluto | Push to `apps/**`, `packages/**`, `keycloak/**`, `k8s/**` | Build & push frontend image to DEV ACR (with Keycloak build args) |
-| `02-app-cd.yml` | Oluto | CI success or manual | Deploy K8s manifests (frontend, Keycloak, infra, secrets). Agent managed by ZeroClaw CI/CD. |
-| `01-ci.yml` | LedgerForge | Push to `src/**`, `migrations/**`, `Cargo.*` | Build & push backend image to DEV ACR |
-| `02-cd.yml` | LedgerForge | CI success or manual | Update backend image on AKS, promote DEV → PROD |
+| `ci-frontend.yml` | Oluto | Push to `apps/**`, `packages/**`, `package.json` | Build frontend image → DEV ACR (tag `$BUILD_ID`) |
+| `cd-frontend-dev.yml` | Oluto | Frontend-CI completion or manual | Apply `frontend-deployment.yaml` to DEV |
+| `cd-frontend-prod.yml` | Oluto | Manual (`imageTag` param) | Rebuild with PROD Keycloak URL → PROD ACR → deploy |
+| `cd-infra-dev.yml` | Oluto | Push to `k8s/dev/**`, `k8s/external-secrets/dev/**`, `keycloak/**` | Apply shared infra (namespace, redis, keycloak, ingress, external-secrets) to DEV |
+| `cd-infra-prod.yml` | Oluto | Push to `k8s/prod/**`, `k8s/external-secrets/prod/**` | Apply shared infra to PROD (requires `prod` env approval) |
+| `ci.yml` | LedgerForge | Push to `src/**`, `tests/**`, `migrations/**`, `Cargo.*`, `Dockerfile` | Test + build backend image → DEV ACR |
+| `cd-dev.yml` | LedgerForge | LedgerForge-CI completion or manual | Apply `backend-deployment.yaml` to DEV |
+| `cd-prod.yml` | LedgerForge | Manual (`imageTag` param) | Promote image DEV→PROD ACR, apply to PROD |
+| `ci.yml` | ZeroClaw | Push to `src/**`, `crates/**`, `skills/**`, `Cargo.*`, `Dockerfile`, `dev/**` | Build agent image (`--target dev`) → DEV ACR |
+| `cd-dev.yml` | ZeroClaw | ZeroClaw-CI completion or manual | Apply `agent-deployment.yaml` to DEV |
+| `cd-prod.yml` | ZeroClaw | Manual (`imageTag` param) | Promote image DEV→PROD ACR, apply to PROD |
 | `03-secrets-setup.yml` | Oluto | Manual | One-time Key Vault population |
 
-**CD flow:** Oluto CI builds frontend with DEV Keycloak URL (`auth.dev.oluto.app`) and pushes to DEV ACR. The CD pipeline deploys to DEV, then **rebuilds** the frontend with PROD Keycloak URL (`auth.oluto.app`) for PROD (cannot promote DEV image because `NEXT_PUBLIC_*` vars are baked at build time). LedgerForge CI/CD manages the backend independently.
+**CD flow:** CI builds push to DEV ACR with `$(Build.BuildId)` tag (no `latest`). CD-DEV auto-triggers and seds the tag into the deployment manifest before `kubectl apply`. For PROD, operator manually triggers CD-PROD with a verified build ID. Frontend PROD must rebuild (not promote) because `NEXT_PUBLIC_*` vars are baked at build time. Backend and agent PROD use `az acr import` to promote the same binary.
 
 ### Terraform (separate repo: `infotitans-azure/terraform/oluto/`)
 
