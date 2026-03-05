@@ -184,7 +184,7 @@ draft → posted → void
 
 ### Key Frontend Patterns
 
-- **`lib/api.ts`** — centralized API client (1,620 lines) with 100+ endpoints, 35+ TypeScript interfaces
+- **`lib/api.ts`** — centralized API client (1,600+ lines) with 100+ endpoints, 35+ TypeScript interfaces
 - **`hooks/useAuth.ts`** — authentication check + redirect for protected pages
 - **`hooks/useDataTable.ts`** — data table state management (sorting, filtering, pagination)
 - **`components/ui/`** — shared components: `ErrorAlert`, `PageLoader`, `PageHeader`, `ListPageLayout`, `ErrorBoundary`, `Toast`, `ReceiptUploadSection`, `BillReceiptSection`
