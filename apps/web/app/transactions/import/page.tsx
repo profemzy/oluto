@@ -542,7 +542,7 @@ export default function ImportTransactionsPage() {
                   </span>
                   {parseResult.statement_period && (
                     <span className="text-sm text-muted">
-                      {parseResult.statement_period}
+                      {parseResult.statement_period.start} - {parseResult.statement_period.end}
                     </span>
                   )}
                   {parseResult.account_info && (

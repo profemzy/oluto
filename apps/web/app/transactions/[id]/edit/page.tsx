@@ -34,7 +34,7 @@ export default function EditTransactionPage({
   const [aiSuggestion, setAiSuggestion] = useState<{
     category: string;
     confidence: number;
-    reasoning: string | null;
+    reasoning?: string;
   } | null>(null);
   const [suggestingCategory, setSuggestingCategory] = useState(false);
   const manualCategoryRef = useRef(false);

@@ -153,10 +153,14 @@ export interface ParsedTransaction {
 export interface ImportParseResponse {
   transactions: ParsedTransaction[];
   duplicates: number[];
+  duplicate_count?: number;  // For backward compatibility
   warnings: string[];
+  parse_warnings?: string[];  // For backward compatibility
   file_type?: string;  // For backward compatibility
   file_name?: string;  // For backward compatibility
   statement_period?: { start: string; end: string };  // For backward compatibility
+  account_info?: string;  // For backward compatibility
+  total_count?: number;  // For backward compatibility
 }
 
 export interface AsyncJobCreateResponse {
@@ -642,6 +646,9 @@ export interface QbParsedAccount {
   conflict?: string;  // For backward compatibility
   mapped_type?: string;  // For backward compatibility
   suggested_code?: string;  // For backward compatibility
+  existing_account_id?: string;  // For backward compatibility
+  existing_account_name?: string;  // For backward compatibility
+  match_type?: string;  // For backward compatibility
 }
 
 export interface QbParsedContact {
