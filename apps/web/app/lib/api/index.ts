@@ -28,9 +28,9 @@ import { ReconciliationApi } from './reconciliation';
 import { ChatApi } from './chat';
 import { QuickBooksApi } from './quickbooks';
 
-// Re-export all types
+// Re-export all types (excluding duplicates)
 export * from './types';
-export * from './client';
+export { ApiClient, ApiError, NetworkError } from './client';
 
 // Re-export domain APIs
 export {

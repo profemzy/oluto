@@ -12,7 +12,7 @@ import type {
 
 export class InvoicesApi extends ApiClient {
   async listInvoices(businessId: string, params?: InvoiceListParams): Promise<Invoice[]> {
-    const qs = this.buildQueryString(params ?? {});
+    const qs = this.buildQueryString(params as Record<string, unknown> ?? {});
     return this.request<Invoice[]>(`/businesses/${businessId}/invoices${qs}`);
   }
 

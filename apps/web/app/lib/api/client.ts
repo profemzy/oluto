@@ -45,7 +45,7 @@ export class ApiClient {
     this.tokenProvider = provider;
   }
 
-  private async getAuthHeaders(): Promise<Record<string, string>> {
+  protected async getAuthHeaders(): Promise<Record<string, string>> {
     if (this.tokenProvider) {
       const token = await this.tokenProvider();
       if (token) {

@@ -13,7 +13,7 @@ import type {
 
 export class BillsApi extends ApiClient {
   async listBills(businessId: string, params?: BillListParams): Promise<Bill[]> {
-    const qs = this.buildQueryString(params ?? {});
+    const qs = this.buildQueryString(params as Record<string, unknown> ?? {});
     return this.request<Bill[]>(`/businesses/${businessId}/bills${qs}`);
   }
 

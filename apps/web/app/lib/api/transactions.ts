@@ -28,7 +28,7 @@ export class TransactionsApi extends ApiClient {
   }
 
   async listTransactions(businessId: string, params?: TransactionListParams): Promise<Transaction[]> {
-    const qs = this.buildQueryString(params ?? {});
+    const qs = this.buildQueryString(params as Record<string, unknown> ?? {});
     return this.request<Transaction[]>(`/businesses/${businessId}/transactions${qs}`);
   }
 

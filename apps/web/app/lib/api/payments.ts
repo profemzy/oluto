@@ -13,7 +13,7 @@ import type {
 
 export class PaymentsApi extends ApiClient {
   async listPayments(businessId: string, params?: PaymentListParams): Promise<Payment[]> {
-    const qs = this.buildQueryString(params ?? {});
+    const qs = this.buildQueryString(params as Record<string, unknown> ?? {});
     return this.request<Payment[]>(`/businesses/${businessId}/payments${qs}`);
   }
 

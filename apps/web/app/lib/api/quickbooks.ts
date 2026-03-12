@@ -35,4 +35,13 @@ export class QuickBooksApi extends ApiClient {
       }
     );
   }
+
+  // Alias for backward compatibility
+  async parseImport(businessId: string, files: Record<string, File>): Promise<QbImportParseResponse> {
+    return this.parseQuickBooksImport(businessId, files);
+  }
+
+  async confirmImport(businessId: string, data: QbImportConfirmRequest): Promise<QbImportConfirmResponse> {
+    return this.confirmQuickBooksImport(businessId, data);
+  }
 }
