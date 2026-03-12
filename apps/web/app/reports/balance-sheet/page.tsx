@@ -68,7 +68,7 @@ export default function BalanceSheetPage() {
       loading={loading}
       error={error}
       onGenerate={onGenerate}
-      dateFields={[{ label: "As of Date", value: asOfDate, onChange: setAsOfDate }]}
+      dateFields={[{ label: "As of Date", value: asOfDate || "", onChange: setAsOfDate }]}
     >
       {() =>
         report ? (

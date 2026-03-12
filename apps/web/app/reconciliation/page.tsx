@@ -292,7 +292,7 @@ export default function ReconciliationPage() {
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-sm font-bold text-heading">{group.vendor_name}</span>
                     <span className="text-xs text-muted">{formatDate(group.transaction_date)}</span>
-                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{formatCurrency(group.amount)}</span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{formatCurrency(group.amount || "0")}</span>
                     <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
                       {group.count} entries
                     </span>
