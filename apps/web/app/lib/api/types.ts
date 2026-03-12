@@ -248,6 +248,7 @@ export interface Account {
   code?: string;
   description?: string;
   is_active: boolean;
+  parent_account_id?: string;
   created_at: string | null;
   updated_at: string | null;
 }
