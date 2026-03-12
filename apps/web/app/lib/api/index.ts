@@ -109,3 +109,29 @@ export const api = new UnifiedApiClient(API_BASE_URL);
 // These will be removed in a future version
 export { ApiClient };
 export default api;
+
+/**
+ * Compute aging totals from AR aging report
+ */
+export function computeAgingTotals(aging: AccountsReceivableAging): {
+  current: number;
+  days_1_30: number;
+  days_31_60: number;
+  days_61_90: number;
+  days_91_plus: number;
+  total: number;
+} {
+  const totals = aging.customers.reduce(
+    (acc, customer) => ({
+      current: acc.current + parseFloat(customer.current) || 0,
+      days_1_30: acc.days_1_30 + (parseFloat(customer.days_30) || 0),
+      days_31_60: acc.days_31_60 + (parseFloat(customer.days_60) || 0),
+      days_61_90: acc.days_61_90 + (parseFloat(customer.days_90) || 0),
+      days_91_plus: acc.days_91_plus,
+      total: acc.total + (parseFloat(customer.total) || 0),
+    }),
+    { current: 0, days_1_30: 0, days_31_60: 0, days_61_90: 0, days_91_plus: 0, total: 0 }
+  );
+
+  return totals;
+}
