@@ -23,7 +23,7 @@ export default function AccountsPage() {
     setFilter: setTypeFilter,
   } = useDataTable<Account>({
     queryKey: ["accounts", user?.business_id],
-    queryFn: () => api.listAccounts(user.business_id!),
+    queryFn: () => api.listAccounts(user?.business_id!),
     filterParam: "type",
     defaultFilter: "",
     enabled: !authLoading && !!user?.business_id,
@@ -68,7 +68,7 @@ export default function AccountsPage() {
         width: "100px",
         sortable: true,
         render: (account) => (
-          <span className="text-sm font-mono font-bold text-heading">{account.code}</span>
+          <span className="text-sm font-mono font-bold text-heading">{account.code || "—"}</span>
         ),
       },
       {

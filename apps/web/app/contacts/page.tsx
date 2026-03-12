@@ -81,10 +81,10 @@ export default function ContactsPage() {
         render: (contact) => (
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset ${
-              CONTACT_TYPE_COLORS[contact.contact_type] || "bg-surface-tertiary text-body"
+              CONTACT_TYPE_COLORS[contact.contact_type || "Customer"] || "bg-surface-tertiary text-body"
             }`}
           >
-            {contact.contact_type}
+            {contact.contact_type || "Customer"}
           </span>
         ),
       },

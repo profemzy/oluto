@@ -56,7 +56,7 @@ export default function BalanceSheetPage() {
 
   // Check balance: Assets = Liabilities + Equity
   const isBalanced = report
-    ? Math.abs(parseFloat(report.total_assets) - parseFloat(report.total_liabilities) - parseFloat(report.total_equity)) < 0.01
+    ? Math.abs(parseFloat(report.total_assets || "0") - parseFloat(report.total_liabilities || "0") - parseFloat(report.total_equity || "0")) < 0.01
     : true;
 
   return (
