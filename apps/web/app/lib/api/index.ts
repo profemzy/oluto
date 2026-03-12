@@ -199,7 +199,7 @@ export default api;
 /**
  * Compute aging totals from AR aging report
  */
-export function computeAgingTotals(aging: AccountsReceivableAging): {
+export function computeAgingTotals(aging: AccountsReceivableAging | undefined): {
   current: number;
   days_1_30: number;
   days_31_60: number;
@@ -207,6 +207,10 @@ export function computeAgingTotals(aging: AccountsReceivableAging): {
   days_91_plus: number;
   total: number;
 } {
+  if (!aging || !aging.customers || !Array.isArray(aging.customers)) {
+    return { current: 0, days_1_30: 0, days_31_60: 0, days_61_90: 0, days_91_plus: 0, total: 0 };
+  }
+
   const totals = aging.customers.reduce(
     (acc, customer) => ({
       current: acc.current + parseFloat(customer.current) || 0,
