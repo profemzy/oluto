@@ -17,10 +17,11 @@ export default function ContactsPage() {
 
   const listContacts = (params?: Record<string, string>) => {
     const type = params?.type;
-    if (type === "Customer") return api.getCustomers(user.business_id!);
-    if (type === "Vendor") return api.getVendors(user.business_id!);
-    if (type === "Employee") return api.getEmployees(user.business_id!);
-    return api.listContacts(user.business_id!);
+    if (!user?.business_id) return Promise.resolve([]);
+    if (type === "Customer") return api.getCustomers(user.business_id);
+    if (type === "Vendor") return api.getVendors(user.business_id);
+    if (type === "Employee") return api.getEmployees(user.business_id);
+    return api.listContacts(user.business_id);
   };
 
   const {
@@ -39,7 +40,7 @@ export default function ContactsPage() {
 
   // Filter contacts based on search
   const filteredContacts = useMemo(() => {
-    if (!searchQuery) return contacts;
+    if (!searchQuery || !contacts) return contacts || [];
     const q = searchQuery.toLowerCase();
     return contacts.filter(
       (c) =>
@@ -50,7 +51,7 @@ export default function ContactsPage() {
   }, [contacts, searchQuery]);
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteContact(user.business_id!, id),
+    mutationFn: (id: string) => api.deleteContact(user!.business_id!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       toastSuccess("Contact deleted");

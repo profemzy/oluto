@@ -25,8 +25,14 @@ export default function NewContactPage() {
     setError("");
     setLoading(true);
 
+    if (!user?.business_id) {
+      setError("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await api.createContact(user.business_id!, {
+      await api.createContact(user.business_id, {
         contact_type: contactType,
         name,
         email: email || undefined,

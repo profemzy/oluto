@@ -51,8 +51,14 @@ export default function EditContactPage({
     setError("");
     setSaving(true);
 
+    if (!user?.business_id) {
+      setError("User not authenticated");
+      setSaving(false);
+      return;
+    }
+
     try {
-      await api.updateContact(user.business_id!, contactId, {
+      await api.updateContact(user.business_id, contactId, {
         name,
         email: email || undefined,
         phone: phone || undefined,
