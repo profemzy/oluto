@@ -127,9 +127,10 @@ export default function ReconciliationPage() {
     mutationFn: () => api.autoReconcile(businessId!, 0.9),
     onSuccess: (result) => {
       invalidateAll(queryClient);
-      if (result.suggestions_found > 0) {
+      const suggestionsCount = result.suggestions_found || 0;
+      if (suggestionsCount > 0) {
         toastSuccess(
-          `Found ${result.suggestions_found} match suggestion${result.suggestions_found === 1 ? "" : "s"}`,
+          `Found ${suggestionsCount} match suggestion${suggestionsCount === 1 ? "" : "s"}`,
         );
       } else {
         toastError("No high-confidence matches found");
@@ -327,10 +328,10 @@ export default function ReconciliationPage() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <SummaryCard label="Total" value={summary.total_transactions} color="gray" />
-          <SummaryCard label="Reconciled" value={summary.reconciled} color="emerald" />
-          <SummaryCard label="Unreconciled" value={summary.unreconciled} color="amber" />
-          <SummaryCard label="Suggestions" value={summary.suggested_matches} color="cyan" />
+          <SummaryCard label="Total" value={summary.total_transactions || 0} color="gray" />
+          <SummaryCard label="Reconciled" value={summary.reconciled || 0} color="emerald" />
+          <SummaryCard label="Unreconciled" value={summary.unreconciled || 0} color="amber" />
+          <SummaryCard label="Suggestions" value={summary.suggested_matches || 0} color="cyan" />
         </div>
       )}
 
@@ -560,7 +561,7 @@ export default function ReconciliationPage() {
       )}
 
       {/* Reconciled Transactions (collapsible) */}
-      {summary && summary.reconciled > 0 && (
+      {summary && (summary.reconciled || 0) > 0 && (
         <div className="mb-8">
           <button
             onClick={() => setShowReconciled(!showReconciled)}
@@ -641,8 +642,8 @@ export default function ReconciliationPage() {
       {suggestions.length === 0 &&
         unreconciledOnly.length === 0 &&
         summary &&
-        summary.total_transactions > 0 &&
-        summary.unreconciled === 0 && (
+        (summary.total_transactions || 0) > 0 &&
+        (summary.unreconciled || 0) === 0 && (
           <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
             <div className="mx-auto h-16 w-16 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center mb-4">
               <svg className="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
