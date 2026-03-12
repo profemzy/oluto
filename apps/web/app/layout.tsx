@@ -150,12 +150,7 @@ export default async function RootLayout({
     >
       <head>
         {/* Theme initialization script - prevents flash of wrong theme */}
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('oluto-theme');var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(d)document.documentElement.classList.add('dark')}catch(e){}})();`,
-          }}
-        />
+        <script src="/init-theme.js" nonce={nonce} />
         {/* Preconnect to API domain for faster requests */}
         <link
           rel="preconnect"

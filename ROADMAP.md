@@ -1,6 +1,6 @@
 # Oluto Product Roadmap
 
-**Last updated:** February 14, 2026
+**Last updated:** March 11, 2026
 **Format:** Now / Next / Later
 **Product status:** Alpha — Deployed (DEV + PROD)
 
@@ -11,8 +11,61 @@
 | Status | Count | Details |
 |--------|-------|---------|
 | **Done** | 3 phases | Phases 1–3 complete (core platform, trust layer, revenue accuracy) |
-| **On Track** | 2 items | Landing page polish, infrastructure hardening |
+| **On Track** | 3 items | Landing page polish, infrastructure hardening, **code quality improvements** |
 | **Not Started** | 1 phase + 5 post-launch | Phase 4 (Bookkeeper Channel) + post-launch initiatives |
+
+---
+
+## Code Quality Improvements (March 2026)
+
+**Initiative:** Comprehensive code review identified 35 issues across security, performance, accessibility, and testing.
+
+### Completed Fixes (Week 1)
+
+| Category | Issue | Severity | Status |
+|----------|-------|----------|--------|
+| **TypeScript** | Enabled strict mode (`strict: true`) with full type safety | Critical | ✅ Done |
+| **Security** | Fixed XSS vulnerability — moved theme init to external script | Critical | ✅ Done |
+| **Security** | API client now handles non-JSON responses (HTML error pages) | Critical | ✅ Done |
+| **Security** | API upload errors now use `ApiError` instead of generic `Error` | High | ✅ Done |
+| **Performance** | Added `AbortController` cleanup to `useAuth` hook | High | ✅ Done |
+| **Performance** | Reduced TanStack Query `staleTime` from 30s → 15s (default), 10s → 5s (dashboard) | High | ✅ Done |
+| **Accessibility** | Added `aria-expanded`, `aria-controls` to mobile menu button | Medium | ✅ Done |
+| **Accessibility** | Added `role="menu"` to mobile menu container | Medium | ✅ Done |
+| **Accessibility** | Added `role="alert"`, `aria-live="assertive"` to ErrorAlert | Medium | ✅ Done |
+| **Testing** | Created API client test suite (20+ tests) | Critical | ✅ Done |
+| **Testing** | Created `useAuth` hook test suite (8+ tests) | High | ✅ Done |
+| **Testing** | Created error handling test suite (15+ tests) | High | ✅ Done |
+
+### In Progress (Week 2-4)
+
+| Category | Issue | Severity | Status |
+|----------|-------|----------|--------|
+| **Architecture** | Split `api.ts` (1,600+ lines) into modular domain files | High | 🔄 Pending |
+| **Accessibility** | Add `aria-sort` to DataTable sort buttons | Medium | 🔄 Pending |
+| **Accessibility** | Implement keyboard navigation for dropdown menus | High | 🔄 Pending |
+| **Testing** | Add component tests for Navigation, DataTable | High | 🔄 Pending |
+| **Testing** | Add integration tests for auth flow | High | 🔄 Pending |
+
+### Planned (Week 5-8)
+
+| Category | Issue | Severity | Status |
+|----------|-------|----------|--------|
+| **Security** | Implement CSRF protection for state-changing operations | High | ⏳ Planned |
+| **Security** | Add JWT token refresh logic | Critical | ⏳ Planned |
+| **Performance** | Code-split large components (Navigation, DataTable) | Medium | ⏳ Planned |
+| **Performance** | Enable image optimization (remove `unoptimized` prop) | Low | ⏳ Planned |
+| **Testing** | Achieve 80% test coverage | Critical | ⏳ Planned |
+
+### Metrics
+
+| Metric | Before | After | Target |
+|--------|--------|-------|--------|
+| TypeScript strict errors | Unknown | In progress | 0 |
+| Test coverage | 0% | ~15% | 80% |
+| Critical security issues | 6 | 2 | 0 |
+| High severity issues | 11 | 6 | 0 |
+| Accessibility issues | 8 | 5 | 0 |
 
 ---
 

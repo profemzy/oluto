@@ -1,12 +1,13 @@
 /**
  * Query Configuration - Centralized TanStack Query settings
- * 
+ *
  * This module provides sensible defaults for different data types,
  * balancing freshness with performance.
- * 
+ *
  * Data freshness strategy:
  * - Real-time data (chat): 0s staleTime, frequent polling
- * - User-facing dashboards: 10s staleTime, updates often
+ * - Dashboard metrics: 5s staleTime for Safe-to-Spend and cashflow
+ * - Transaction lists: 15s staleTime for frequently updated data
  * - Reference data (accounts): 5min staleTime, rarely changes
  * - Static data (reports): 1min staleTime, snapshot-based
  */
@@ -19,8 +20,8 @@ import { QueryClientConfig, UseQueryOptions } from "@tanstack/react-query";
 export const defaultQueryClientConfig: QueryClientConfig = {
   defaultOptions: {
     queries: {
-      // Data stays fresh for 30 seconds (no refetch on mount if within this time)
-      staleTime: 30 * 1000,
+      // Data stays fresh for 15 seconds (financial data needs frequent updates)
+      staleTime: 15 * 1000,
       // Cache persists for 5 minutes after last component unmounts
       gcTime: 5 * 60 * 1000,
       // Retry failed requests once after 1 second
@@ -47,22 +48,22 @@ export const defaultQueryClientConfig: QueryClientConfig = {
 export const staleTimePresets = {
   /** Real-time data - always fetch fresh (chat messages, notifications) */
   realTime: 0,
-  
-  /** User dashboard - 10 seconds for financial metrics */
-  dashboard: 10 * 1000,
-  
-  /** Lists that update frequently - 30 seconds */
-  frequent: 30 * 1000,
-  
-  /** Standard entity lists - 2 minutes */
-  standard: 2 * 60 * 1000,
-  
+
+  /** Dashboard metrics - 5 seconds for Safe-to-Spend, cashflow */
+  dashboard: 5 * 1000,
+
+  /** Lists that update frequently - 15 seconds (transactions, invoices) */
+  frequent: 15 * 1000,
+
+  /** Standard entity lists - 1 minute */
+  standard: 60 * 1000,
+
   /** Reference data - 5 minutes (accounts, contacts) */
   reference: 5 * 60 * 1000,
-  
+
   /** Semi-static data - 15 minutes (tax rates, settings) */
   semiStatic: 15 * 60 * 1000,
-  
+
   /** Static data - 1 hour (doesn't change during session) */
   static: 60 * 60 * 1000,
 } as const;
@@ -97,7 +98,7 @@ export const queryOptions = {
 
   /** Reports and financial statements */
   report: <TData, TError = Error>(): Partial<UseQueryOptions<TData, TError>> => ({
-    staleTime: staleTimePresets.standard,
+    staleTime: staleTimePresets.semiStatic,
     gcTime: 10 * 60 * 1000, // 10 minutes
     // Reports can be expensive to generate, don't refetch automatically
     refetchOnMount: false,

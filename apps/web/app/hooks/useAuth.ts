@@ -46,6 +46,8 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
   const role = useMemo(() => resolveRole(user?.role), [user?.role]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     if (authLoading) return;
 
     if (!isAuthenticated) {
@@ -56,6 +58,8 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
     api
       .getCurrentUser()
       .then((currentUser) => {
+        if (abortController.signal.aborted) return;
+
         if (requireBusiness && currentUser.business_id === null) {
           router.push("/onboarding/setup-business");
           return;
@@ -67,14 +71,22 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
           api
             .getBusiness(currentUser.business_id)
             .then((biz) => {
-              if (biz.timezone) setTimezone(biz.timezone);
+              if (!abortController.signal.aborted && biz.timezone) {
+                setTimezone(biz.timezone);
+              }
             })
             .catch(() => {});
         }
       })
       .catch(() => {
-        login();
+        if (!abortController.signal.aborted) {
+          login();
+        }
       });
+
+    return () => {
+      abortController.abort();
+    };
   }, [authLoading, isAuthenticated, router, requireBusiness, login]);
 
   return {

@@ -567,15 +567,19 @@ export function Navigation() {
 
             {/* Mobile Menu Button */}
             <button
+              type="button"
               className="lg:hidden p-2 rounded-lg text-muted hover:bg-surface-hover hover:text-heading transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 {mobileMenuOpen ? (
                   <path
@@ -600,7 +604,11 @@ export function Navigation() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg max-h-[70vh] overflow-y-auto">
+        <div
+          id="mobile-menu"
+          className="lg:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg max-h-[70vh] overflow-y-auto"
+          role="menu"
+        >
           <div className="px-4 py-4 space-y-1">
             {showAppNav ? (
               <>
