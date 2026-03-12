@@ -15,6 +15,11 @@ export class ReportsApi extends ApiClient {
     return this.request<TrialBalance>(`/businesses/${businessId}/reports/trial-balance${qs}`);
   }
 
+  // Alias for backward compatibility
+  async trialBalance(businessId: string, asOfDate?: string): Promise<TrialBalance> {
+    return this.getTrialBalance(businessId, asOfDate);
+  }
+
   async getProfitLoss(
     businessId: string,
     startDate?: string,
@@ -29,6 +34,11 @@ export class ReportsApi extends ApiClient {
     );
   }
 
+  // Alias for backward compatibility
+  async profitLoss(businessId: string, startDate?: string, endDate?: string): Promise<ProfitLossStatement> {
+    return this.getProfitLoss(businessId, startDate, endDate);
+  }
+
   async getBalanceSheet(businessId: string, asOfDate?: string): Promise<BalanceSheet> {
     const qs = asOfDate ? `?as_of_date=${asOfDate}` : '';
     return this.request<BalanceSheet>(
@@ -36,10 +46,20 @@ export class ReportsApi extends ApiClient {
     );
   }
 
+  // Alias for backward compatibility
+  async balanceSheet(businessId: string, asOfDate?: string): Promise<BalanceSheet> {
+    return this.getBalanceSheet(businessId, asOfDate);
+  }
+
   async getArAging(businessId: string, asOfDate?: string): Promise<AccountsReceivableAging> {
     const qs = asOfDate ? `?as_of_date=${asOfDate}` : '';
     return this.request<AccountsReceivableAging>(
       `/businesses/${businessId}/reports/ar-aging${qs}`
     );
+  }
+
+  // Alias for backward compatibility
+  async arAging(businessId: string, asOfDate?: string): Promise<AccountsReceivableAging> {
+    return this.getArAging(businessId, asOfDate);
   }
 }

@@ -32,8 +32,18 @@ export class TransactionsApi extends ApiClient {
     return this.request<Transaction[]>(`/businesses/${businessId}/transactions${qs}`);
   }
 
+  // Alias for backward compatibility
+  async list(businessId: string, params?: TransactionListParams): Promise<Transaction[]> {
+    return this.listTransactions(businessId, params);
+  }
+
   async getTransaction(businessId: string, transactionId: string): Promise<Transaction> {
     return this.request<Transaction>(`/businesses/${businessId}/transactions/${transactionId}`);
+  }
+
+  // Alias for backward compatibility
+  async get(businessId: string, transactionId: string): Promise<Transaction> {
+    return this.getTransaction(businessId, transactionId);
   }
 
   async updateTransaction(businessId: string, transactionId: string, data: TransactionUpdate): Promise<Transaction> {
@@ -43,10 +53,24 @@ export class TransactionsApi extends ApiClient {
     });
   }
 
+  // Alias for backward compatibility
+  async update(businessId: string, transactionId: string, data: TransactionUpdate): Promise<Transaction> {
+    return this.updateTransaction(businessId, transactionId, data);
+  }
+
   async deleteTransaction(businessId: string, transactionId: string): Promise<void> {
     await this.request<Record<string, never>>(`/businesses/${businessId}/transactions/${transactionId}`, {
       method: 'DELETE',
     });
+  }
+
+  // Alias for backward compatibility
+  async delete(businessId: string, transactionId: string): Promise<void> {
+    return this.deleteTransaction(businessId, transactionId);
+  }
+
+  async create(businessId: string, data: TransactionCreate): Promise<Transaction> {
+    return this.createTransaction(businessId, data);
   }
 
   async getDashboardSummary(businessId: string): Promise<DashboardSummary> {

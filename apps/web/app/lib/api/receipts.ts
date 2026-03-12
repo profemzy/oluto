@@ -33,8 +33,18 @@ export class ReceiptsApi extends ApiClient {
     );
   }
 
+  // Alias for backward compatibility
+  async list(businessId: string, transactionId: string): Promise<ReceiptResponse[]> {
+    return this.listReceipts(businessId, transactionId);
+  }
+
   async getReceipt(businessId: string, receiptId: string): Promise<ReceiptResponse> {
     return this.request<ReceiptResponse>(`/businesses/${businessId}/receipts/${receiptId}`);
+  }
+
+  // Alias for backward compatibility
+  async get(businessId: string, receiptId: string): Promise<ReceiptResponse> {
+    return this.getReceipt(businessId, receiptId);
   }
 
   async deleteReceipt(businessId: string, receiptId: string): Promise<void> {
@@ -44,6 +54,11 @@ export class ReceiptsApi extends ApiClient {
     );
   }
 
+  // Alias for backward compatibility
+  async delete(businessId: string, receiptId: string): Promise<void> {
+    return this.deleteReceipt(businessId, receiptId);
+  }
+
   async getReceiptDownloadUrl(
     businessId: string,
     receiptId: string
@@ -51,6 +66,11 @@ export class ReceiptsApi extends ApiClient {
     return this.request<ReceiptDownloadResponse>(
       `/businesses/${businessId}/receipts/${receiptId}/download`
     );
+  }
+
+  // Alias for backward compatibility
+  async getDownloadUrl(businessId: string, receiptId: string): Promise<ReceiptDownloadResponse> {
+    return this.getReceiptDownloadUrl(businessId, receiptId);
   }
 
   async uploadBillReceipt(

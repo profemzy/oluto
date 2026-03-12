@@ -16,8 +16,18 @@ export class InvoicesApi extends ApiClient {
     return this.request<Invoice[]>(`/businesses/${businessId}/invoices${qs}`);
   }
 
+  // Alias for backward compatibility
+  async list(businessId: string, params?: InvoiceListParams): Promise<Invoice[]> {
+    return this.listInvoices(businessId, params);
+  }
+
   async getInvoice(businessId: string, invoiceId: string): Promise<InvoiceWithLineItems> {
     return this.request<InvoiceWithLineItems>(`/businesses/${businessId}/invoices/${invoiceId}`);
+  }
+
+  // Alias for backward compatibility
+  async get(businessId: string, invoiceId: string): Promise<InvoiceWithLineItems> {
+    return this.getInvoice(businessId, invoiceId);
   }
 
   async createInvoice(businessId: string, data: CreateInvoiceRequest): Promise<InvoiceWithLineItems> {
@@ -27,6 +37,11 @@ export class InvoicesApi extends ApiClient {
     });
   }
 
+  // Alias for backward compatibility
+  async create(businessId: string, data: CreateInvoiceRequest): Promise<InvoiceWithLineItems> {
+    return this.createInvoice(businessId, data);
+  }
+
   async updateInvoiceStatus(businessId: string, invoiceId: string, status: string): Promise<Invoice> {
     return this.request<Invoice>(`/businesses/${businessId}/invoices/${invoiceId}/status`, {
       method: 'PUT',
@@ -34,8 +49,18 @@ export class InvoicesApi extends ApiClient {
     });
   }
 
+  // Alias for backward compatibility
+  async updateStatus(businessId: string, invoiceId: string, status: string): Promise<Invoice> {
+    return this.updateInvoiceStatus(businessId, invoiceId, status);
+  }
+
   async getOverdueInvoices(businessId: string): Promise<Invoice[]> {
     return this.request<Invoice[]>(`/businesses/${businessId}/invoices/overdue`);
+  }
+
+  // Alias for backward compatibility
+  async getOverdue(businessId: string): Promise<Invoice[]> {
+    return this.getOverdueInvoices(businessId);
   }
 
   async getCustomerInvoices(businessId: string, customerId: string): Promise<Invoice[]> {
@@ -44,5 +69,10 @@ export class InvoicesApi extends ApiClient {
 
   async getInvoicePayments(businessId: string, invoiceId: string): Promise<Payment[]> {
     return this.request<Payment[]>(`/businesses/${businessId}/invoices/${invoiceId}/payments`);
+  }
+
+  // Alias for backward compatibility
+  async getPayments(businessId: string, invoiceId: string): Promise<Payment[]> {
+    return this.getInvoicePayments(businessId, invoiceId);
   }
 }

@@ -22,10 +22,20 @@ export class ReconciliationApi extends ApiClient {
     );
   }
 
+  // Alias for backward compatibility
+  async summary(businessId: string): Promise<ReconciliationSummary> {
+    return this.getReconciliationSummary(businessId);
+  }
+
   async getReconciliationSuggestions(businessId: string): Promise<ReconciliationSuggestion[]> {
     return this.request<ReconciliationSuggestion[]>(
       `/businesses/${businessId}/reconciliation/suggestions`
     );
+  }
+
+  // Alias for backward compatibility
+  async suggestions(businessId: string): Promise<ReconciliationSuggestion[]> {
+    return this.getReconciliationSuggestions(businessId);
   }
 
   async getUnreconciledTransactions(
@@ -40,6 +50,11 @@ export class ReconciliationApi extends ApiClient {
     return this.request<Transaction[]>(
       `/businesses/${businessId}/reconciliation/unreconciled${qs ? `?${qs}` : ''}`
     );
+  }
+
+  // Alias for backward compatibility
+  async unreconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    return this.getUnreconciledTransactions(businessId, limit, offset);
   }
 
   async confirmMatch(businessId: string, data: ConfirmMatchRequest): Promise<void> {
@@ -120,6 +135,11 @@ export class ReconciliationApi extends ApiClient {
     return this.request<Transaction[]>(
       `/businesses/${businessId}/reconciliation/reconciled${qs ? `?${qs}` : ''}`
     );
+  }
+
+  // Alias for backward compatibility
+  async reconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    return this.getReconciledTransactions(businessId, limit, offset);
   }
 
   async findDuplicates(businessId: string): Promise<DuplicateGroup[]> {

@@ -17,8 +17,18 @@ export class BillsApi extends ApiClient {
     return this.request<Bill[]>(`/businesses/${businessId}/bills${qs}`);
   }
 
+  // Alias for backward compatibility
+  async list(businessId: string, params?: BillListParams): Promise<Bill[]> {
+    return this.listBills(businessId, params);
+  }
+
   async getBill(businessId: string, billId: string): Promise<BillWithLineItems> {
     return this.request<BillWithLineItems>(`/businesses/${businessId}/bills/${billId}`);
+  }
+
+  // Alias for backward compatibility
+  async get(businessId: string, billId: string): Promise<BillWithLineItems> {
+    return this.getBill(businessId, billId);
   }
 
   async createBill(businessId: string, data: CreateBillRequest): Promise<Bill> {
@@ -28,11 +38,21 @@ export class BillsApi extends ApiClient {
     });
   }
 
+  // Alias for backward compatibility
+  async create(businessId: string, data: CreateBillRequest): Promise<Bill> {
+    return this.createBill(businessId, data);
+  }
+
   async updateBillStatus(businessId: string, billId: string, status: string): Promise<Bill> {
     return this.request<Bill>(`/businesses/${businessId}/bills/${billId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+  }
+
+  // Alias for backward compatibility
+  async updateStatus(businessId: string, billId: string, status: string): Promise<Bill> {
+    return this.updateBillStatus(businessId, billId, status);
   }
 
   async deleteBill(businessId: string, billId: string): Promise<void> {
@@ -41,8 +61,18 @@ export class BillsApi extends ApiClient {
     });
   }
 
+  // Alias for backward compatibility
+  async delete(businessId: string, billId: string): Promise<void> {
+    return this.deleteBill(businessId, billId);
+  }
+
   async getOverdueBills(businessId: string): Promise<Bill[]> {
     return this.request<Bill[]>(`/businesses/${businessId}/bills/overdue`);
+  }
+
+  // Alias for backward compatibility
+  async getOverdue(businessId: string): Promise<Bill[]> {
+    return this.getOverdueBills(businessId);
   }
 
   async getVendorBills(businessId: string, vendorId: string): Promise<Bill[]> {
