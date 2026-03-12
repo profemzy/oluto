@@ -144,6 +144,10 @@ export interface ParsedTransaction {
   description?: string;
   account?: string;
   currency?: string;
+  category?: string;
+  classification?: string;
+  ai_confidence?: number;
+  is_duplicate?: boolean;
 }
 
 export interface ImportParseResponse {
@@ -177,6 +181,7 @@ export interface CategorySuggestRequest {
 export interface CategorySuggestResponse {
   category: string;
   confidence: number;
+  reasoning?: string;  // For backward compatibility
 }
 
 export interface BulkStatusUpdateRequest {
@@ -187,14 +192,18 @@ export interface BulkStatusUpdateRequest {
 export interface BulkStatusUpdateResponse {
   updated: number;
   failed: number;
+  transactions?: any[];  // For backward compatibility
 }
 
 export interface AsyncJobStatusResponse {
   job_id: number;
   status: string;
   progress: number;
+  progress_message?: string;
   result?: ImportConfirmResponse;
+  result_data?: any;  // For backward compatibility
   error?: string;
+  error_message?: string;  // For backward compatibility
 }
 
 // ==================== Contact Types ====================
@@ -602,7 +611,7 @@ export interface Conversation {
 export interface ChatMessage {
   id: string;
   conversation_id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "error";
   content: string;
   model?: string;
   created_at: string;
