@@ -141,6 +141,12 @@ function NewBillPaymentForm() {
     setError("");
     setLoading(true);
 
+    if (!user?.business_id) {
+      setError("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
     try {
       const applications = billApps
         .filter((app) => app.checked && parseFloat(app.amount) > 0)
@@ -149,7 +155,7 @@ function NewBillPaymentForm() {
           amount_applied: app.amount,
         }));
 
-      await api.createBillPayment(user.business_id!, {
+      await api.createBillPayment(user.business_id, {
         vendor_id: vendorId,
         payment_date: paymentDate,
         amount,

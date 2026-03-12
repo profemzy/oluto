@@ -74,9 +74,10 @@ function NewPaymentForm() {
       return;
     }
     const loadInvoices = async () => {
+      if (!user?.business_id) return;
       setInvoicesLoading(true);
       try {
-        const invoices = await api.getCustomerInvoices(user.business_id!, customerId);
+        const invoices = await api.getCustomerInvoices(user.business_id, customerId);
         const outstanding = invoices.filter(
           (inv) => inv.status !== "paid" && inv.status !== "void" && parseFloat(inv.balance) > 0
         );
@@ -142,6 +143,12 @@ function NewPaymentForm() {
     setError("");
     setLoading(true);
 
+    if (!user?.business_id) {
+      setError("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
     try {
       const applications = invoiceApps
         .filter((app) => app.checked && parseFloat(app.amount) > 0)
@@ -150,7 +157,7 @@ function NewPaymentForm() {
           amount_applied: app.amount,
         }));
 
-      await api.createPayment(user.business_id!, {
+      await api.createPayment(user.business_id, {
         customer_id: customerId,
         payment_date: paymentDate,
         amount,

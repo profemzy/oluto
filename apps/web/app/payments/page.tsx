@@ -121,7 +121,7 @@ export default function PaymentsPage() {
           const hasUnapplied = pmt.unapplied_amount && parseFloat(pmt.unapplied_amount) > 0;
           return hasUnapplied ? (
             <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 ring-1 ring-inset ring-amber-200 dark:ring-amber-800">
-              {formatCurrency(pmt.unapplied_amount)} unapplied
+              {formatCurrency(pmt.unapplied_amount || "0")} unapplied
             </span>
           ) : (
             <span className="text-xs font-medium text-green-600">
