@@ -56,8 +56,8 @@ function OcrBadge({ status }: { status: ReceiptResponse["ocr_status"] }) {
   };
   const labels = { none: "No OCR", pending: "Processing", completed: "OCR Done", failed: "OCR Failed" };
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[status]}`}>
-      {labels[status]}
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[status || "none"]}`}>
+      {labels[status || "none"]}
     </span>
   );
 }
@@ -423,11 +423,11 @@ export function BillReceiptSection({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-heading truncate">
-                    {receipt.original_filename}
+                    {receipt.original_filename || receipt.filename}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <p className="text-xs text-muted">
-                      {formatFileSize(receipt.file_size)}
+                      {formatFileSize(receipt.file_size || receipt.size)}
                     </p>
                     <OcrBadge status={receipt.ocr_status} />
                   </div>

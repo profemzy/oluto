@@ -80,8 +80,8 @@ function OcrBadge({ status }: { status: ReceiptResponse["ocr_status"] }) {
   };
   const labels = { none: "No OCR", pending: "Processing", completed: "OCR Done", failed: "OCR Failed" };
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[status]}`}>
-      {labels[status]}
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[status || "none"]}`}>
+      {labels[status || "none"]}
     </span>
   );
 }
@@ -371,11 +371,11 @@ export function ReceiptUploadSection({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-heading">
-                    {r.original_filename}
+                    {r.original_filename || r.filename}
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted">
-                      {formatFileSize(r.file_size)}
+                      {formatFileSize(r.file_size || r.size)}
                     </span>
                     <OcrBadge status={r.ocr_status} />
                   </div>
