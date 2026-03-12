@@ -7,6 +7,8 @@ import type {
   BillWithLineItems,
   CreateBillRequest,
   BillListParams,
+  BillPayment,
+  CreateBillPaymentRequest,
 } from './types';
 
 export class BillsApi extends ApiClient {
@@ -45,5 +47,12 @@ export class BillsApi extends ApiClient {
 
   async getVendorBills(businessId: string, vendorId: string): Promise<Bill[]> {
     return this.request<Bill[]>(`/businesses/${businessId}/vendors/${vendorId}/bills`);
+  }
+
+  async createBillPayment(businessId: string, data: CreateBillPaymentRequest): Promise<BillPayment> {
+    return this.request<BillPayment>(`/businesses/${businessId}/bill-payments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
