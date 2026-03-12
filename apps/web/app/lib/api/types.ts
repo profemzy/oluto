@@ -503,6 +503,10 @@ export interface TrialBalance {
     debit_balance: string;
     credit_balance: string;
   }[];
+  entries?: any[];  // For backward compatibility
+  total_debits?: string;  // For backward compatibility
+  total_credits?: string;  // For backward compatibility
+  is_balanced?: boolean;  // For backward compatibility
 }
 
 export interface ProfitLossStatement {
@@ -519,6 +523,10 @@ export interface ProfitLossStatement {
     amount: string;
   }[];
   net_income: string;
+  revenue_entries?: any[];  // For backward compatibility
+  expense_entries?: any[];  // For backward compatibility
+  total_revenue?: string;  // For backward compatibility
+  total_expenses?: string;  // For backward compatibility
 }
 
 export interface BalanceSheet {
