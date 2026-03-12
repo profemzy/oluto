@@ -300,6 +300,8 @@ export interface InvoiceLineItem {
   gst_amount?: string;
   pst_amount?: string;
   discount_percent?: number;
+  tax_code?: string;
+  revenue_account_id?: string;
 }
 
 export interface InvoiceWithLineItems extends Invoice {

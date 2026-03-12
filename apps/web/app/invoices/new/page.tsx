@@ -7,28 +7,29 @@ import {
   api,
   Contact,
   Account,
-  CreateInvoiceLineItemRequest,
+  InvoiceLineItem,
 } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { FormSkeleton, PageHeader, ErrorAlert } from "@/app/components";
 import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
-interface LineItemRow extends CreateInvoiceLineItemRequest {
-  amount: string;
+interface LineItemRow extends InvoiceLineItem {
+  _key: number;
 }
 
-function calcLineAmount(qty: string, price: string, discountPct: string): string {
+function calcLineAmount(qty: string, price: string, discountPct: number | undefined): string {
   const q = parseFloat(qty) || 0;
   const p = parseFloat(price) || 0;
-  const d = parseFloat(discountPct) || 0;
+  const d = discountPct || 0;
   const amt = q * p * (1 - d / 100);
   return amt.toFixed(2);
 }
 
 const emptyLine = (): LineItemRow => ({
+  _key: 1,
   line_number: 1,
   item_description: "",
-  quantity: "1",
+  quantity: 1,
   unit_price: "",
   discount_percent: undefined,
   tax_code: undefined,
@@ -99,11 +100,11 @@ export default function NewInvoicePage() {
     }
   }, [customerId, customers]);
 
-  const updateLineItem = (index: number, field: keyof LineItemRow, value: string) => {
+  const updateLineItem = (index: number, field: string, value: string | number) => {
     setLineItems((prev) => {
       const updated = [...prev];
       const item = { ...updated[index], [field]: value };
-      item.amount = calcLineAmount(item.quantity, item.unit_price, item.discount_percent || "0");
+      item.amount = calcLineAmount(String(item.quantity), String(item.unit_price), item.discount_percent);
       updated[index] = item;
       return updated;
     });
@@ -132,7 +133,7 @@ export default function NewInvoicePage() {
 
     try {
       const result = await api.createInvoice(user!.business_id!, {
-        invoice_number: invoiceNumber,
+        invoice_number: invoiceNumber || undefined,
         customer_id: customerId,
         invoice_date: invoiceDate,
         due_date: dueDate,
@@ -141,13 +142,13 @@ export default function NewInvoicePage() {
         billing_address: billingAddress || undefined,
         shipping_address: shippingAddress || undefined,
         line_items: lineItems.map((item) => ({
-          line_number: item.line_number,
-          item_description: item.item_description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
+          line_number: item.line_number || undefined,
+          item_description: item.item_description || "",
+          quantity: item.quantity || 1,
+          unit_price: item.unit_price || "",
           discount_percent: item.discount_percent || undefined,
           tax_code: item.tax_code || undefined,
-          revenue_account_id: item.revenue_account_id,
+          revenue_account_id: item.revenue_account_id || undefined,
         })),
       });
       router.push(`/invoices/${result.id}`);
