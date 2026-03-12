@@ -512,6 +512,8 @@ export interface TrialBalance {
 export interface ProfitLossStatement {
   start_date: string;
   end_date: string;
+  period_start?: string;  // Alias for backward compatibility
+  period_end?: string;  // Alias for backward compatibility
   income: {
     account_id: string;
     account_name: string;
@@ -528,6 +530,13 @@ export interface ProfitLossStatement {
   total_revenue?: string;  // For backward compatibility
   total_expenses?: string;  // For backward compatibility
 }
+
+// Type aliases for backward compatibility
+export type BalanceSheetEntry = {
+  account_id: string;
+  account_name: string;
+  amount: string;
+};
 
 export interface BalanceSheet {
   as_of_date: string;
@@ -546,6 +555,12 @@ export interface BalanceSheet {
     account_name: string;
     amount: string;
   }[];
+  asset_entries?: any[];  // For backward compatibility
+  liability_entries?: any[];  // For backward compatibility
+  equity_entries?: any[];  // For backward compatibility
+  total_assets?: string;  // For backward compatibility
+  total_liabilities?: string;  // For backward compatibility
+  total_equity?: string;  // For backward compatibility
 }
 
 export interface AccountsReceivableAging {
@@ -559,6 +574,14 @@ export interface AccountsReceivableAging {
     days_90: string;
     total: string;
   }[];
+  buckets?: {  // For backward compatibility
+    current: number;
+    days_1_30: number;
+    days_31_60: number;
+    days_61_90: number;
+    days_91_plus: number;
+    total: number;
+  };
 }
 
 // ==================== Reconciliation Types ====================
