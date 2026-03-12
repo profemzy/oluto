@@ -215,7 +215,8 @@ function TransactionsContent() {
       return result;
     },
     onSuccess: (result) => {
-      const updatedMap = new Map(result.transactions.map((t) => [t.id, t]));
+      const transactions = result.transactions || [];
+      const updatedMap = new Map(transactions.map((t) => [t.id, t]));
       queryClient.setQueriesData(
         { queryKey: ["transactions", user?.business_id ?? ""] },
         (oldData?: Transaction[]) => {

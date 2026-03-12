@@ -28,8 +28,8 @@ export default function EditAccountPage({
     if (!user?.business_id) return;
     const load = async () => {
       try {
-        const account = await api.getAccount(user.business_id!, accountId);
-        setCode(account.code);
+        const account = await api.getAccount(user.business_id, accountId);
+        setCode(account.code || "");
         setName(account.name);
         setAccountType(account.account_type);
         setIsActive(account.is_active);

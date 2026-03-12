@@ -20,11 +20,11 @@ export function ReconciliationStatus({ reconSummary }: ReconciliationStatusProps
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold text-amber-800">
-            {reconSummary.unreconciled} Unreconciled Transaction{reconSummary.unreconciled !== 1 ? "s" : ""}
+            {reconSummary.unreconciled || 0} Unreconciled Transaction{(reconSummary.unreconciled || 0) !== 1 ? "s" : ""}
           </p>
-          {reconSummary.suggested_matches > 0 && (
+          {(reconSummary.suggested_matches || 0) > 0 && (
             <p className="text-xs text-amber-600">
-              {reconSummary.suggested_matches} suggested match{reconSummary.suggested_matches !== 1 ? "es" : ""}
+              {reconSummary.suggested_matches} suggested match{(reconSummary.suggested_matches || 0) !== 1 ? "es" : ""}
             </p>
           )}
         </div>
