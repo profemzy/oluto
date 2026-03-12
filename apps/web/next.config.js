@@ -2,6 +2,11 @@
 const nextConfig = {
   output: 'standalone',
   
+  // Skip TypeScript checking during build (done in CI separately)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   /**
    * Security headers are primarily set in middleware.ts for nonce-based CSP.
    * These headers serve as a fallback and for static assets not processed by middleware.
