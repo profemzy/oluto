@@ -35,8 +35,14 @@ export default function NewAccountPage() {
     setError("");
     setLoading(true);
 
+    if (!user?.business_id) {
+      setError("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await api.createAccount(user.business_id!, {
+      await api.createAccount(user.business_id, {
         code,
         name,
         account_type: accountType,

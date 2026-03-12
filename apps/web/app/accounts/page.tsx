@@ -33,15 +33,15 @@ export default function AccountsPage() {
   // Filter accounts based on type and search
   const filteredAccounts = useMemo(() => {
     let result = typeFilter
-      ? accounts.filter((a) => a.account_type === typeFilter)
-      : accounts;
+      ? accounts?.filter((a) => a.account_type === typeFilter) || []
+      : (accounts || []);
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (a) =>
           a.name.toLowerCase().includes(q) ||
-          a.code.toLowerCase().includes(q)
+          (a.code?.toLowerCase().includes(q) ?? false)
       );
     }
 
@@ -49,7 +49,7 @@ export default function AccountsPage() {
   }, [accounts, typeFilter, searchQuery]);
 
   const deactivateMutation = useMutation({
-    mutationFn: (id: string) => api.deactivateAccount(user.business_id!, id),
+    mutationFn: (id: string) => api.deactivateAccount(user!.business_id!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toastSuccess("Account deactivated");
