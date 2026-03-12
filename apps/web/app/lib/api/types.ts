@@ -411,6 +411,9 @@ export interface Payment {
   method?: string;
   payment_method?: string;  // Alias for backward compatibility
   reference?: string;
+  reference_number?: string;  // For backward compatibility
+  memo?: string;  // For backward compatibility
+  unapplied_amount?: string;  // For backward compatibility
   created_at: string | null;
   updated_at: string | null;
 }
@@ -595,14 +598,20 @@ export interface ReconciliationSummary {
   reconciled_count: number;
   unreconciled_count: number;
   unreconciled?: number;  // Alias for backward compatibility
+  reconciled?: number;  // Alias for backward compatibility
   suggested_matches?: number;  // For UI display
+  total_transactions?: number;  // For backward compatibility
 }
 
 export interface ReconciliationSuggestion {
   transaction_id: string;
+  transaction?: any;  // For backward compatibility
   statement_line_id: string;
+  suggested_match?: any;  // For backward compatibility
   confidence: number;
   reason: string;
+  match_reason?: string;  // For backward compatibility
+  suggestion_id?: string;  // For backward compatibility
 }
 
 export interface ConfirmMatchRequest {
@@ -623,6 +632,7 @@ export interface UnlinkMatchRequest {
 export interface AutoReconcileResponse {
   reconciled_count: number;
   total_attempted: number;
+  suggestions_found?: number;  // For backward compatibility
 }
 
 export interface ManualReconcileRequest {
@@ -631,11 +641,16 @@ export interface ManualReconcileRequest {
 
 export interface ManualReconcileResponse {
   reconciled_count: number;
+  updated_count?: number;  // For backward compatibility
 }
 
 export interface DuplicateGroup {
   transactions: Transaction[];
   reason: string;
+  vendor_name?: string;  // For backward compatibility
+  transaction_date?: string;  // For backward compatibility
+  amount?: string;  // For backward compatibility
+  count?: number;  // For backward compatibility
 }
 
 // ==================== Chat Types ====================

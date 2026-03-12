@@ -30,7 +30,7 @@ import { QuickBooksApi } from './quickbooks';
 
 // Re-export all types (excluding duplicates)
 export * from './types';
-export { ApiClient, ApiError, NetworkError } from './client';
+export { ApiError, NetworkError } from './client';
 
 // Re-export domain APIs
 export {
@@ -191,15 +191,13 @@ class UnifiedApiClient {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 export const api = new UnifiedApiClient(API_BASE_URL);
 
-// Legacy exports for backward compatibility
-// These will be removed in a future version
-export { ApiClient };
+// Default export for backward compatibility
 export default api;
 
 /**
  * Compute aging totals from AR aging report
  */
-export function computeAgingTotals(aging: AccountsReceivableAging | undefined): {
+export function computeAgingTotals(aging: import('./types').AccountsReceivableAging | undefined): {
   current: number;
   days_1_30: number;
   days_31_60: number;

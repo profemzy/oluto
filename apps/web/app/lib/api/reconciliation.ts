@@ -56,23 +56,6 @@ export class ReconciliationApi extends ApiClient {
     );
   }
 
-  // Alias methods for backward compatibility
-  async summary(businessId: string): Promise<ReconciliationSummary> {
-    return this.getReconciliationSummary(businessId);
-  }
-
-  async suggestions(businessId: string): Promise<ReconciliationSuggestion[]> {
-    return this.getReconciliationSuggestions(businessId);
-  }
-
-  async unreconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
-    return this.getUnreconciledTransactions(businessId, limit, offset);
-  }
-
-  async reconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
-    return this.getReconciledTransactions(businessId, limit, offset);
-  }
-
   async confirmMatch(businessId: string, data: ConfirmMatchRequest): Promise<void> {
     await this.request<Record<string, never>>(
       `/businesses/${businessId}/reconciliation/confirm`,
@@ -153,14 +136,26 @@ export class ReconciliationApi extends ApiClient {
     );
   }
 
-  // Alias for backward compatibility
-  async reconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
-    return this.getReconciledTransactions(businessId, limit, offset);
-  }
-
   async findDuplicates(businessId: string): Promise<DuplicateGroup[]> {
     return this.request<DuplicateGroup[]>(
       `/businesses/${businessId}/transactions/duplicates`
     );
+  }
+
+  // Alias methods for backward compatibility with index.ts
+  async summary(businessId: string): Promise<ReconciliationSummary> {
+    return this.getReconciliationSummary(businessId);
+  }
+
+  async suggestions(businessId: string): Promise<ReconciliationSuggestion[]> {
+    return this.getReconciliationSuggestions(businessId);
+  }
+
+  async unreconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    return this.getUnreconciledTransactions(businessId, limit, offset);
+  }
+
+  async reconciled(businessId: string, limit?: number, offset?: number): Promise<Transaction[]> {
+    return this.getReconciledTransactions(businessId, limit, offset);
   }
 }
