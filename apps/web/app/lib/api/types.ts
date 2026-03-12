@@ -154,6 +154,9 @@ export interface ImportParseResponse {
   transactions: ParsedTransaction[];
   duplicates: number[];
   warnings: string[];
+  file_type?: string;  // For backward compatibility
+  file_name?: string;  // For backward compatibility
+  statement_period?: { start: string; end: string };  // For backward compatibility
 }
 
 export interface AsyncJobCreateResponse {
@@ -169,8 +172,11 @@ export interface ImportConfirmRequest {
 
 export interface ImportConfirmResponse {
   import_batch_id: string;
+  batch_id?: string;  // Alias for backward compatibility
   transactions_created: number;
+  imported_count?: number;  // Alias for backward compatibility
   transactions_skipped: number;
+  skipped_duplicates?: number;  // Alias for backward compatibility
 }
 
 export interface CategorySuggestRequest {
@@ -630,8 +636,12 @@ export interface SendChatResponse {
 
 export interface QbParsedAccount {
   account_name: string;
+  name?: string;  // Alias for backward compatibility
   account_type: string;
   balance: string;
+  conflict?: string;  // For backward compatibility
+  mapped_type?: string;  // For backward compatibility
+  suggested_code?: string;  // For backward compatibility
 }
 
 export interface QbParsedContact {
@@ -644,11 +654,17 @@ export interface QbParsedContact {
 export interface QbParsedJournalEntry {
   date: string;
   description: string;
+  num?: string | number;  // For backward compatibility
   lines: {
     account_name: string;
     debit: string;
     credit: string;
   }[];
+  is_balanced?: boolean;  // For backward compatibility
+  total_debit?: string;  // For backward compatibility
+  total_credit?: string;  // For backward compatibility
+  suggested_classification?: string;  // For backward compatibility
+  category_confidence?: number;  // For backward compatibility
 }
 
 export interface QbParsedInvoice {
