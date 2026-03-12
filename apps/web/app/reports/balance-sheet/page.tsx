@@ -73,9 +73,9 @@ export default function BalanceSheetPage() {
       {() =>
         report ? (
           <div className="space-y-6">
-            <Section title="Assets" entries={report.asset_entries} total={report.total_assets} colorClass="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 text-emerald-800 dark:text-emerald-300" />
-            <Section title="Liabilities" entries={report.liability_entries} total={report.total_liabilities} colorClass="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/50 dark:to-orange-950/50 text-red-800 dark:text-red-300" />
-            <Section title="Equity" entries={report.equity_entries} total={report.total_equity} colorClass="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 text-blue-800 dark:text-blue-300" />
+            <Section title="Assets" entries={report.asset_entries || []} total={report.total_assets || "0"} colorClass="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 text-emerald-800 dark:text-emerald-300" />
+            <Section title="Liabilities" entries={report.liability_entries || []} total={report.total_liabilities || "0"} colorClass="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/50 dark:to-orange-950/50 text-red-800 dark:text-red-300" />
+            <Section title="Equity" entries={report.equity_entries || []} total={report.total_equity || "0"} colorClass="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 text-blue-800 dark:text-blue-300" />
 
             <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-6 flex justify-between items-center">
               <span className="text-lg font-bold text-heading">Accounting Equation</span>

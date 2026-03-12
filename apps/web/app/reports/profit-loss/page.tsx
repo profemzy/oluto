@@ -50,10 +50,10 @@ export default function ProfitLossPage() {
                 <h3 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Revenue</h3>
               </div>
               <div className="divide-y divide-edge-subtle">
-                {report.revenue_entries.length === 0 ? (
+                {(report.revenue_entries || []).length === 0 ? (
                   <div className="px-6 py-4 text-sm text-muted">No revenue entries</div>
                 ) : (
-                  report.revenue_entries.map((a) => (
+                  (report.revenue_entries || []).map((a) => (
                     <div key={a.account_id} className="flex justify-between px-6 py-3">
                       <span className="text-sm text-heading">{a.account_name}</span>
                       <span className="text-sm font-bold text-emerald-600">{formatCurrency(a.amount)}</span>
@@ -63,7 +63,7 @@ export default function ProfitLossPage() {
               </div>
               <div className="px-6 py-3 bg-emerald-50/50 dark:bg-emerald-950/50 border-t flex justify-between">
                 <span className="text-sm font-bold text-heading">Total Revenue</span>
-                <span className="text-sm font-bold text-emerald-700">{formatCurrency(report.total_revenue)}</span>
+                <span className="text-sm font-bold text-emerald-700">{formatCurrency(report.total_revenue || "0")}</span>
               </div>
             </div>
 
@@ -73,10 +73,10 @@ export default function ProfitLossPage() {
                 <h3 className="text-sm font-bold text-red-800 dark:text-red-300 uppercase tracking-wider">Expenses</h3>
               </div>
               <div className="divide-y divide-edge-subtle">
-                {report.expense_entries.length === 0 ? (
+                {(report.expense_entries || []).length === 0 ? (
                   <div className="px-6 py-4 text-sm text-muted">No expense entries</div>
                 ) : (
-                  report.expense_entries.map((a) => (
+                  (report.expense_entries || []).map((a) => (
                     <div key={a.account_id} className="flex justify-between px-6 py-3">
                       <span className="text-sm text-heading">{a.account_name}</span>
                       <span className="text-sm font-bold text-red-600">{formatCurrency(a.amount)}</span>
@@ -86,7 +86,7 @@ export default function ProfitLossPage() {
               </div>
               <div className="px-6 py-3 bg-red-50/50 dark:bg-red-950/50 border-t flex justify-between">
                 <span className="text-sm font-bold text-heading">Total Expenses</span>
-                <span className="text-sm font-bold text-red-700">{formatCurrency(report.total_expenses)}</span>
+                <span className="text-sm font-bold text-red-700">{formatCurrency(report.total_expenses || "0")}</span>
               </div>
             </div>
 

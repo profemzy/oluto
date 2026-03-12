@@ -51,12 +51,12 @@ export default function ArAgingPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-edge-subtle">
-                  {report.buckets.length === 0 ? (
+                  {(report.buckets || []).length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted">No outstanding receivables</td>
                     </tr>
                   ) : (
-                    report.buckets.map((b) => (
+                    (report.buckets || []).map((b) => (
                       <tr key={b.customer_id} className="hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
                         <td className="px-4 py-3 text-sm font-bold text-heading">{b.customer_name}</td>
                         <td className="px-4 py-3 text-sm text-right">{parseFloat(b.current) > 0 ? formatCurrency(b.current) : ""}</td>
@@ -69,7 +69,7 @@ export default function ArAgingPage() {
                     ))
                   )}
                 </tbody>
-                {report.buckets.length > 0 && (() => {
+                {(report.buckets || []).length > 0 && (() => {
                   const totals = computeAgingTotals(report);
                   return (
                     <tfoot className="bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t">

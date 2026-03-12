@@ -46,10 +46,10 @@ export default function TrialBalancePage() {
               </div>
             </div>
             <div className="divide-y divide-edge-subtle">
-              {report.entries.length === 0 ? (
+              {(report.entries || []).length === 0 ? (
                 <div className="px-6 py-8 text-center text-sm text-muted">No posted transactions found for this date.</div>
               ) : (
-                report.entries.map((entry) => (
+                (report.entries || []).map((entry) => (
                   <div key={entry.account_id} className="grid grid-cols-5 gap-4 px-6 py-3 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/50 transition-all">
                     <div className="text-sm font-mono text-body">{entry.account_code}</div>
                     <div className="col-span-2 text-sm text-heading">{entry.account_name}</div>
@@ -61,8 +61,8 @@ export default function TrialBalancePage() {
             </div>
             <div className="px-6 py-4 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-t grid grid-cols-5 gap-4">
               <div className="col-span-3 text-sm font-bold text-heading">Total</div>
-              <div className="text-sm font-bold text-right">{formatCurrency(report.total_debits)}</div>
-              <div className="text-sm font-bold text-right">{formatCurrency(report.total_credits)}</div>
+              <div className="text-sm font-bold text-right">{formatCurrency(report.total_debits || "0")}</div>
+              <div className="text-sm font-bold text-right">{formatCurrency(report.total_credits || "0")}</div>
             </div>
             <div className="px-6 py-3 border-t">
               <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${report.is_balanced ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700" : "bg-red-50 dark:bg-red-950 text-red-700"}`}>
