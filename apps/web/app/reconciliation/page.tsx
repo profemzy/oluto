@@ -21,7 +21,7 @@ const CONFIDENCE_COLORS: Record<string, string> = {
   low: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
 };
 
-function confidenceLevel(confidence: string): "high" | "medium" | "low" {
+function confidenceLevel(confidence: string | number): "high" | "medium" | "low" {
   const val = parseFloat(confidence);
   if (val >= 0.8) return "high";
   if (val >= 0.5) return "medium";
