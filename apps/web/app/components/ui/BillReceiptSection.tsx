@@ -48,16 +48,17 @@ function contentTypeIcon(contentType: string) {
 // --- OCR status badge ---
 
 function OcrBadge({ status }: { status: ReceiptResponse["ocr_status"] }) {
-  const styles = {
+  const styles: Record<string, string> = {
     none: "bg-surface-tertiary text-body",
     pending: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300",
     completed: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300",
     failed: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300",
   };
-  const labels = { none: "No OCR", pending: "Processing", completed: "OCR Done", failed: "OCR Failed" };
+  const labels: Record<string, string> = { none: "No OCR", pending: "Processing", completed: "OCR Done", failed: "OCR Failed" };
+  const statusKey = status || "none";
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[status || "none"]}`}>
-      {labels[status || "none"]}
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ${styles[statusKey]}`}>
+      {labels[statusKey]}
     </span>
   );
 }
