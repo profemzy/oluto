@@ -311,7 +311,7 @@ export interface Invoice {
 export interface InvoiceLineItem {
   id?: string;
   line_number?: number;
-  description: string;
+  description?: string;  // Made optional for backward compatibility
   item_description?: string;
   quantity?: number;
   unit_price?: string;
@@ -577,14 +577,14 @@ export interface AccountsReceivableAging {
     days_90: string;
     total: string;
   }[];
-  buckets?: {  // For backward compatibility
+  buckets?: {  // For backward compatibility - array of aging buckets
     current: number;
     days_1_30: number;
     days_31_60: number;
     days_61_90: number;
     days_91_plus: number;
     total: number;
-  };
+  }[];
 }
 
 // ==================== Reconciliation Types ====================
@@ -689,7 +689,11 @@ export interface QbParsedAccount {
   name?: string;  // Alias for backward compatibility
   account_type: string;
   balance: string;
-  conflict?: string;  // For backward compatibility
+  conflict?: {  // For backward compatibility
+    existing_account_id: string;
+    existing_account_name: string;
+    match_type: string;
+  };
   mapped_type?: string;  // For backward compatibility
   suggested_code?: string;  // For backward compatibility
   existing_account_id?: string;  // For backward compatibility
@@ -718,6 +722,8 @@ export interface QbParsedJournalEntry {
   total_credit?: string;  // For backward compatibility
   suggested_classification?: string;  // For backward compatibility
   category_confidence?: number;  // For backward compatibility
+  suggested_category?: string;  // For backward compatibility
+  suggested_action?: string;  // For backward compatibility
 }
 
 export interface QbParsedInvoice {

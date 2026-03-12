@@ -164,16 +164,16 @@ class UnifiedApiClient {
   async getProfitLoss(businessId: string, startDate?: string, endDate?: string) { return this.reports.getProfitLoss(businessId, startDate, endDate); }
   async getBalanceSheet(businessId: string, asOfDate?: string) { return this.reports.getBalanceSheet(businessId, asOfDate); }
   async getArAging(businessId: string, asOfDate?: string) { return this.reports.getArAging(businessId, asOfDate); }
-  async getReconciliationSummary(businessId: string) { return this.reconciliation.getSummary(businessId); }
-  async getReconciliationSuggestions(businessId: string) { return this.reconciliation.getSuggestions(businessId); }
-  async getUnreconciledTransactions(businessId: string, limit?: number, offset?: number) { return this.reconciliation.getUnreconciled(businessId, limit, offset); }
+  async getReconciliationSummary(businessId: string) { return this.reconciliation.summary(businessId); }
+  async getReconciliationSuggestions(businessId: string) { return this.reconciliation.suggestions(businessId); }
+  async getUnreconciledTransactions(businessId: string, limit?: number, offset?: number) { return this.reconciliation.unreconciled(businessId, limit, offset); }
   async confirmMatch(businessId: string, data: any) { return this.reconciliation.confirmMatch(businessId, data); }
   async rejectMatch(businessId: string, data: any) { return this.reconciliation.rejectMatch(businessId, data); }
   async unlinkMatch(businessId: string, data: any) { return this.reconciliation.unlinkMatch(businessId, data); }
   async autoReconcile(businessId: string, minConfidence?: number) { return this.reconciliation.autoReconcile(businessId, minConfidence); }
   async markReconciled(businessId: string, data: any) { return this.reconciliation.markReconciled(businessId, data); }
   async markUnreconciled(businessId: string, data: any) { return this.reconciliation.markUnreconciled(businessId, data); }
-  async getReconciledTransactions(businessId: string, limit?: number, offset?: number) { return this.reconciliation.getReconciled(businessId, limit, offset); }
+  async getReconciledTransactions(businessId: string, limit?: number, offset?: number) { return this.reconciliation.reconciled(businessId, limit, offset); }
   async listConversations(businessId: string) { return this.chat.listConversations(businessId); }
   async createConversation(businessId: string, title?: string) { return this.chat.createConversation(businessId, title); }
   async updateConversation(businessId: string, convId: string, data: any) { return this.chat.updateConversation(businessId, convId, data); }

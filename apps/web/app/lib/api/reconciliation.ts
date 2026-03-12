@@ -122,20 +122,6 @@ export class ReconciliationApi extends ApiClient {
     );
   }
 
-  async getReconciledTransactions(
-    businessId: string,
-    limit?: number,
-    offset?: number
-  ): Promise<Transaction[]> {
-    const params = new URLSearchParams();
-    if (limit !== undefined) params.set('limit', String(limit));
-    if (offset !== undefined) params.set('offset', String(offset));
-    const qs = params.toString();
-    return this.request<Transaction[]>(
-      `/businesses/${businessId}/reconciliation/reconciled${qs ? `?${qs}` : ''}`
-    );
-  }
-
   async findDuplicates(businessId: string): Promise<DuplicateGroup[]> {
     return this.request<DuplicateGroup[]>(
       `/businesses/${businessId}/transactions/duplicates`
