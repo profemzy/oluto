@@ -48,7 +48,7 @@ export default function PaymentsPage() {
       (p) =>
         (p.payment_number?.toLowerCase().includes(q) || false) ||
         customerMap[p.customer_id]?.toLowerCase().includes(q) ||
-        p.payment_method.toLowerCase().includes(q)
+        (p.payment_method || "").toLowerCase().includes(q)
     );
   }, [payments, searchQuery, customerMap]);
 
