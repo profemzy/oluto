@@ -193,6 +193,7 @@ export function DataTable<T>({
     new Set(initialColumns.filter((c) => !c.hidden).map((c) => c.key))
   );
   const [showColumnMenu, setShowColumnMenu] = useState(false);
+  const [sortAnnouncement, setSortAnnouncement] = useState("");
 
   // Filter columns
   const columns = useMemo(
@@ -213,8 +214,13 @@ export function DataTable<T>({
       setSort(newSort);
       setPagination((p) => ({ ...p, page: 1 }));
       onSort?.(newSort);
+      
+      // Announce sort change to screen readers
+      const columnName = initialColumns.find(c => c.key === field)?.header || field;
+      const direction = newSort.direction === 'asc' ? 'ascending' : 'descending';
+      setSortAnnouncement(`${columnName} sorted ${direction}`);
     },
-    [sort, onSort]
+    [sort, onSort, initialColumns]
   );
 
   // Handle filter
@@ -443,7 +449,12 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={className}>
+    <div className={className} role="grid" aria-label="Data table">
+      {/* Screen reader announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {sortAnnouncement}
+      </div>
+      
       {/* Toolbar */}
       <div className="mb-4 flex flex-col lg:flex-row gap-4">
         {/* Search */}
@@ -633,30 +644,51 @@ export function DataTable<T>({
                 />
               </div>
             )}
-            {columns.map((column) => (
-              <div
-                key={column.key}
-                className={`flex items-center gap-1 ${
-                  column.sortable ? "cursor-pointer group" : ""
-                } ${column.align === "right" ? "justify-end" : ""}`}
-                onClick={() => column.sortable && handleSort(column.key)}
-              >
-                {column.header}
-                {column.sortable && (
-                  <SortIcon
-                    direction={
-                      sort?.field === column.key ? sort.direction : null
+            {columns.map((column) => {
+              const isSorted = sort?.field === column.key;
+              const sortDirection = isSorted ? sort.direction : null;
+              const ariaSort = column.sortable
+                ? sortDirection === 'asc'
+                  ? 'ascending'
+                  : sortDirection === 'desc'
+                  ? 'descending'
+                  : 'none'
+                : undefined;
+
+              return (
+                <div
+                  key={column.key}
+                  role="columnheader"
+                  aria-sort={ariaSort}
+                  className={`flex items-center gap-1 ${
+                    column.sortable ? "cursor-pointer group" : ""
+                  } ${column.align === "right" ? "justify-end" : ""}`}
+                  onClick={() => column.sortable && handleSort(column.key)}
+                  tabIndex={column.sortable ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (column.sortable && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      handleSort(column.key);
                     }
-                  />
-                )}
-              </div>
-            ))}
-            {actions && <div className="text-right">Actions</div>}
+                  }}
+                >
+                  {column.header}
+                  {column.sortable && (
+                    <SortIcon
+                      direction={
+                        sort?.field === column.key ? sort.direction : null
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
+            {actions && <div className="text-right" role="columnheader">Actions</div>}
           </div>
         </div>
 
         {/* Body */}
-        <div className="divide-y divide-edge-subtle">
+        <div role="rowgroup" className="divide-y divide-edge-subtle">
           {paginatedData.map((item, index) => {
             const id = keyExtractor(item);
             const isSelected = selectedRows.has(id);
@@ -665,6 +697,8 @@ export function DataTable<T>({
             return (
               <div
                 key={id}
+                role="row"
+                aria-selected={isSelected}
                 className={`
                   grid gap-2 sm:gap-4 px-6 py-4 transition-all duration-200 items-center
                   ${
@@ -685,6 +719,13 @@ export function DataTable<T>({
                   `,
                 }}
                 onClick={() => onRowClick?.(item)}
+                tabIndex={onRowClick ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onRowClick(item);
+                  }
+                }}
               >
                 {enableRowSelection && (
                   <div
@@ -702,6 +743,7 @@ export function DataTable<T>({
                 {columns.map((column) => (
                   <div
                     key={column.key}
+                    role="gridcell"
                     className={`
                       ${column.align === "right" ? "text-right" : ""}
                       ${column.align === "center" ? "text-center" : ""}
@@ -735,6 +777,7 @@ export function DataTable<T>({
                             }
                           `}
                           title={action.label}
+                          aria-label={action.label}
                           onClick={() => action.onClick?.(item)}
                         >
                           {action.icon}
