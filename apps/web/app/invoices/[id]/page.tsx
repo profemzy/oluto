@@ -296,8 +296,8 @@ export default function InvoiceDetailPage({
                 </div>
                 <div className="col-span-1 text-sm text-body text-right">
                   {item.discount_percent &&
-                  parseFloat(item.discount_percent) > 0
-                    ? `${item.discount_percent}%`
+                  (typeof item.discount_percent === 'number' ? item.discount_percent : parseFloat(item.discount_percent)) > 0
+                    ? `${typeof item.discount_percent === 'number' ? item.discount_percent : item.discount_percent}%`
                     : "\u2014"}
                 </div>
                 <div className="col-span-3 text-sm font-bold text-heading text-right">

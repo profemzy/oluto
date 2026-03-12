@@ -695,12 +695,14 @@ export interface QbParsedAccount {
     existing_account_id: string;
     existing_account_name: string;
     match_type: string;
+    suggested_action?: string;  // For backward compatibility
   };
   mapped_type?: string;  // For backward compatibility
   suggested_code?: string;  // For backward compatibility
   existing_account_id?: string;  // For backward compatibility
   existing_account_name?: string;  // For backward compatibility
   match_type?: string;  // For backward compatibility
+  suggested_action?: string;  // For backward compatibility
 }
 
 export interface QbParsedContact {

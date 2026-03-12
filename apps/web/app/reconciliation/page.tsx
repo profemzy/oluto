@@ -381,7 +381,8 @@ export default function ReconciliationPage() {
       ) : (
         <div className="space-y-4 mb-8">
           {suggestions.map((suggestion) => {
-            const level = confidenceLevel(suggestion.confidence);
+            const confidenceNum = typeof suggestion.confidence === 'number' ? suggestion.confidence : parseFloat(suggestion.confidence);
+            const level = confidenceLevel(confidenceNum);
             const isProcessing = confirmMutation.isPending || rejectMutation.isPending;
 
             return (
@@ -405,7 +406,7 @@ export default function ReconciliationPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${CONFIDENCE_COLORS[level]}`}>
-                      {(parseFloat(suggestion.confidence) * 100).toFixed(0)}%
+                      {(typeof suggestion.confidence === 'number' ? suggestion.confidence : parseFloat(suggestion.confidence)) * 100.toFixed(0)}%
                     </span>
                     <p className="text-xs text-caption text-center max-w-[200px] hidden lg:block">{suggestion.match_reason}</p>
                   </div>
