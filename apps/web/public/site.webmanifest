@@ -1,0 +1,20 @@
+{
+  "name": "Oluto - AI Finance Team for Canadian Small Business",
+  "short_name": "Oluto",
+  "description": "8 AI agents that handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#06b6d4",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "categories": ["business", "finance", "productivity"]
+}
