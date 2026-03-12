@@ -577,13 +577,15 @@ export interface AccountsReceivableAging {
     days_90: string;
     total: string;
   }[];
-  buckets?: {  // For backward compatibility - array of aging buckets
-    current: number;
-    days_1_30: number;
-    days_31_60: number;
-    days_61_90: number;
-    days_91_plus: number;
-    total: number;
+  buckets?: {  // Alias for customers - for backward compatibility
+    customer_id: string;
+    customer_name: string;
+    current: string;
+    days_1_30: string;  // Note: different field name
+    days_31_60: string;
+    days_61_90: string;
+    days_91_plus: string;
+    total: string;
   }[];
 }
 
