@@ -11,6 +11,7 @@
 
 | Document | Description | Status |
 |----------|-------------|--------|
+| **[CODEBASE_SUMMARY.md](CODEBASE_SUMMARY.md)** | Complete code changes summary | ✅ Main |
 | **[SPRINT1_COMPLETE.md](SPRINT1_COMPLETE.md)** | Sprint 1: Accessibility & Testing | ✅ Complete |
 | **[SPRINT2_100_PERCENT_COMPLETE.md](SPRINT2_100_PERCENT_COMPLETE.md)** | Sprint 2: TypeScript Strict Mode | ✅ Complete |
 | **[SPRINT2_DEV_DEPLOYMENT.md](SPRINT2_DEV_DEPLOYMENT.md)** | Sprint 2 DEV Deployment | ✅ Deployed |
