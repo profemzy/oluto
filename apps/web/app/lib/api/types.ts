@@ -205,6 +205,8 @@ export interface Contact {
   email?: string;
   phone?: string;
   address?: string;
+  billing_address?: string;
+  shipping_address?: string;
   city?: string;
   province?: string;
   postal_code?: string;
@@ -278,33 +280,44 @@ export interface Invoice {
   customer_id: string;
   customer_name: string;
   status: string;
-  issue_date: string;
+  invoice_date: string;
   due_date: string;
   total_amount: string;
   amount_due: string;
+  balance: string;
   created_at: string | null;
   updated_at: string | null;
 }
 
 export interface InvoiceLineItem {
   id?: string;
+  line_number?: number;
   description: string;
-  quantity: number;
-  unit_price: string;
+  item_description?: string;
+  quantity?: number;
+  unit_price?: string;
   amount: string;
   gst_amount?: string;
   pst_amount?: string;
+  discount_percent?: number;
 }
 
 export interface InvoiceWithLineItems extends Invoice {
   line_items: InvoiceLineItem[];
+  customer_memo?: string;
+  billing_address?: string;
+  shipping_address?: string;
+  payment_method?: string;
 }
 
 export interface CreateInvoiceRequest {
   customer_id: string;
-  issue_date: string;
+  invoice_date: string;
   due_date: string;
   line_items: InvoiceLineItem[];
+  customer_memo?: string;
+  billing_address?: string;
+  shipping_address?: string;
 }
 
 export interface InvoiceListParams {
@@ -321,22 +334,26 @@ export interface Bill {
   vendor_id: string;
   vendor_name: string;
   status: string;
-  issue_date: string;
+  bill_date: string;
   due_date: string;
   total_amount: string;
   amount_due: string;
+  balance: string;
+  memo?: string;
   created_at: string | null;
   updated_at: string | null;
 }
 
 export interface BillLineItem {
   id?: string;
+  line_number?: number;
   description: string;
-  quantity: number;
-  unit_price: string;
+  quantity?: number;
+  unit_price?: string;
   amount: string;
   gst_amount?: string;
   pst_amount?: string;
+  expense_account_id?: string;
 }
 
 export interface BillWithLineItems extends Bill {
@@ -345,9 +362,10 @@ export interface BillWithLineItems extends Bill {
 
 export interface CreateBillRequest {
   vendor_id: string;
-  issue_date: string;
+  bill_date: string;
   due_date: string;
   line_items: BillLineItem[];
+  memo?: string;
 }
 
 export interface BillListParams {
@@ -355,6 +373,10 @@ export interface BillListParams {
   skip?: number;
   limit?: number;
 }
+
+// Legacy type aliases for backward compatibility
+export type CreateBillLineItemRequest = BillLineItem;
+export type CreateInvoiceLineItemRequest = InvoiceLineItem;
 
 // ==================== Payment Types ====================
 
@@ -366,6 +388,7 @@ export interface Payment {
   amount: string;
   payment_date: string;
   method?: string;
+  payment_method?: string;  // Alias for backward compatibility
   reference?: string;
   created_at: string | null;
   updated_at: string | null;
@@ -413,30 +436,39 @@ export interface CreateBillPaymentRequest {
 
 // ==================== Receipt Types ====================
 
-export interface ReceiptResponse {
-  id: string;
-  filename: string;
-  content_type: string;
-  size: number;
-  uploaded_at: string;
-  ocr_data: ReceiptOcrData | null;
-}
-
 export interface ReceiptOcrData {
   vendor_name: string;
+  vendor?: string;  // Alias for backward compatibility
   amount: string;
   date: string;
   gst_amount?: string;
   pst_amount?: string;
+  tax_amounts?: { gst: string; pst: string };
+  raw_text?: string;
+}
+
+export interface ReceiptResponse {
+  id: string;
+  filename: string;
+  original_filename?: string;
+  content_type: string;
+  size: number;
+  file_size?: number;  // Alias for backward compatibility
+  uploaded_at: string;
+  ocr_data: ReceiptOcrData | null;
+  ocr_status?: string;
+  download_url?: string;  // Added for direct download URL
 }
 
 export interface ReceiptUploadResponse {
   receipt: ReceiptResponse;
   message?: string;
+  ocr_data?: ReceiptOcrData | null;
 }
 
 export interface ReceiptDownloadResponse {
   url: string;
+  download_url?: string;  // Alias for backward compatibility
   expires_at: string;
 }
 
@@ -510,6 +542,8 @@ export interface ReconciliationSummary {
   difference: string;
   reconciled_count: number;
   unreconciled_count: number;
+  unreconciled?: number;  // Alias for backward compatibility
+  suggested_matches?: number;  // For UI display
 }
 
 export interface ReconciliationSuggestion {
@@ -568,12 +602,16 @@ export interface ChatMessage {
   conversation_id: string;
   role: "user" | "assistant";
   content: string;
+  model?: string;
   created_at: string;
 }
 
 export interface SendChatResponse {
   success: boolean;
   message: string;
+  response?: string;  // Alias for backward compatibility
+  model?: string;
+  error?: string;  // For error messages
   conversation_id?: string;
 }
 

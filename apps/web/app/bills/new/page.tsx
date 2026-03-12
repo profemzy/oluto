@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { api, Contact, Account, CreateBillLineItemRequest, ReceiptOcrData } from "@/app/lib/api";
+import { api, Contact, Account, BillLineItem, ReceiptOcrData } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { FormSkeleton, PageHeader, ErrorAlert, BillReceiptSection, PendingReceiptFile } from "@/app/components";
 import { todayInTimezone, dateOffsetInTimezone } from "@/app/lib/format";
 
-interface LineItemRow extends CreateBillLineItemRequest {
+interface LineItemRow extends BillLineItem {
   _key: number;
 }
 
@@ -63,7 +63,7 @@ export default function NewBillPage() {
     load();
   }, [user?.business_id]);
 
-  const updateLineItem = (index: number, field: keyof LineItemRow, value: string) => {
+  const updateLineItem = (index: number, field: string, value: string) => {
     setLineItems((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -117,10 +117,10 @@ export default function NewBillPage() {
     }
 
     // Try to match vendor by name if OCR extracted vendor info
-    if (ocrData.vendor && vendors.length > 0) {
+    if (ocrData.vendor_name && vendors.length > 0) {
       const matchedVendor = vendors.find((v) =>
-        v.name.toLowerCase().includes(ocrData.vendor!.toLowerCase()) ||
-        ocrData.vendor!.toLowerCase().includes(v.name.toLowerCase())
+        v.name.toLowerCase().includes(ocrData.vendor_name.toLowerCase()) ||
+        ocrData.vendor_name.toLowerCase().includes(v.name.toLowerCase())
       );
       if (matchedVendor) {
         setVendorId(matchedVendor.id);
@@ -149,10 +149,10 @@ export default function NewBillPage() {
         due_date: dueDate,
         memo: memo || undefined,
         line_items: lineItems.map((item) => ({
-          line_number: item.line_number,
-          description: item.description || undefined,
-          amount: item.amount,
-          expense_account_id: item.expense_account_id,
+          line_number: item.line_number || undefined,
+          description: item.description || "",
+          amount: item.amount || "0",
+          expense_account_id: item.expense_account_id || undefined,
         })),
       });
 
