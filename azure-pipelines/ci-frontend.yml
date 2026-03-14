@@ -18,11 +18,7 @@ trigger:
       - packages/**
       - package.json
 
-pr:
-  branches:
-    include:
-      - master
-      - main
+pr: none
 
 variables:
   acrLoginServer: "wackopscoachdevacr.azurecr.io"
