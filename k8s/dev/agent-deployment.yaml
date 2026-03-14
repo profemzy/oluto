@@ -4,7 +4,8 @@
 # Image is built and pushed by the ZeroClaw CI pipeline.
 #
 # Config loaded from zeroclaw-config ConfigMap (config.toml + oluto-config.json).
-# API key injected via ZEROCLAW_API_KEY env var from zeroclaw-secrets secret.
+# Gateway JWT validation uses Keycloak OIDC settings from env vars.
+# API key injected via ZEROCLAW_API_KEY env var from oluto-secret.
 # =============================================================================
 apiVersion: apps/v1
 kind: Deployment
@@ -39,13 +40,19 @@ spec:
             - name: ZEROCLAW_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zeroclaw-secrets
-                  key: api-key
+                  name: oluto-secret
+                  key: FUELIX_API_KEY
             - name: ZEROCLAW_MODEL
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
                   key: ZEROCLAW_FUELIX_MODEL
+            - name: ZEROCLAW_GATEWAY_KEYCLOAK_URL
+              value: "https://auth.dev.oluto.app"
+            - name: ZEROCLAW_GATEWAY_KEYCLOAK_REALM
+              value: "oluto"
+            - name: ZEROCLAW_GATEWAY_KEYCLOAK_ISSUER_URL
+              value: "https://auth.dev.oluto.app"
             - name: OLUTO_API_BASE_URL
               value: "http://oluto-backend"
             - name: RUST_LOG
