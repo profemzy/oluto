@@ -12,6 +12,7 @@ interface ChatAreaProps {
   loading: boolean;
   onSend: (message: string, file?: File) => void;
   onQuickAction: (action: QuickAction) => void;
+  onCancel?: () => void;
 }
 
 // Group messages by date
@@ -51,29 +52,47 @@ function groupMessagesByDate(messages: ChatMessage[]) {
 // Date separator with gradient lines
 function DateSeparator({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center my-6">
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent flex-1" />
-      <span className="px-4 text-xs font-medium text-gray-400 bg-gray-50/80 dark:bg-[#0f0f18]/80 rounded-full">
+    <div className="my-6 flex items-center justify-center">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-700" />
+      <span className="rounded-full bg-gray-50/80 px-4 text-xs font-medium text-gray-400 dark:bg-[#0f0f18]/80">
         {label}
       </span>
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent flex-1" />
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-700" />
     </div>
   );
 }
 
 // Loading banner — sticky pill at top
-function LoadingBanner() {
+function LoadingBanner({ onCancel }: { onCancel?: () => void }) {
   return (
-    <div className="sticky top-0 z-10 flex justify-center mb-4">
-      <div className="flex items-center gap-3 px-4 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg shadow-cyan-500/25">
+    <div className="sticky top-0 z-10 mb-4 flex justify-center">
+      <div className="flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-white shadow-lg shadow-cyan-500/25">
         <div className="relative">
-          <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
         </div>
         <span className="text-sm font-medium">Oluto is thinking...</span>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full border border-white/50 px-2.5 py-1 text-xs font-semibold hover:bg-white/15"
+          >
+            Stop
+          </button>
+        )}
         <div className="flex items-center gap-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce" style={{ animationDelay: "300ms" }} />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
+            style={{ animationDelay: "300ms" }}
+          />
         </div>
       </div>
     </div>
@@ -84,11 +103,20 @@ function LoadingBanner() {
 function TypingIndicator() {
   return (
     <div className="flex justify-start">
-      <div className="bg-white dark:bg-[#1a1a25] border border-gray-200 dark:border-gray-800 rounded-2xl rounded-tl-sm shadow-sm p-4">
+      <div className="rounded-2xl rounded-tl-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-[#1a1a25]">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          <div
+            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+            style={{ animationDelay: "300ms" }}
+          />
         </div>
       </div>
     </div>
@@ -100,15 +128,27 @@ function DragOverlay({ isDragging }: { isDragging: boolean }) {
   if (!isDragging) return null;
 
   return (
-    <div className="absolute inset-0 z-50 bg-cyan-500/10 dark:bg-cyan-900/20 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-white dark:bg-[#1a1a25] border-2 border-dashed border-cyan-400 dark:border-cyan-600 rounded-2xl p-8 text-center shadow-xl">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-          <svg className="w-8 h-8 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm dark:bg-cyan-900/20">
+      <div className="rounded-2xl border-2 border-dashed border-cyan-400 bg-white p-8 text-center shadow-xl dark:border-cyan-600 dark:bg-[#1a1a25]">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-900/30">
+          <svg
+            className="h-8 w-8 text-cyan-600 dark:text-cyan-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
           </svg>
         </div>
         <p className="text-lg font-semibold text-gray-900 dark:text-white">Drop files to upload</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Receipts, statements, or documents</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Receipts, statements, or documents
+        </p>
       </div>
     </div>
   );
@@ -117,20 +157,20 @@ function DragOverlay({ isDragging }: { isDragging: boolean }) {
 // Welcome message with quick actions
 function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4">
+    <div className="flex flex-col items-center justify-center px-4 py-8">
       {/* Logo with glow */}
       <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-2xl blur-xl opacity-30 animate-pulse" />
-        <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center shadow-2xl">
+        <div className="absolute inset-0 animate-pulse rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 opacity-30 blur-xl" />
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-2xl">
           <span className="text-3xl font-bold text-white">O</span>
         </div>
       </div>
 
       {/* Title */}
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+      <h2 className="mb-2 text-center text-xl font-bold text-gray-900 dark:text-white">
         How can I help you today?
       </h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+      <p className="mb-8 max-w-md text-center text-sm text-gray-500 dark:text-gray-400">
         Ask about your finances, upload receipts, or use a quick action below to get started
       </p>
 
@@ -139,16 +179,23 @@ function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction
 
       {/* Pro tip */}
       <div className="mt-6 flex items-center gap-2 text-xs text-gray-400">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
         </svg>
-        <span>Pro tip: Use quick actions anytime by clicking the lightning icon in the chat input</span>
+        <span>
+          Pro tip: Use quick actions anytime by clicking the lightning icon in the chat input
+        </span>
       </div>
     </div>
   );
 }
 
-export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaProps) {
+export function ChatArea({ messages, loading, onSend, onQuickAction, onCancel }: ChatAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
@@ -224,11 +271,12 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
   };
 
   const isEmpty = messages.length === 0;
-  const showLoadingBanner = loading && messages.length > 0 && messages[messages.length - 1].role === "user";
+  const showLoadingBanner =
+    loading && messages.length > 0 && messages[messages.length - 1].role === "user";
 
   return (
     <div
-      className="flex-1 flex flex-col min-h-0 relative"
+      className="relative flex min-h-0 flex-1 flex-col"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -241,28 +289,37 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4"
+        className="flex-1 space-y-4 overflow-y-auto p-3 sm:p-4"
       >
         {isEmpty ? (
           loading ? (
             // Starting conversation state
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex h-full flex-col items-center justify-center">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-2xl blur-xl opacity-30 animate-pulse" />
-                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center shadow-2xl">
-                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="absolute inset-0 animate-pulse rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 opacity-30 blur-xl" />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-2xl">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 </div>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                 Starting conversation...
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Oluto is preparing your financial insights
               </p>
               <div className="mt-4 flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
             </div>
           ) : (
@@ -271,7 +328,7 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
         ) : (
           <>
             {/* Loading banner at the top when processing */}
-            {showLoadingBanner && <LoadingBanner />}
+            {showLoadingBanner && <LoadingBanner onCancel={onCancel} />}
 
             {messageGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
@@ -300,18 +357,28 @@ export function ChatArea({ messages, loading, onSend, onQuickAction }: ChatAreaP
             scrollToBottom();
             setAutoScroll(true);
           }}
-          className="absolute bottom-24 right-4 p-2 rounded-full bg-white dark:bg-[#1a1a25] border border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 z-20"
+          className="absolute right-4 bottom-24 z-20 rounded-full border border-gray-200 bg-white p-2 shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl dark:border-gray-800 dark:bg-[#1a1a25]"
           title="Scroll to bottom"
         >
-          <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          <svg
+            className="h-5 w-5 text-gray-600 dark:text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
           </svg>
         </button>
       )}
 
       {/* Quick actions bar */}
       {showQuickActions && (
-        <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20">
+        <div className="border-t border-gray-200 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/20">
           <QuickActions variant="compact" onSelect={handleQuickAction} />
         </div>
       )}
