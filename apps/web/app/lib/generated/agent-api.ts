@@ -140,7 +140,7 @@ export class AgentApiClient {
       body: values.body === undefined ? undefined : JSON.stringify(values.body),
     });
     if (!response.ok) {
-      const problem: unknown = await response.json().catch(() => null);
+      const problem: unknown = await response.json().catch((): null => null);
       throw new AgentApiError(response.status, problem);
     }
     if (spec.stream) return response as AgentApiOperationResponse[K];
