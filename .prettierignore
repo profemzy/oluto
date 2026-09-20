@@ -22,6 +22,7 @@ coverage
 # Misc
 .DS_Store
 *.pem
+apps/web/app/lib/generated/*.ts
 
 # Debug
 npm-debug.log*
