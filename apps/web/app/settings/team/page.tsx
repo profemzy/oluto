@@ -67,7 +67,7 @@ function isRetryable(invitation: MembershipInvitation): boolean {
 }
 
 export default function TeamSettingsPage() {
-  const { user, loading: authLoading, canManageMemberships } = useAuth();
+  const { user, loading: authLoading, role, canManageMemberships } = useAuth();
   const queryClient = useQueryClient();
   const businessId = user?.business_id;
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -75,6 +75,10 @@ export default function TeamSettingsPage() {
   const [inviteRole, setInviteRole] = useState<Exclude<MembershipRole, "owner">>("viewer");
   const [revokeConfirmationId, setRevokeConfirmationId] = useState<string | null>(null);
   const [memberRevokeConfirmationId, setMemberRevokeConfirmationId] = useState<string | null>(null);
+  const [ownershipTransferConfirmationId, setOwnershipTransferConfirmationId] = useState<
+    string | null
+  >(null);
+  const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [membersQuery, invitationsQuery] = [
     useQuery({
@@ -95,6 +99,9 @@ export default function TeamSettingsPage() {
     getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
     enabled: !!businessId && canManageMemberships,
   });
+  const currentOwnerMembership = membersQuery.data?.find(
+    (member) => member.role === "owner" && member.status === "active"
+  );
 
   const retryMutation = useMutation({
     mutationFn: (invitation: MembershipInvitation) =>
@@ -168,6 +175,28 @@ export default function TeamSettingsPage() {
     },
   });
 
+  const transferOwnershipMutation = useMutation({
+    mutationFn: (member: Membership) => {
+      if (!currentOwnerMembership) {
+        throw new Error("The current owner membership could not be loaded. Refresh and try again.");
+      }
+      return api.memberships.transferOwnership(businessId!, {
+        new_owner_membership_id: member.id,
+        expected_owner_version: currentOwnerMembership.version,
+        expected_new_owner_version: member.version,
+      });
+    },
+    onSuccess: () => {
+      setSuccessMessage(
+        "Ownership transferred. Your business role is now Administrator and will refresh on your next page load."
+      );
+      setOwnershipTransferConfirmationId(null);
+      setOwnershipTransferred(true);
+      queryClient.invalidateQueries({ queryKey: ["memberships", businessId] });
+      queryClient.invalidateQueries({ queryKey: ["membership-audit-events", businessId] });
+    },
+  });
+
   const submitInvitation = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     inviteMutation.mutate();
@@ -201,6 +230,7 @@ export default function TeamSettingsPage() {
     revokeMutation.error ??
     updateRoleMutation.error ??
     updateStatusMutation.error ??
+    transferOwnershipMutation.error ??
     auditQuery.error;
 
   return (
@@ -294,26 +324,34 @@ export default function TeamSettingsPage() {
                     <p className="text-muted truncate text-sm">{member.email}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <label>
-                      <span className="sr-only">Role for {member.full_name || member.email}</span>
-                      <select
-                        value={member.role}
-                        onChange={(event) =>
-                          updateRoleMutation.mutate({
-                            member,
-                            role: event.target.value as MembershipRole,
-                          })
-                        }
-                        disabled={updateRoleMutation.isPending}
-                        className="min-h-10 rounded-xl border-0 bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-700 ring-1 ring-cyan-200 ring-inset focus:ring-2 focus:ring-cyan-600 disabled:opacity-60 dark:bg-cyan-950 dark:text-cyan-300 dark:ring-cyan-800"
-                      >
-                        {Object.entries(roleLabels).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    {member.role === "owner" ? (
+                      <span className="min-h-10 rounded-xl bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-700 ring-1 ring-cyan-200 ring-inset dark:bg-cyan-950 dark:text-cyan-300 dark:ring-cyan-800">
+                        Owner
+                      </span>
+                    ) : (
+                      <label>
+                        <span className="sr-only">Role for {member.full_name || member.email}</span>
+                        <select
+                          value={member.role}
+                          onChange={(event) =>
+                            updateRoleMutation.mutate({
+                              member,
+                              role: event.target.value as Exclude<MembershipRole, "owner">,
+                            })
+                          }
+                          disabled={updateRoleMutation.isPending}
+                          className="min-h-10 rounded-xl border-0 bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-700 ring-1 ring-cyan-200 ring-inset focus:ring-2 focus:ring-cyan-600 disabled:opacity-60 dark:bg-cyan-950 dark:text-cyan-300 dark:ring-cyan-800"
+                        >
+                          {Object.entries(roleLabels)
+                            .filter(([value]) => value !== "owner")
+                            .map(([value, label]) => (
+                              <option key={value} value={value}>
+                                {label}
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                    )}
                     {member.role === "owner" ? (
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${statusStyles[member.status]}`}
@@ -341,6 +379,42 @@ export default function TeamSettingsPage() {
                         </select>
                       </label>
                     )}
+                    {role === "owner" &&
+                      !ownershipTransferred &&
+                      member.role !== "owner" &&
+                      member.status === "active" &&
+                      (ownershipTransferConfirmationId === member.id ? (
+                        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-amber-50 px-2 py-1 ring-1 ring-amber-200 dark:bg-amber-950 dark:ring-amber-800">
+                          <span className="max-w-52 text-xs font-semibold text-amber-800 dark:text-amber-200">
+                            You will become Administrator.
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setOwnershipTransferConfirmationId(null)}
+                            className="text-body hover:bg-surface-hover min-h-10 rounded-xl px-3 py-1 text-xs font-bold transition"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => transferOwnershipMutation.mutate(member)}
+                            disabled={transferOwnershipMutation.isPending}
+                            aria-label={`Confirm transfer ownership to ${member.full_name || member.email}`}
+                            className="min-h-10 rounded-xl bg-amber-600 px-3 py-1 text-xs font-bold text-white transition hover:bg-amber-700 disabled:cursor-wait disabled:opacity-60"
+                          >
+                            Confirm transfer
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setOwnershipTransferConfirmationId(member.id)}
+                          aria-label={`Transfer ownership to ${member.full_name || member.email}`}
+                          className="min-h-10 rounded-xl px-3 py-1 text-xs font-bold text-amber-700 transition hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
+                        >
+                          Transfer ownership
+                        </button>
+                      ))}
                     {member.role !== "owner" &&
                       member.status !== "revoked" &&
                       (memberRevokeConfirmationId === member.id ? (

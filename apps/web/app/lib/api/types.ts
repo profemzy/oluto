@@ -95,6 +95,18 @@ export interface Membership {
   activated_at: string | null;
 }
 
+export interface TransferOwnership {
+  new_owner_membership_id: string;
+  expected_owner_version: number;
+  expected_new_owner_version: number;
+}
+
+export interface OwnershipTransfer {
+  business_id: string;
+  previous_owner: Membership;
+  new_owner: Membership;
+}
+
 export interface MembershipInvitationDelivery {
   status: MembershipInvitationDeliveryStatus;
   version: number;

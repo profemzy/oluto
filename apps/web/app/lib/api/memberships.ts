@@ -7,6 +7,8 @@ import type {
   MembershipInvitationCreated,
   MembershipInvitationDelivery,
   MembershipInvitationSummary,
+  OwnershipTransfer,
+  TransferOwnership,
   UpdateMembership,
 } from "./types";
 
@@ -22,6 +24,16 @@ export class MembershipsApi extends ApiClient {
   ): Promise<Membership> {
     return this.request<Membership>(`/businesses/${businessId}/memberships/${membershipId}`, {
       method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async transferOwnership(
+    businessId: string,
+    data: TransferOwnership
+  ): Promise<OwnershipTransfer> {
+    return this.request<OwnershipTransfer>(`/businesses/${businessId}/ownership-transfers`, {
+      method: "POST",
       body: JSON.stringify(data),
     });
   }

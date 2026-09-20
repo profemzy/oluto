@@ -99,6 +99,33 @@ describe("MembershipsApi", () => {
     );
   });
 
+  it("sends an atomic version-checked ownership transfer", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      headers: new Headers({ "content-type": "application/json" }),
+      json: async () => ({ success: true, data: {} }),
+    } as Response);
+
+    await memberships.transferOwnership(businessId, {
+      new_owner_membership_id: "membership-2",
+      expected_owner_version: 3,
+      expected_new_owner_version: 6,
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      `http://localhost:3000/api/v1/businesses/${businessId}/ownership-transfers`,
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          new_owner_membership_id: "membership-2",
+          expected_owner_version: 3,
+          expected_new_owner_version: 6,
+        }),
+      })
+    );
+  });
+
   it("loads older audit events using the sequence cursor", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
