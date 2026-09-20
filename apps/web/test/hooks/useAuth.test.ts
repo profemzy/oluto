@@ -45,6 +45,7 @@ describe("useAuth Hook", () => {
       membership_id: "membership-123",
       role: "viewer",
       membership_version: 1,
+      permissions: ["business.read", "financial.read"],
     });
   });
 
@@ -157,6 +158,17 @@ describe("useAuth Hook", () => {
       membership_id: "membership-123",
       role: "owner",
       membership_version: 3,
+      permissions: [
+        "business.read",
+        "financial.read",
+        "financial.write",
+        "financial.approve",
+        "documents.manage",
+        "memberships.read",
+        "memberships.manage",
+        "memberships.transfer_ownership",
+        "imports.manage",
+      ],
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
@@ -224,6 +236,12 @@ describe("useAuth Hook", () => {
       membership_id: "membership-123",
       role: "accountant",
       membership_version: 1,
+      permissions: [
+        "business.read",
+        "financial.read",
+        "financial.write",
+        "documents.manage",
+      ],
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
