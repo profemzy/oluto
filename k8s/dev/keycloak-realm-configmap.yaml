@@ -264,6 +264,17 @@ data:
                 "access.token.claim": "true",
                 "userinfo.token.claim": "true"
               }
+            },
+            {
+              "name": "oluto-api-audience",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-audience-mapper",
+              "config": {
+                "included.client.audience": "oluto-api",
+                "id.token.claim": "false",
+                "access.token.claim": "true",
+                "introspection.token.claim": "true"
+              }
             }
           ]
         }
