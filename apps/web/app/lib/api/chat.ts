@@ -7,7 +7,9 @@ import {
   type AgentRunResponse,
   type ApprovalRequestResponse,
   type ArtifactResponse,
+  type AutomationResponse,
   type ConversationResponse,
+  type DailyBriefingResponse,
   type InputRequestResponse,
   type MessageResponse,
   type PostUserMessageResponse,
@@ -241,6 +243,57 @@ export class ChatApi {
       },
       body: { reason_code: "user_requested" },
     });
+  }
+
+  async listAutomations(businessId: string): Promise<AutomationResponse[]> {
+    const response = await this.client.request("listAutomations", {
+      path: { business_id: businessId },
+    });
+    return response.items;
+  }
+
+  async saveDailyBriefingSchedule(
+    businessId: string,
+    schedule: {
+      automation?: AutomationResponse;
+      name: string;
+      locale: "en-CA" | "fr-CA";
+      cronExpression: string;
+      timeZoneName: string;
+      status: "active" | "paused";
+    }
+  ): Promise<AutomationResponse> {
+    if (!schedule.automation) {
+      return this.client.request("createAutomation", {
+        path: { business_id: businessId },
+        body: {
+          name: schedule.name,
+          locale: schedule.locale,
+          cron_expression: schedule.cronExpression,
+          time_zone_name: schedule.timeZoneName,
+          status: schedule.status,
+        },
+      });
+    }
+    return this.client.request("updateAutomation", {
+      path: { business_id: businessId, automation_id: schedule.automation.id },
+      headers: { "If-Match": `"${schedule.automation.version}"` },
+      body: {
+        name: schedule.name,
+        locale: schedule.locale,
+        cron_expression: schedule.cronExpression,
+        time_zone_name: schedule.timeZoneName,
+        status: schedule.status,
+      },
+    });
+  }
+
+  async listDailyBriefings(businessId: string): Promise<DailyBriefingResponse[]> {
+    const response = await this.client.request("listDailyBriefings", {
+      path: { business_id: businessId },
+      query: { limit: 30 },
+    });
+    return response.items;
   }
 }
 
