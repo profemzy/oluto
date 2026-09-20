@@ -248,7 +248,6 @@ describe('DataTable', () => {
           columns={columns}
           data={testData}
           keyExtractor={(item) => item.id}
-          filterable
         />
       );
       
@@ -502,7 +501,7 @@ describe('DataTable', () => {
         />
       );
       
-      const firstRow = screen.getByText('John Doe').closest('[role="row"]');
+      const firstRow = screen.getByText('John Doe').closest<HTMLElement>('[role="row"]');
       firstRow?.focus();
       
       fireEvent.keyDown(firstRow!, { key: 'ArrowDown' });
@@ -523,7 +522,7 @@ describe('DataTable', () => {
         />
       );
       
-      const firstRow = screen.getByText('John Doe').closest('[role="row"]');
+      const firstRow = screen.getByText('John Doe').closest<HTMLElement>('[role="row"]');
       firstRow?.focus();
       
       fireEvent.keyDown(firstRow!, { key: 'Enter' });

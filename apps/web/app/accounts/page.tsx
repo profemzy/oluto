@@ -22,7 +22,7 @@ export default function AccountsPage() {
     filter: typeFilter,
     setFilter: setTypeFilter,
   } = useDataTable<Account>({
-    queryKey: ["accounts", user?.business_id],
+    queryKey: ["accounts", user?.business_id ?? ""],
     queryFn: () => api.listAccounts(user?.business_id!),
     filterParam: "type",
     defaultFilter: "",

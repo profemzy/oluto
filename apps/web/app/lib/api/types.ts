@@ -48,6 +48,123 @@ export interface BusinessResponse {
   created_at: string | null;
 }
 
+// ==================== Membership Administration Types ====================
+
+export type MembershipRole = "owner" | "administrator" | "accountant" | "contributor" | "viewer";
+
+export type MembershipStatus = "invited" | "active" | "suspended" | "revoked";
+
+export type MembershipInvitationStatus = "pending" | "accepted" | "revoked" | "expired";
+
+export type MembershipInvitationDeliveryStatus =
+  | "pending"
+  | "processing"
+  | "delivered"
+  | "cancelled"
+  | "dead_letter";
+
+export interface BusinessAuthContext {
+  user_id: string;
+  business_id: string;
+  membership_id: string;
+  role: MembershipRole;
+  membership_version: number;
+}
+
+export interface Membership {
+  id: string;
+  business_id: string;
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  role: MembershipRole;
+  status: MembershipStatus;
+  version: number;
+  activated_at: string | null;
+}
+
+export interface MembershipInvitationDelivery {
+  status: MembershipInvitationDeliveryStatus;
+  version: number;
+  attempt_count: number;
+  attempts_in_cycle: number;
+  manual_retry_count: number;
+  available_at: string;
+  last_error: string | null;
+  delivered_at: string | null;
+  last_retried_at: string | null;
+}
+
+export interface MembershipInvitationSummary {
+  id: string;
+  business_id: string;
+  email: string;
+  role: MembershipRole;
+  status: MembershipInvitationStatus;
+  version: number;
+  invited_by: string;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface MembershipInvitation extends MembershipInvitationSummary {
+  delivery: MembershipInvitationDelivery;
+}
+
+export interface MembershipInvitationCreated {
+  id: string;
+  business_id: string;
+  email: string;
+  role: MembershipRole;
+  expires_at: string;
+  version: number;
+  acceptance_token: string;
+}
+
+export type MembershipAuditEventType =
+  | "membership_created"
+  | "invitation_created"
+  | "invitation_accepted"
+  | "invitation_revoked"
+  | "invitation_expired"
+  | "invitation_delivery_retried"
+  | "membership_updated"
+  | "ownership_transferred";
+
+export interface MembershipAuditEvent {
+  sequence: number;
+  id: string;
+  business_id: string;
+  event_type: MembershipAuditEventType;
+  actor_user_id: string | null;
+  actor_email: string | null;
+  subject_user_id: string | null;
+  membership_id: string | null;
+  invitation_id: string | null;
+  before_state: Record<string, unknown> | null;
+  after_state: Record<string, unknown> | null;
+  metadata: Record<string, unknown>;
+  occurred_at: string;
+}
+
+export interface MembershipAuditPage {
+  items: MembershipAuditEvent[];
+  next_cursor: number | null;
+}
+
+export interface CreateMembershipInvitation {
+  email: string;
+  role: Exclude<MembershipRole, "owner">;
+}
+
+export interface UpdateMembership {
+  role?: MembershipRole;
+  status?: MembershipStatus;
+  expected_version: number;
+}
+
 // ==================== Transaction Types ====================
 
 export interface Transaction {
@@ -153,14 +270,14 @@ export interface ParsedTransaction {
 export interface ImportParseResponse {
   transactions: ParsedTransaction[];
   duplicates: number[];
-  duplicate_count?: number;  // For backward compatibility
+  duplicate_count?: number; // For backward compatibility
   warnings: string[];
-  parse_warnings?: string[];  // For backward compatibility
-  file_type?: string;  // For backward compatibility
-  file_name?: string;  // For backward compatibility
-  statement_period?: { start: string; end: string };  // For backward compatibility
-  account_info?: string;  // For backward compatibility
-  total_count?: number;  // For backward compatibility
+  parse_warnings?: string[]; // For backward compatibility
+  file_type?: string; // For backward compatibility
+  file_name?: string; // For backward compatibility
+  statement_period?: { start: string; end: string }; // For backward compatibility
+  account_info?: string; // For backward compatibility
+  total_count?: number; // For backward compatibility
 }
 
 export interface AsyncJobCreateResponse {
@@ -176,11 +293,11 @@ export interface ImportConfirmRequest {
 
 export interface ImportConfirmResponse {
   import_batch_id: string;
-  batch_id?: string;  // Alias for backward compatibility
+  batch_id?: string; // Alias for backward compatibility
   transactions_created: number;
-  imported_count?: number;  // Alias for backward compatibility
+  imported_count?: number; // Alias for backward compatibility
   transactions_skipped: number;
-  skipped_duplicates?: number;  // Alias for backward compatibility
+  skipped_duplicates?: number; // Alias for backward compatibility
 }
 
 export interface CategorySuggestRequest {
@@ -191,7 +308,7 @@ export interface CategorySuggestRequest {
 export interface CategorySuggestResponse {
   category: string;
   confidence: number;
-  reasoning?: string;  // For backward compatibility
+  reasoning?: string; // For backward compatibility
 }
 
 export interface BulkStatusUpdateRequest {
@@ -202,7 +319,7 @@ export interface BulkStatusUpdateRequest {
 export interface BulkStatusUpdateResponse {
   updated: number;
   failed: number;
-  transactions?: any[];  // For backward compatibility
+  transactions?: any[]; // For backward compatibility
 }
 
 export interface AsyncJobStatusResponse {
@@ -211,9 +328,9 @@ export interface AsyncJobStatusResponse {
   progress: number;
   progress_message?: string;
   result?: ImportConfirmResponse;
-  result_data?: any;  // For backward compatibility
+  result_data?: any; // For backward compatibility
   error?: string;
-  error_message?: string;  // For backward compatibility
+  error_message?: string; // For backward compatibility
 }
 
 // ==================== Contact Types ====================
@@ -311,7 +428,7 @@ export interface Invoice {
 export interface InvoiceLineItem {
   id?: string;
   line_number?: number;
-  description?: string;  // Made optional for backward compatibility
+  description?: string; // Made optional for backward compatibility
   item_description?: string;
   quantity?: number;
   unit_price?: string;
@@ -409,11 +526,11 @@ export interface Payment {
   amount: string;
   payment_date: string;
   method?: string;
-  payment_method?: string;  // Alias for backward compatibility
+  payment_method?: string; // Alias for backward compatibility
   reference?: string;
-  reference_number?: string;  // For backward compatibility
-  memo?: string;  // For backward compatibility
-  unapplied_amount?: string;  // For backward compatibility
+  reference_number?: string; // For backward compatibility
+  memo?: string; // For backward compatibility
+  unapplied_amount?: string; // For backward compatibility
   created_at: string | null;
   updated_at: string | null;
 }
@@ -462,7 +579,7 @@ export interface CreateBillPaymentRequest {
 
 export interface ReceiptOcrData {
   vendor_name: string;
-  vendor?: string;  // Alias for backward compatibility
+  vendor?: string; // Alias for backward compatibility
   amount: string;
   date: string;
   gst_amount?: string;
@@ -477,11 +594,11 @@ export interface ReceiptResponse {
   original_filename?: string;
   content_type: string;
   size: number;
-  file_size?: number;  // Alias for backward compatibility
+  file_size?: number; // Alias for backward compatibility
   uploaded_at: string;
   ocr_data: ReceiptOcrData | null;
   ocr_status?: string;
-  download_url?: string;  // Added for direct download URL
+  download_url?: string; // Added for direct download URL
 }
 
 export interface ReceiptUploadResponse {
@@ -492,7 +609,7 @@ export interface ReceiptUploadResponse {
 
 export interface ReceiptDownloadResponse {
   url: string;
-  download_url?: string;  // Alias for backward compatibility
+  download_url?: string; // Alias for backward compatibility
   expires_at: string;
 }
 
@@ -506,17 +623,17 @@ export interface TrialBalance {
     debit_balance: string;
     credit_balance: string;
   }[];
-  entries?: any[];  // For backward compatibility
-  total_debits?: string;  // For backward compatibility
-  total_credits?: string;  // For backward compatibility
-  is_balanced?: boolean;  // For backward compatibility
+  entries?: any[]; // For backward compatibility
+  total_debits?: string; // For backward compatibility
+  total_credits?: string; // For backward compatibility
+  is_balanced?: boolean; // For backward compatibility
 }
 
 export interface ProfitLossStatement {
   start_date: string;
   end_date: string;
-  period_start?: string;  // Alias for backward compatibility
-  period_end?: string;  // Alias for backward compatibility
+  period_start?: string; // Alias for backward compatibility
+  period_end?: string; // Alias for backward compatibility
   income: {
     account_id: string;
     account_name: string;
@@ -528,10 +645,10 @@ export interface ProfitLossStatement {
     amount: string;
   }[];
   net_income: string;
-  revenue_entries?: any[];  // For backward compatibility
-  expense_entries?: any[];  // For backward compatibility
-  total_revenue?: string;  // For backward compatibility
-  total_expenses?: string;  // For backward compatibility
+  revenue_entries?: any[]; // For backward compatibility
+  expense_entries?: any[]; // For backward compatibility
+  total_revenue?: string; // For backward compatibility
+  total_expenses?: string; // For backward compatibility
 }
 
 // Type aliases for backward compatibility
@@ -558,12 +675,12 @@ export interface BalanceSheet {
     account_name: string;
     amount: string;
   }[];
-  asset_entries?: any[];  // For backward compatibility
-  liability_entries?: any[];  // For backward compatibility
-  equity_entries?: any[];  // For backward compatibility
-  total_assets?: string;  // For backward compatibility
-  total_liabilities?: string;  // For backward compatibility
-  total_equity?: string;  // For backward compatibility
+  asset_entries?: any[]; // For backward compatibility
+  liability_entries?: any[]; // For backward compatibility
+  equity_entries?: any[]; // For backward compatibility
+  total_assets?: string; // For backward compatibility
+  total_liabilities?: string; // For backward compatibility
+  total_equity?: string; // For backward compatibility
 }
 
 export interface AccountsReceivableAging {
@@ -577,11 +694,12 @@ export interface AccountsReceivableAging {
     days_90: string;
     total: string;
   }[];
-  buckets?: {  // Alias for customers - for backward compatibility
+  buckets?: {
+    // Alias for customers - for backward compatibility
     customer_id: string;
     customer_name: string;
     current: string;
-    days_1_30: string;  // Note: different field name
+    days_1_30: string; // Note: different field name
     days_31_60: string;
     days_61_90: string;
     days_91_plus: string;
@@ -599,21 +717,21 @@ export interface ReconciliationSummary {
   difference: string;
   reconciled_count: number;
   unreconciled_count: number;
-  unreconciled?: number;  // Alias for backward compatibility
-  reconciled?: number;  // Alias for backward compatibility
-  suggested_matches?: number;  // For UI display
-  total_transactions?: number;  // For backward compatibility
+  unreconciled?: number; // Alias for backward compatibility
+  reconciled?: number; // Alias for backward compatibility
+  suggested_matches?: number; // For UI display
+  total_transactions?: number; // For backward compatibility
 }
 
 export interface ReconciliationSuggestion {
   transaction_id: string;
-  transaction?: any;  // For backward compatibility
+  transaction?: any; // For backward compatibility
   statement_line_id: string;
-  suggested_match?: any;  // For backward compatibility
+  suggested_match?: any; // For backward compatibility
   confidence: number;
   reason: string;
-  match_reason?: string;  // For backward compatibility
-  suggestion_id?: string;  // For backward compatibility
+  match_reason?: string; // For backward compatibility
+  suggestion_id?: string; // For backward compatibility
 }
 
 export interface ConfirmMatchRequest {
@@ -634,7 +752,7 @@ export interface UnlinkMatchRequest {
 export interface AutoReconcileResponse {
   reconciled_count: number;
   total_attempted: number;
-  suggestions_found?: number;  // For backward compatibility
+  suggestions_found?: number; // For backward compatibility
 }
 
 export interface ManualReconcileRequest {
@@ -643,16 +761,16 @@ export interface ManualReconcileRequest {
 
 export interface ManualReconcileResponse {
   reconciled_count: number;
-  updated_count?: number;  // For backward compatibility
+  updated_count?: number; // For backward compatibility
 }
 
 export interface DuplicateGroup {
   transactions: Transaction[];
   reason: string;
-  vendor_name?: string;  // For backward compatibility
-  transaction_date?: string;  // For backward compatibility
-  amount?: string;  // For backward compatibility
-  count?: number;  // For backward compatibility
+  vendor_name?: string; // For backward compatibility
+  transaction_date?: string; // For backward compatibility
+  amount?: string; // For backward compatibility
+  count?: number; // For backward compatibility
 }
 
 // ==================== Chat Types ====================
@@ -678,9 +796,9 @@ export interface ChatMessage {
 export interface SendChatResponse {
   success: boolean;
   message: string;
-  response?: string;  // Alias for backward compatibility
+  response?: string; // Alias for backward compatibility
   model?: string;
-  error?: string;  // For error messages
+  error?: string; // For error messages
   conversation_id?: string;
 }
 
@@ -688,21 +806,22 @@ export interface SendChatResponse {
 
 export interface QbParsedAccount {
   account_name: string;
-  name?: string;  // Alias for backward compatibility
+  name?: string; // Alias for backward compatibility
   account_type: string;
   balance: string;
-  conflict?: {  // For backward compatibility
+  conflict?: {
+    // For backward compatibility
     existing_account_id: string;
     existing_account_name: string;
     match_type: string;
-    suggested_action?: string;  // For backward compatibility
+    suggested_action?: string; // For backward compatibility
   };
-  mapped_type?: string;  // For backward compatibility
-  suggested_code?: string;  // For backward compatibility
-  existing_account_id?: string;  // For backward compatibility
-  existing_account_name?: string;  // For backward compatibility
-  match_type?: string;  // For backward compatibility
-  suggested_action?: string;  // For backward compatibility
+  mapped_type?: string; // For backward compatibility
+  suggested_code?: string; // For backward compatibility
+  existing_account_id?: string; // For backward compatibility
+  existing_account_name?: string; // For backward compatibility
+  match_type?: string; // For backward compatibility
+  suggested_action?: string; // For backward compatibility
 }
 
 export interface QbParsedContact {
@@ -715,19 +834,19 @@ export interface QbParsedContact {
 export interface QbParsedJournalEntry {
   date: string;
   description: string;
-  num?: string | number;  // For backward compatibility
+  num?: string | number; // For backward compatibility
   lines: {
     account_name: string;
     debit: string;
     credit: string;
   }[];
-  is_balanced?: boolean;  // For backward compatibility
-  total_debit?: string;  // For backward compatibility
-  total_credit?: string;  // For backward compatibility
-  suggested_classification?: string;  // For backward compatibility
-  category_confidence?: number;  // For backward compatibility
-  suggested_category?: string;  // For backward compatibility
-  suggested_action?: string;  // For backward compatibility
+  is_balanced?: boolean; // For backward compatibility
+  total_debit?: string; // For backward compatibility
+  total_credit?: string; // For backward compatibility
+  suggested_classification?: string; // For backward compatibility
+  category_confidence?: number; // For backward compatibility
+  suggested_category?: string; // For backward compatibility
+  suggested_action?: string; // For backward compatibility
 }
 
 export interface QbParsedInvoice {

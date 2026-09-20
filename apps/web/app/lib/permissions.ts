@@ -1,22 +1,34 @@
 /**
  * Role-based permission utilities.
  *
- * Role hierarchy: admin > accountant > viewer
+ * Business membership hierarchy with temporary support for the legacy admin role.
  * Mirrors the backend (LedgerForge + ZeroClaw) role enforcement.
  */
 
-export type UserRole = "admin" | "accountant" | "viewer";
+export type UserRole =
+  | "owner"
+  | "administrator"
+  | "admin"
+  | "accountant"
+  | "contributor"
+  | "viewer";
 
 const ROLE_HIERARCHY: Record<UserRole, number> = {
   viewer: 0,
-  accountant: 1,
-  admin: 2,
+  contributor: 1,
+  accountant: 2,
+  administrator: 3,
+  admin: 3,
+  owner: 4,
 };
 
 /** Normalise any role string to a known UserRole (defaults to "viewer"). */
 export function resolveRole(role: string | undefined | null): UserRole {
-  if (role === "admin") return "admin";
-  if (role === "accountant") return "accountant";
+  if (role === "owner") return "owner";
+  if (role === "administrator") return "administrator";
+  if (role === "admin" || role === "2") return "admin";
+  if (role === "accountant" || role === "1") return "accountant";
+  if (role === "contributor") return "contributor";
   return "viewer";
 }
 
@@ -32,5 +44,10 @@ export function canWrite(role: UserRole): boolean {
 
 /** Only admins can import, manage business settings, etc. */
 export function canAdmin(role: UserRole): boolean {
-  return role === "admin";
+  return role === "owner" || role === "administrator" || role === "admin";
+}
+
+/** Only owners and administrators may manage business memberships. */
+export function canManageMemberships(role: UserRole): boolean {
+  return role === "owner" || role === "administrator" || role === "admin";
 }

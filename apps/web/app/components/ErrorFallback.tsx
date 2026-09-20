@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface ErrorFallbackProps {
   error: Error;
@@ -22,6 +23,7 @@ export function ErrorFallback({
   resetErrorBoundary,
   errorInfo,
 }: ErrorFallbackProps) {
+  const router = useRouter();
   const isDevelopment = process.env.NODE_ENV === "development";
 
   // Log error to console in development
@@ -42,7 +44,7 @@ export function ErrorFallback({
   };
 
   const handleGoHome = () => {
-    window.location.href = "/";
+    router.push("/");
   };
 
   return (

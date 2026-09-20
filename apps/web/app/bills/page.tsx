@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, Bill, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -11,6 +12,7 @@ import { toastError, toastSuccess } from "@/app/lib/toast";
 import { BILL_STATUS_COLORS, BILL_STATUS_OPTIONS } from "@/app/lib/status";
 
 export default function BillsPage() {
+  const router = useRouter();
   const { loading: authLoading, user, canWrite } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
@@ -279,7 +281,7 @@ export default function BillsPage() {
         onSearch={setSearchQuery}
         loading={loadingState}
         onRowClick={(bill) => {
-          window.location.href = `/bills/${bill.id}`;
+          router.push(`/bills/${bill.id}`);
         }}
         pageSize={25}
         emptyState={{

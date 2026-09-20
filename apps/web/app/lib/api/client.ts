@@ -10,14 +10,14 @@ export class ApiError extends Error {
     public details?: Record<string, string[]>
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message = 'Network connection failed') {
+  constructor(message = "Network connection failed") {
     super(message);
-    this.name = 'NetworkError';
+    this.name = "NetworkError";
   }
 }
 
@@ -46,13 +46,11 @@ export class ApiClient {
   }
 
   protected async getAuthHeaders(): Promise<Record<string, string>> {
-    if (this.tokenProvider) {
-      const token = await this.tokenProvider();
-      if (token) {
-        return { Authorization: `Bearer ${token}` };
-      }
+    const token = await this.tokenProvider?.();
+    if (!token) {
+      throw new ApiError("Authentication required", 401, "AUTHENTICATION_REQUIRED");
     }
-    return {};
+    return { Authorization: `Bearer ${token}` };
   }
 
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -62,7 +60,7 @@ export class ApiClient {
     const config: RequestInit = {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...authHeaders,
         ...options.headers,
       },
@@ -71,15 +69,20 @@ export class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let error: { detail?: string; error?: string; code?: string; details?: Record<string, string[]> } = {
-        detail: 'An error occurred',
+      const contentType = response.headers.get("content-type");
+      let error: {
+        detail?: string;
+        error?: string;
+        code?: string;
+        details?: Record<string, string[]>;
+      } = {
+        detail: "An error occurred",
       };
 
       // Handle non-JSON responses (HTML error pages, etc.)
-      if (contentType?.includes('application/json')) {
+      if (contentType?.includes("application/json")) {
         try {
-          error = await response.json();
+          error = { ...error, ...(await response.json()) };
         } catch {
           error = { detail: `HTTP ${response.status}: ${response.statusText}` };
         }
@@ -96,7 +99,7 @@ export class ApiClient {
     }
 
     // Handle empty responses
-    if (response.status === 204 || response.headers.get('content-length') === '0') {
+    if (response.status === 204 || response.headers.get("content-length") === "0") {
       return {} as T;
     }
 
@@ -115,18 +118,18 @@ export class ApiClient {
 
     // Do NOT set Content-Type — browser sets it with boundary for multipart
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: authHeaders,
       body: formData,
     });
 
     if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let error: { detail?: string; error?: string } = { detail: 'Upload failed' };
+      const contentType = response.headers.get("content-type");
+      let error: { detail?: string; error?: string } = { detail: "Upload failed" };
 
-      if (contentType?.includes('application/json')) {
+      if (contentType?.includes("application/json")) {
         try {
-          error = await response.json();
+          error = { ...error, ...(await response.json()) };
         } catch {
           error = { detail: `HTTP ${response.status}: ${response.statusText}` };
         }
@@ -134,7 +137,10 @@ export class ApiClient {
         error = { detail: `HTTP ${response.status}: ${response.statusText}` };
       }
 
-      throw new ApiError(error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`, response.status);
+      throw new ApiError(
+        error.error || error.detail || `HTTP ${response.status}: ${response.statusText}`,
+        response.status
+      );
     }
 
     const json = await response.json();
@@ -149,6 +155,6 @@ export class ApiClient {
       }
     }
     const qs = searchParams.toString();
-    return qs ? `?${qs}` : '';
+    return qs ? `?${qs}` : "";
   }
 }

@@ -46,9 +46,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Oluto" }],
   creator: "Oluto",
   publisher: "Oluto",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://oluto.app"
-  ),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://oluto.app"),
   alternates: {
     canonical: "/",
   },
@@ -143,34 +141,25 @@ export default async function RootLayout({
   }
 
   return (
-    <html
-      lang="en-CA"
-      className={inter.variable}
-      suppressHydrationWarning
-    >
+    <html lang="en-CA" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Theme initialization script - prevents flash of wrong theme */}
+        {/* Synchronous by design so the saved theme is applied before first paint. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script src="/init-theme.js" nonce={nonce} />
         {/* Preconnect to API domain for faster requests */}
-        <link
-          rel="preconnect"
-          href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}
-        />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"} />
       </head>
-      <body className="antialiased font-sans bg-surface text-body transition-colors duration-300 min-h-screen">
+      <body className="bg-surface text-body min-h-screen font-sans antialiased transition-colors duration-300">
         <SkipLink />
         <QueryProvider>
           <ThemeProvider>
             <AuthProviderWrapper>
               <LiveRegion />
               <Toast />
-              <div className="flex flex-col min-h-screen">
+              <div className="flex min-h-screen flex-col">
                 <Navigation />
-                <main
-                  id="main-content"
-                  className="flex-1 pt-16"
-                  tabIndex={-1}
-                >
+                <main id="main-content" className="flex-1 pt-16" tabIndex={-1}>
                   <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
                 </main>
                 <Footer />

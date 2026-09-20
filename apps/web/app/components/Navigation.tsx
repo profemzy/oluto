@@ -51,15 +51,13 @@ const secondaryAppLinks: NavItem[] = [
   { name: "Accounts", href: "/accounts" },
   { name: "Reconciliation", href: "/reconciliation" },
   { name: "Reports", href: "/reports" },
+  { name: "Team & access", href: "/settings/team" },
 ];
 
 function isGroupActive(item: NavItem, pathname: string): boolean {
-  if (item.href)
-    return pathname === item.href || pathname.startsWith(item.href + "/");
+  if (item.href) return pathname === item.href || pathname.startsWith(item.href + "/");
   if (item.children)
-    return item.children.some(
-      (c) => pathname === c.href || pathname.startsWith(c.href + "/")
-    );
+    return item.children.some((c) => pathname === c.href || pathname.startsWith(c.href + "/"));
   return false;
 }
 
@@ -82,7 +80,7 @@ function DesktopDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const active = isGroupActive(item, pathname);
 
   const handleEnter = () => {
@@ -96,42 +94,28 @@ function DesktopDropdown({
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   return (
-    <div
-      ref={ref}
-      className="relative"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
+    <div ref={ref} className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
       <button
         type="button"
-        className={`
-          nav-link font-semibold transition-colors inline-flex items-center gap-1
-          ${compact ? "text-xs px-2 py-1" : "text-sm"}
-          ${active ? "text-cyan-600" : "text-body hover:text-cyan-600"}
-        `}
+        className={`nav-link inline-flex items-center gap-1 font-semibold transition-colors ${compact ? "px-2 py-1 text-xs" : "text-sm"} ${active ? "text-cyan-600" : "text-body hover:text-cyan-600"} `}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
       >
         {item.name}
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
         <div
-          className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-1 z-50"
+          className="bg-surface/95 border-edge absolute top-full left-0 z-50 mt-1 w-48 rounded-xl border py-1 shadow-lg backdrop-blur-xl"
           role="menu"
           aria-label={`${item.name} submenu`}
         >
@@ -141,8 +125,8 @@ function DesktopDropdown({
               href={child.href}
               className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
                 pathname === child.href || pathname.startsWith(child.href + "/")
-                  ? "text-cyan-600 bg-cyan-50/50"
-                  : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
+                  ? "bg-cyan-50/50 text-cyan-600"
+                  : "text-heading hover:bg-surface-hover hover:text-cyan-600"
               }`}
               onClick={() => setOpen(false)}
               role="menuitem"
@@ -176,7 +160,7 @@ function MobileDropdown({
     <div>
       <button
         type="button"
-        className={`w-full flex items-center justify-between py-2.5 text-base font-medium transition-colors ${
+        className={`flex w-full items-center justify-between py-2.5 text-base font-medium transition-colors ${
           active ? "text-cyan-600" : "text-heading hover:text-cyan-600"
         }`}
         onClick={() => setOpen((v) => !v)}
@@ -185,22 +169,17 @@ function MobileDropdown({
       >
         {item.name}
         <svg
-          className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="pl-4 space-y-1" role="menu" aria-label={`${item.name} submenu`}>
+        <div className="space-y-1 pl-4" role="menu" aria-label={`${item.name} submenu`}>
           {item.children!.map((child) => (
             <Link
               key={child.href}
@@ -229,7 +208,7 @@ function MobileDropdown({
 function MoreMenu({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isActive = isAnySecondaryActive(pathname);
 
   const handleEnter = () => {
@@ -254,48 +233,35 @@ function MoreMenu({ pathname }: { pathname: string }) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="relative"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
+    <div ref={ref} className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
       <button
         type="button"
-        className={`
-          nav-link text-sm font-semibold transition-colors inline-flex items-center gap-1
-          ${isActive ? "text-cyan-600" : "text-body hover:text-cyan-600"}
-        `}
+        className={`nav-link inline-flex items-center gap-1 text-sm font-semibold transition-colors ${isActive ? "text-cyan-600" : "text-body hover:text-cyan-600"} `}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
       >
         More
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
         <div
-          className="absolute top-full right-0 mt-1 w-56 rounded-xl bg-surface/95 backdrop-blur-xl border border-edge shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto"
+          className="bg-surface/95 border-edge absolute top-full right-0 z-50 mt-1 max-h-[70vh] w-56 overflow-y-auto rounded-xl border py-2 shadow-lg backdrop-blur-xl"
           role="menu"
           aria-label="More navigation items"
         >
           {secondaryAppLinks.map((item) =>
             item.children ? (
-              <div key={item.name} className="border-b border-edge-subtle last:border-0 py-1">
-                <div className="px-4 py-1.5 text-xs font-semibold text-muted uppercase">
+              <div key={item.name} className="border-edge-subtle border-b py-1 last:border-0">
+                <div className="text-muted px-4 py-1.5 text-xs font-semibold uppercase">
                   {item.name}
                 </div>
                 {item.children.map((child) => (
@@ -304,8 +270,8 @@ function MoreMenu({ pathname }: { pathname: string }) {
                     href={child.href}
                     className={`block px-4 py-2 text-sm font-medium transition-colors ${
                       pathname === child.href || pathname.startsWith(child.href + "/")
-                        ? "text-cyan-600 bg-cyan-50/50"
-                        : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
+                        ? "bg-cyan-50/50 text-cyan-600"
+                        : "text-heading hover:bg-surface-hover hover:text-cyan-600"
                     }`}
                     onClick={() => setOpen(false)}
                     role="menuitem"
@@ -320,8 +286,8 @@ function MoreMenu({ pathname }: { pathname: string }) {
                 href={item.href!}
                 className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
                   pathname === item.href || pathname.startsWith(item.href + "/")
-                    ? "text-cyan-600 bg-cyan-50/50"
-                    : "text-heading hover:text-cyan-600 hover:bg-surface-hover"
+                    ? "bg-cyan-50/50 text-cyan-600"
+                    : "text-heading hover:bg-surface-hover hover:text-cyan-600"
                 }`}
                 onClick={() => setOpen(false)}
                 role="menuitem"
@@ -375,6 +341,7 @@ export function Navigation() {
     pathname.startsWith("/bills") ||
     pathname.startsWith("/payments") ||
     pathname.startsWith("/reconciliation") ||
+    pathname.startsWith("/settings") ||
     pathname.startsWith("/chat");
 
   // Until client mounts, always show marketing links to match SSR output
@@ -383,10 +350,8 @@ export function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "nav-glass shadow-lg"
-          : "bg-surface/80 backdrop-blur-xl border-b border-edge/50"
+      className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
+        scrolled ? "nav-glass shadow-lg" : "bg-surface/80 border-edge/50 border-b backdrop-blur-xl"
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -395,37 +360,30 @@ export function Navigation() {
           <div className="flex-shrink-0">
             <Link
               href={hasMounted && authed && isAppPage ? "/dashboard" : "/"}
-              className="flex items-center group"
+              className="group flex items-center"
             >
               <ThemeLogo />
             </Link>
           </div>
 
           {/* Desktop Navigation - Flexible but constrained */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-6 flex-1 justify-center min-w-0">
+          <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex xl:gap-6">
             {showAppNav ? (
               <>
                 {/* Primary links - always visible */}
                 <div className="flex items-center gap-1 xl:gap-6">
                   {primaryAppLinks.map((item) =>
                     item.children ? (
-                      <DesktopDropdown
-                        key={item.name}
-                        item={item}
-                        pathname={pathname}
-                      />
+                      <DesktopDropdown key={item.name} item={item} pathname={pathname} />
                     ) : (
                       <Link
                         key={item.name}
                         href={item.href!}
-                        className={`
-                          nav-link text-sm font-semibold transition-colors whitespace-nowrap
-                          px-2 py-1 rounded-lg
-                          ${isGroupActive(item, pathname)
-                            ? "text-cyan-600 bg-cyan-50/50 dark:bg-cyan-950/30"
-                            : "text-body hover:text-cyan-600 hover:bg-surface-hover"
-                          }
-                        `}
+                        className={`nav-link rounded-lg px-2 py-1 text-sm font-semibold whitespace-nowrap transition-colors ${
+                          isGroupActive(item, pathname)
+                            ? "bg-cyan-50/50 text-cyan-600 dark:bg-cyan-950/30"
+                            : "text-body hover:bg-surface-hover hover:text-cyan-600"
+                        } `}
                       >
                         {item.name}
                       </Link>
@@ -434,30 +392,22 @@ export function Navigation() {
                 </div>
 
                 {/* Divider */}
-                <div className="w-px h-6 bg-edge mx-2" />
+                <div className="bg-edge mx-2 h-6 w-px" />
 
                 {/* Secondary links - grouped under "More" on smaller screens */}
-                <div className="hidden xl:flex items-center gap-1">
+                <div className="hidden items-center gap-1 xl:flex">
                   {secondaryAppLinks.slice(0, 3).map((item) =>
                     item.children ? (
-                      <DesktopDropdown
-                        key={item.name}
-                        item={item}
-                        pathname={pathname}
-                        compact
-                      />
+                      <DesktopDropdown key={item.name} item={item} pathname={pathname} compact />
                     ) : (
                       <Link
                         key={item.name}
                         href={item.href!}
-                        className={`
-                          nav-link text-xs font-semibold transition-colors whitespace-nowrap
-                          px-2 py-1 rounded-lg
-                          ${isGroupActive(item, pathname)
-                            ? "text-cyan-600 bg-cyan-50/50 dark:bg-cyan-950/30"
-                            : "text-body hover:text-cyan-600 hover:bg-surface-hover"
-                          }
-                        `}
+                        className={`nav-link rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap transition-colors ${
+                          isGroupActive(item, pathname)
+                            ? "bg-cyan-50/50 text-cyan-600 dark:bg-cyan-950/30"
+                            : "text-body hover:bg-surface-hover hover:text-cyan-600"
+                        } `}
                       >
                         {item.name}
                       </Link>
@@ -474,10 +424,7 @@ export function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href!}
-                  className={`
-                    nav-link text-sm font-semibold transition-colors whitespace-nowrap
-                    ${isGroupActive(item, pathname) ? "text-cyan-600" : "text-body hover:text-cyan-600"}
-                  `}
+                  className={`nav-link text-sm font-semibold whitespace-nowrap transition-colors ${isGroupActive(item, pathname) ? "text-cyan-600" : "text-body hover:text-cyan-600"} `}
                 >
                   {item.name}
                 </Link>
@@ -486,23 +433,23 @@ export function Navigation() {
           </div>
 
           {/* CTA / User Actions - Fixed width area */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex flex-shrink-0 items-center gap-2">
             {showAuth ? (
-              <div className="hidden md:flex items-center gap-3">
+              <div className="hidden items-center gap-3 md:flex">
                 <ThemeToggle />
                 <Link
                   href="/auth/login"
-                  className="text-sm font-bold text-body hover:text-cyan-600 transition-colors whitespace-nowrap"
+                  className="text-body text-sm font-bold whitespace-nowrap transition-colors hover:text-cyan-600"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 btn-glow whitespace-nowrap"
+                  className="group btn-glow inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2 text-sm font-bold whitespace-nowrap text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/40"
                 >
                   Get Started
                   <svg
-                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -517,30 +464,39 @@ export function Navigation() {
                 </Link>
               </div>
             ) : (
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="hidden items-center gap-2 lg:flex">
                 <ThemeToggle />
                 <Link
                   href="/chat"
-                  className={`
-                    p-2 rounded-lg transition-colors
-                    ${pathname.startsWith("/chat")
-                      ? "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50"
-                      : "text-muted hover:text-cyan-600 hover:bg-surface-hover"
-                    }
-                  `}
+                  className={`rounded-lg p-2 transition-colors ${
+                    pathname.startsWith("/chat")
+                      ? "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50"
+                      : "text-muted hover:bg-surface-hover hover:text-cyan-600"
+                  } `}
                   aria-label="Chat with Oluto"
                   title="Chat with Oluto"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                    />
                   </svg>
                 </Link>
                 <Link
                   href="/transactions/new"
-                  className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-3 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap"
+                  className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-3 py-2 text-sm font-bold whitespace-nowrap text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/40"
                 >
                   <svg
-                    className="w-4 h-4 group-hover:scale-110 transition-transform"
+                    className="h-4 w-4 transition-transform group-hover:scale-110"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -558,7 +514,7 @@ export function Navigation() {
                 <button
                   type="button"
                   onClick={logout}
-                  className="text-sm font-bold text-body hover:text-red-600 transition-colors px-2 whitespace-nowrap"
+                  className="text-body px-2 text-sm font-bold whitespace-nowrap transition-colors hover:text-red-600"
                 >
                   Logout
                 </button>
@@ -568,14 +524,14 @@ export function Navigation() {
             {/* Mobile Menu Button */}
             <button
               type="button"
-              className="lg:hidden p-2 rounded-lg text-muted hover:bg-surface-hover hover:text-heading transition-colors"
+              className="text-muted hover:bg-surface-hover hover:text-heading rounded-lg p-2 transition-colors lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
             >
               <svg
-                className="w-5 h-5"
+                className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -606,10 +562,10 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div
           id="mobile-menu"
-          className="lg:hidden border-t border-edge-subtle bg-surface/95 backdrop-blur-xl shadow-lg max-h-[70vh] overflow-y-auto"
+          className="border-edge-subtle bg-surface/95 max-h-[70vh] overflow-y-auto border-t shadow-lg backdrop-blur-xl lg:hidden"
           role="menu"
         >
-          <div className="px-4 py-4 space-y-1">
+          <div className="space-y-1 px-4 py-4">
             {showAppNav ? (
               <>
                 {/* Primary links */}
@@ -638,7 +594,7 @@ export function Navigation() {
                 )}
 
                 {/* Divider */}
-                <div className="border-t border-edge-subtle my-2" />
+                <div className="border-edge-subtle my-2 border-t" />
 
                 {/* Secondary links */}
                 {secondaryAppLinks.map((item) =>
@@ -666,26 +622,33 @@ export function Navigation() {
                 )}
 
                 {/* Mobile actions */}
-                <div className="border-t border-edge-subtle pt-4 mt-4 space-y-3">
+                <div className="border-edge-subtle mt-4 space-y-3 border-t pt-4">
                   <Link
                     href="/chat"
                     className={`flex items-center gap-2 py-2.5 text-base font-medium transition-colors ${
-                      pathname.startsWith("/chat") ? "text-cyan-600" : "text-heading hover:text-cyan-600"
+                      pathname.startsWith("/chat")
+                        ? "text-cyan-600"
+                        : "text-heading hover:text-cyan-600"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                      />
                     </svg>
                     Chat with Oluto
                   </Link>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted">Theme</span>
+                    <span className="text-muted text-sm font-medium">Theme</span>
                     <ThemeToggle />
                   </div>
                   <Link
                     href="/transactions/new"
-                    className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                    className="block w-full rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-center text-base font-bold text-white shadow-lg transition-all hover:shadow-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Add Transaction
@@ -696,7 +659,7 @@ export function Navigation() {
                       logout();
                       setMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left py-2 text-base font-medium text-heading hover:text-red-600"
+                    className="text-heading block w-full py-2 text-left text-base font-medium hover:text-red-600"
                   >
                     Logout
                   </button>
@@ -721,20 +684,20 @@ export function Navigation() {
                 ))}
 
                 {/* Auth links */}
-                <div className="border-t border-edge-subtle pt-4 mt-4 space-y-3">
+                <div className="border-edge-subtle mt-4 space-y-3 border-t pt-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted">Theme</span>
+                    <span className="text-muted text-sm font-medium">Theme</span>
                     <ThemeToggle />
                   </div>
                   <Link
                     href="/auth/login"
-                    className="block py-2 text-base font-medium text-heading hover:text-cyan-600"
+                    className="text-heading block py-2 text-base font-medium hover:text-cyan-600"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="block w-full text-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                    className="block w-full rounded-xl bg-gradient-to-r from-cyan-500 to-green-500 px-4 py-2.5 text-center text-base font-bold text-white shadow-lg transition-all hover:shadow-xl"
                   >
                     Get Started
                   </Link>

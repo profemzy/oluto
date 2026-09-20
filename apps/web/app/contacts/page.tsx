@@ -31,7 +31,7 @@ export default function ContactsPage() {
     filter: typeFilter,
     setFilter: setTypeFilter,
   } = useDataTable<Contact>({
-    queryKey: ["contacts", user?.business_id],
+    queryKey: ["contacts", user?.business_id ?? ""],
     queryFn: listContacts,
     filterParam: "type",
     defaultFilter: "",

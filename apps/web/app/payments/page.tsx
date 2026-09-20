@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api, Payment, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -9,6 +10,7 @@ import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, D
 import { formatCurrency, formatDate } from "@/app/lib/format";
 
 export default function PaymentsPage() {
+  const router = useRouter();
   const { loading: authLoading, user, canWrite } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -195,7 +197,7 @@ export default function PaymentsPage() {
         onSearch={setSearchQuery}
         loading={loadingState}
         onRowClick={(pmt) => {
-          window.location.href = `/payments/${pmt.id}`;
+          router.push(`/payments/${pmt.id}`);
         }}
         pageSize={25}
         emptyState={{

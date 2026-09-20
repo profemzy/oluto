@@ -11,6 +11,7 @@ import {
 import type { User as OidcUser } from "oidc-client-ts";
 import { getUserManager } from "@/app/lib/keycloak";
 import { api } from "@/app/lib/api";
+import { useRouter } from "next/navigation";
 
 interface AuthContextValue {
   user: OidcUser | null;
@@ -42,6 +43,7 @@ function setupTokenProvider() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<OidcUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -88,7 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const um = getUserManager();
       const origin = window.location.origin;
       const url = `${um.settings.authority}/protocol/openid-connect/auth?client_id=${um.settings.client_id}&redirect_uri=${encodeURIComponent(origin + "/auth/callback")}&response_type=code&scope=openid+profile+email`;
-      window.location.href = url;
+      // This fallback intentionally leaves the application for the configured OIDC provider.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign(url);
     });
   }, []);
 
@@ -99,10 +103,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If Keycloak is unreachable, clear local session so the user isn't stuck
       um.removeUser().then(() => {
         setUser(null);
-        window.location.href = "/";
+        router.push("/");
       });
     });
-  }, []);
+  }, [router]);
 
   const getAccessToken = useCallback(() => {
     return user?.access_token ?? null;

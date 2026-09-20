@@ -96,7 +96,7 @@ function SortIcon({ direction }: { direction: SortDirection | null }) {
   if (!direction) {
     return (
       <svg
-        className="w-3.5 h-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="h-3.5 w-3.5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -112,33 +112,23 @@ function SortIcon({ direction }: { direction: SortDirection | null }) {
   }
   return direction === "asc" ? (
     <svg
-      className="w-3.5 h-3.5 text-cyan-600"
+      className="h-3.5 w-3.5 text-cyan-600"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M5 15l7-7 7 7"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
     </svg>
   ) : (
     <svg
-      className="w-3.5 h-3.5 text-cyan-600"
+      className="h-3.5 w-3.5 text-cyan-600"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 9l-7 7-7-7"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
-    );
+  );
 }
 
 // ============================================================================
@@ -178,16 +168,19 @@ export function DataTable<T>({
     page: 1,
     pageSize,
   });
-  
+
   // Use controlled search if provided, otherwise use internal state
   const isControlled = controlledSearchQuery !== undefined;
   const searchQuery = isControlled ? controlledSearchQuery : internalSearchQuery;
-  const setSearchQuery = useCallback((query: string) => {
-    if (!isControlled) {
-      setInternalSearchQuery(query);
-    }
-    onSearch?.(query);
-  }, [isControlled, onSearch]);
+  const setSearchQuery = useCallback(
+    (query: string) => {
+      if (!isControlled) {
+        setInternalSearchQuery(query);
+      }
+      onSearch?.(query);
+    },
+    [isControlled, onSearch]
+  );
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
     new Set(initialColumns.filter((c) => !c.hidden).map((c) => c.key))
@@ -197,10 +190,7 @@ export function DataTable<T>({
 
   // Filter columns
   const columns = useMemo(
-    () =>
-      initialColumns.filter(
-        (c) => !enableColumnVisibility || visibleColumns.has(c.key)
-      ),
+    () => initialColumns.filter((c) => !enableColumnVisibility || visibleColumns.has(c.key)),
     [initialColumns, visibleColumns, enableColumnVisibility]
   );
 
@@ -214,10 +204,10 @@ export function DataTable<T>({
       setSort(newSort);
       setPagination((p) => ({ ...p, page: 1 }));
       onSort?.(newSort);
-      
+
       // Announce sort change to screen readers
-      const columnName = initialColumns.find(c => c.key === field)?.header || field;
-      const direction = newSort.direction === 'asc' ? 'ascending' : 'descending';
+      const columnName = initialColumns.find((c) => c.key === field)?.header || field;
+      const direction = newSort.direction === "asc" ? "ascending" : "descending";
       setSortAnnouncement(`${columnName} sorted ${direction}`);
     },
     [sort, onSort, initialColumns]
@@ -266,9 +256,7 @@ export function DataTable<T>({
         searchFields.some((field) => {
           const value = item[field];
           return (
-            value !== null &&
-            value !== undefined &&
-            String(value).toLowerCase().includes(query)
+            value !== null && value !== undefined && String(value).toLowerCase().includes(query)
           );
         })
       );
@@ -343,31 +331,32 @@ export function DataTable<T>({
   );
 
   // Active filter count
-  const activeFilterCount =
-    Object.keys(filters).length + (searchQuery ? 1 : 0);
+  const activeFilterCount = Object.keys(filters).length + (searchQuery ? 1 : 0);
 
   // Loading skeleton
   if (loading) {
     return (
-      <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+      <div
+        className="bg-surface border-edge-subtle overflow-hidden rounded-2xl border shadow-sm"
+        role="status"
+        aria-label="Loading data"
+      >
+        <span className="sr-only">Loading...</span>
         <div className="animate-pulse">
           {/* Header skeleton */}
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-6 py-4 bg-surface-secondary border-b border-edge">
+          <div className="bg-surface-secondary border-edge hidden gap-4 border-b px-6 py-4 sm:grid sm:grid-cols-12">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-4 bg-surface-tertiary rounded w-20" />
+              <div key={i} className="bg-surface-tertiary h-4 w-20 rounded" />
             ))}
           </div>
           {/* Row skeletons */}
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="grid grid-cols-1 sm:grid-cols-12 gap-4 px-6 py-4 border-b border-edge-subtle"
+              className="border-edge-subtle grid grid-cols-1 gap-4 border-b px-6 py-4 sm:grid-cols-12"
             >
               {[...Array(6)].map((_, j) => (
-                <div
-                  key={j}
-                  className="h-4 bg-surface-tertiary rounded w-full"
-                />
+                <div key={j} className="bg-surface-tertiary h-4 w-full rounded" />
               ))}
             </div>
           ))}
@@ -379,8 +368,8 @@ export function DataTable<T>({
   // Empty state
   if (data.length === 0 && emptyState) {
     return (
-      <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
-        <div className="mx-auto h-16 w-16 rounded-full bg-cyan-50 dark:bg-cyan-950 flex items-center justify-center mb-4">
+      <div className="bg-surface border-edge-subtle rounded-2xl border p-12 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-50 dark:bg-cyan-950">
           <svg
             className="h-8 w-8 text-cyan-600"
             fill="none"
@@ -395,14 +384,12 @@ export function DataTable<T>({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-heading mb-2">
-          {emptyState.title}
-        </h3>
-        <p className="text-sm text-muted mb-6">{emptyState.description}</p>
+        <h3 className="text-heading mb-2 text-lg font-bold">{emptyState.title}</h3>
+        <p className="text-muted mb-6 text-sm">{emptyState.description}</p>
         {emptyState.action && (
           <Link
             href={emptyState.action.href}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             {emptyState.action.label}
           </Link>
@@ -414,8 +401,8 @@ export function DataTable<T>({
   // No results state
   if (processedData.length === 0 && noResultsState) {
     return (
-      <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm p-12 text-center">
-        <div className="mx-auto h-16 w-16 rounded-full bg-amber-50 dark:bg-amber-950 flex items-center justify-center mb-4">
+      <div className="bg-surface border-edge-subtle rounded-2xl border p-12 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950">
           <svg
             className="h-8 w-8 text-amber-600"
             fill="none"
@@ -430,16 +417,12 @@ export function DataTable<T>({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-heading mb-2">
-          {noResultsState.title}
-        </h3>
-        <p className="text-sm text-muted mb-6">
-          {noResultsState.description}
-        </p>
+        <h3 className="text-heading mb-2 text-lg font-bold">{noResultsState.title}</h3>
+        <p className="text-muted mb-6 text-sm">{noResultsState.description}</p>
         {noResultsState.onClearFilters && (
           <button
             onClick={noResultsState.onClearFilters}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             Clear Filters
           </button>
@@ -451,17 +434,17 @@ export function DataTable<T>({
   return (
     <div className={className} role="grid" aria-label="Data table">
       {/* Screen reader announcements */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {sortAnnouncement}
       </div>
-      
+
       {/* Toolbar */}
-      <div className="mb-4 flex flex-col lg:flex-row gap-4">
+      <div className="mb-4 flex flex-col gap-4 lg:flex-row">
         {/* Search */}
         {searchFields && (
-          <div className="relative flex-1 max-w-md">
+          <div className="relative max-w-md flex-1">
             <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none"
+              className="text-muted pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -478,19 +461,15 @@ export function DataTable<T>({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full rounded-xl border-0 py-2.5 pl-10 pr-10 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 bg-surface placeholder:text-muted transition-all"
+              className="text-heading bg-surface placeholder:text-muted w-full rounded-xl border-0 py-2.5 pr-10 pl-10 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] transition-all ring-inset focus:ring-2 focus:ring-cyan-600 focus:ring-inset"
             />
             {searchQuery && (
               <button
                 onClick={() => handleSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted hover:text-heading transition-colors"
+                aria-label="Clear search"
+                className="text-muted hover:text-heading absolute top-1/2 right-3 -translate-y-1/2 rounded p-0.5 transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -507,20 +486,36 @@ export function DataTable<T>({
         <div className="flex-1" />
 
         {/* Right side controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
+          {initialColumns
+            .filter((column) => column.filterable && column.filterOptions)
+            .map((column) => (
+              <label key={column.key}>
+                <span className="sr-only">Filter by {column.header}</span>
+                <select
+                  aria-label={`Filter by ${column.header}`}
+                  value={filters[column.key] ?? ""}
+                  onChange={(event) => handleFilter(column.key, event.target.value)}
+                  className="bg-surface text-heading rounded-xl border-0 px-3 py-2 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-cyan-600"
+                >
+                  <option value="">All {column.header.toLowerCase()}</option>
+                  {column.filterOptions?.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+
           {/* Column visibility toggle */}
           {enableColumnVisibility && (
             <div className="relative">
               <button
                 onClick={() => setShowColumnMenu(!showColumnMenu)}
-                className="inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-3 py-2 text-sm font-medium text-body hover:bg-surface-hover transition-colors"
+                className="border-edge bg-surface text-body hover:bg-surface-hover inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -531,11 +526,11 @@ export function DataTable<T>({
                 Columns
               </button>
               {showColumnMenu && (
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl bg-surface border border-edge shadow-lg py-2 z-50">
+                <div className="bg-surface border-edge absolute top-full right-0 z-50 mt-1 w-48 rounded-xl border py-2 shadow-lg">
                   {initialColumns.map((col) => (
                     <label
                       key={col.key}
-                      className="flex items-center gap-2 px-4 py-2 hover:bg-surface-hover cursor-pointer"
+                      className="hover:bg-surface-hover flex cursor-pointer items-center gap-2 px-4 py-2"
                     >
                       <input
                         type="checkbox"
@@ -548,7 +543,7 @@ export function DataTable<T>({
                         }}
                         className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
                       />
-                      <span className="text-sm text-body">{col.header}</span>
+                      <span className="text-body text-sm">{col.header}</span>
                     </label>
                   ))}
                 </div>
@@ -560,14 +555,9 @@ export function DataTable<T>({
           {activeFilterCount > 0 && (
             <button
               onClick={clearAllFilters}
-              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-950"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -584,7 +574,7 @@ export function DataTable<T>({
 
       {/* Bulk actions bar */}
       {enableRowSelection && selectedRows.size > 0 && bulkActions && (
-        <div className="mb-4 p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200 dark:border-cyan-800 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-cyan-200 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-950/50">
           <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
             {selectedRows.size} item{selectedRows.size === 1 ? "" : "s"} selected
           </span>
@@ -597,8 +587,8 @@ export function DataTable<T>({
                   action.variant === "danger"
                     ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                     : action.variant === "primary"
-                    ? "text-white bg-cyan-600 hover:bg-cyan-700"
-                    : "text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-900"
+                      ? "bg-cyan-600 text-white hover:bg-cyan-700"
+                      : "text-cyan-700 hover:bg-cyan-100 dark:text-cyan-300 dark:hover:bg-cyan-900"
                 }`}
               >
                 {action.icon}
@@ -607,7 +597,7 @@ export function DataTable<T>({
             ))}
             <button
               onClick={() => setSelectedRows(new Set())}
-              className="text-sm text-muted hover:text-heading transition-colors"
+              className="text-muted hover:text-heading text-sm transition-colors"
             >
               Cancel
             </button>
@@ -616,9 +606,9 @@ export function DataTable<T>({
       )}
 
       {/* Table */}
-      <div className="bg-surface rounded-2xl border border-edge-subtle shadow-sm overflow-hidden">
+      <div className="bg-surface border-edge-subtle overflow-hidden rounded-2xl border shadow-sm">
         {/* Header */}
-        <div className="hidden sm:grid bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge text-xs font-bold text-muted uppercase tracking-wider">
+        <div className="from-surface-secondary to-surface-tertiary border-edge text-muted hidden border-b bg-gradient-to-r text-xs font-bold tracking-wider uppercase sm:grid">
           <div
             className="grid gap-4 px-6 py-4"
             style={{
@@ -633,11 +623,10 @@ export function DataTable<T>({
               <div className="flex items-center">
                 <input
                   type="checkbox"
+                  aria-label="Select all rows"
                   checked={
                     paginatedData.length > 0 &&
-                    paginatedData.every((item) =>
-                      selectedRows.has(keyExtractor(item))
-                    )
+                    paginatedData.every((item) => selectedRows.has(keyExtractor(item)))
                   }
                   onChange={toggleAllSelection}
                   className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
@@ -648,11 +637,11 @@ export function DataTable<T>({
               const isSorted = sort?.field === column.key;
               const sortDirection = isSorted ? sort.direction : null;
               const ariaSort = column.sortable
-                ? sortDirection === 'asc'
-                  ? 'ascending'
-                  : sortDirection === 'desc'
-                  ? 'descending'
-                  : 'none'
+                ? sortDirection === "asc"
+                  ? "ascending"
+                  : sortDirection === "desc"
+                    ? "descending"
+                    : "none"
                 : undefined;
 
               return (
@@ -661,12 +650,12 @@ export function DataTable<T>({
                   role="columnheader"
                   aria-sort={ariaSort}
                   className={`flex items-center gap-1 ${
-                    column.sortable ? "cursor-pointer group" : ""
+                    column.sortable ? "group cursor-pointer" : ""
                   } ${column.align === "right" ? "justify-end" : ""}`}
                   onClick={() => column.sortable && handleSort(column.key)}
                   tabIndex={column.sortable ? 0 : undefined}
                   onKeyDown={(e) => {
-                    if (column.sortable && (e.key === 'Enter' || e.key === ' ')) {
+                    if (column.sortable && (e.key === "Enter" || e.key === " ")) {
                       e.preventDefault();
                       handleSort(column.key);
                     }
@@ -674,21 +663,21 @@ export function DataTable<T>({
                 >
                   {column.header}
                   {column.sortable && (
-                    <SortIcon
-                      direction={
-                        sort?.field === column.key ? sort.direction : null
-                      }
-                    />
+                    <SortIcon direction={sort?.field === column.key ? sort.direction : null} />
                   )}
                 </div>
               );
             })}
-            {actions && <div className="text-right" role="columnheader">Actions</div>}
+            {actions && (
+              <div className="text-right" role="columnheader">
+                Actions
+              </div>
+            )}
           </div>
         </div>
 
         {/* Body */}
-        <div role="rowgroup" className="divide-y divide-edge-subtle">
+        <div role="rowgroup" className="divide-edge-subtle divide-y">
           {paginatedData.map((item, index) => {
             const id = keyExtractor(item);
             const isSelected = selectedRows.has(id);
@@ -699,18 +688,11 @@ export function DataTable<T>({
                 key={id}
                 role="row"
                 aria-selected={isSelected}
-                className={`
-                  grid gap-2 sm:gap-4 px-6 py-4 transition-all duration-200 items-center
-                  ${
-                    onRowClick
-                      ? "cursor-pointer hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
-                      : "hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
-                  }
-                  ${isSelected ? "bg-cyan-50/70 dark:bg-cyan-950/50" : ""}
-                  ${isHighlighted ? "ring-1 ring-inset ring-cyan-500" : ""}
-                  ${rowClassName?.(item) || ""}
-                  sm:grid-cols-none
-                `}
+                className={`grid items-center gap-2 px-6 py-4 transition-all duration-200 sm:gap-4 ${
+                  onRowClick
+                    ? "cursor-pointer hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
+                    : "hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
+                } ${isSelected ? "bg-cyan-50/70 dark:bg-cyan-950/50" : ""} ${isHighlighted ? "ring-1 ring-cyan-500 ring-inset" : ""} ${rowClassName?.(item) || ""} sm:grid-cols-none`}
                 style={{
                   gridTemplateColumns: `
                     ${enableRowSelection ? "40px " : ""}
@@ -721,19 +703,27 @@ export function DataTable<T>({
                 onClick={() => onRowClick?.(item)}
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={(e) => {
-                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                  if (onRowClick && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();
                     onRowClick(item);
+                  }
+                  if (onRowClick && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+                    e.preventDefault();
+                    const rows = Array.from(
+                      e.currentTarget.parentElement?.querySelectorAll<HTMLElement>(
+                        '[role="row"]'
+                      ) ?? []
+                    );
+                    const offset = e.key === "ArrowDown" ? 1 : -1;
+                    rows[index + offset]?.focus();
                   }
                 }}
               >
                 {enableRowSelection && (
-                  <div
-                    className="flex items-center"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
+                      aria-label={`Select ${String((item as Record<string, unknown>)[columns[0]?.key] ?? id)}`}
                       checked={isSelected}
                       onChange={() => toggleRowSelection(id)}
                       className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
@@ -744,13 +734,10 @@ export function DataTable<T>({
                   <div
                     key={column.key}
                     role="gridcell"
-                    className={`
-                      ${column.align === "right" ? "text-right" : ""}
-                      ${column.align === "center" ? "text-center" : ""}
-                    `}
+                    className={` ${column.align === "right" ? "text-right" : ""} ${column.align === "center" ? "text-center" : ""} `}
                   >
                     {/* Mobile label */}
-                    <span className="sm:hidden text-xs font-medium text-muted uppercase mr-2">
+                    <span className="text-muted mr-2 text-xs font-medium uppercase sm:hidden">
                       {column.header}:
                     </span>
                     {column.render(item)}
@@ -766,16 +753,13 @@ export function DataTable<T>({
 
                       const buttonContent = (
                         <button
-                          className={`
-                            p-2 rounded-lg transition-all duration-200
-                            ${
-                              action.variant === "danger"
-                                ? "text-caption hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-                                : action.variant === "primary"
-                                ? "text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950"
-                                : "text-caption hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950"
-                            }
-                          `}
+                          className={`rounded-lg p-2 transition-all duration-200 ${
+                            action.variant === "danger"
+                              ? "text-caption hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+                              : action.variant === "primary"
+                                ? "text-caption hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-950"
+                                : "text-caption hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-950"
+                          } `}
                           title={action.label}
                           aria-label={action.label}
                           onClick={() => action.onClick?.(item)}
@@ -792,9 +776,7 @@ export function DataTable<T>({
                         );
                       }
 
-                      return (
-                        <span key={action.key}>{buttonContent}</span>
-                      );
+                      return <span key={action.key}>{buttonContent}</span>;
                     })}
                   </div>
                 )}
@@ -806,31 +788,20 @@ export function DataTable<T>({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted">
-              Showing{" "}
-              <span className="font-medium text-heading">
-                {(pagination.page - 1) * pagination.pageSize + 1}
-              </span>{" "}
-              to{" "}
-              <span className="font-medium text-heading">
-                {Math.min(
-                  pagination.page * pagination.pageSize,
-                  processedData.length
-                )}
-              </span>{" "}
-              of{" "}
-              <span className="font-medium text-heading">
-                {processedData.length}
-              </span>{" "}
-              results
+            <span className="text-muted text-sm">
+              {`Showing ${(pagination.page - 1) * pagination.pageSize + 1} to ${Math.min(
+                pagination.page * pagination.pageSize,
+                processedData.length
+              )} of ${processedData.length} results`}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Page size selector */}
             <select
+              aria-label="Rows per page"
               value={pagination.pageSize}
               onChange={(e) =>
                 setPagination({
@@ -838,7 +809,7 @@ export function DataTable<T>({
                   pageSize: Number(e.target.value),
                 })
               }
-              className="rounded-lg border-0 py-1.5 px-2 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 bg-surface"
+              className="text-heading bg-surface rounded-lg border-0 px-2 py-1.5 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-cyan-600"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>
@@ -850,18 +821,11 @@ export function DataTable<T>({
             {/* Page navigation */}
             <div className="flex items-center gap-1">
               <button
-                onClick={() =>
-                  setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))
-                }
+                onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-lg text-caption hover:text-heading hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="text-caption hover:text-heading hover:bg-surface-hover rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-30"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -887,17 +851,12 @@ export function DataTable<T>({
                 return (
                   <button
                     key={pageNum}
-                    onClick={() =>
-                      setPagination((p) => ({ ...p, page: pageNum }))
-                    }
-                    className={`
-                      min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-colors
-                      ${
-                        pagination.page === pageNum
-                          ? "bg-cyan-600 text-white"
-                          : "text-caption hover:text-heading hover:bg-surface-hover"
-                      }
-                    `}
+                    onClick={() => setPagination((p) => ({ ...p, page: pageNum }))}
+                    className={`h-8 min-w-[32px] rounded-lg px-2 text-sm font-medium transition-colors ${
+                      pagination.page === pageNum
+                        ? "bg-cyan-600 text-white"
+                        : "text-caption hover:text-heading hover:bg-surface-hover"
+                    } `}
                   >
                     {pageNum}
                   </button>
@@ -912,14 +871,9 @@ export function DataTable<T>({
                   }))
                 }
                 disabled={pagination.page === totalPages}
-                className="p-2 rounded-lg text-caption hover:text-heading hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="text-caption hover:text-heading hover:bg-surface-hover rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-30"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

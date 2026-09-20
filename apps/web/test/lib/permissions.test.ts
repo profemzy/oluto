@@ -4,11 +4,18 @@ import {
   hasRole,
   canWrite,
   canAdmin,
+  canManageMemberships,
   type UserRole,
 } from "../../app/lib/permissions";
 
 describe("permissions", () => {
   describe("resolveRole", () => {
+    it("preserves authoritative business membership roles", () => {
+      expect(resolveRole("owner")).toBe("owner");
+      expect(resolveRole("administrator")).toBe("administrator");
+      expect(resolveRole("contributor")).toBe("contributor");
+    });
+
     it("returns 'admin' for admin string", () => {
       expect(resolveRole("admin")).toBe("admin");
     });
@@ -78,6 +85,16 @@ describe("permissions", () => {
 
     it("viewer does not have admin access", () => {
       expect(canAdmin("viewer")).toBe(false);
+    });
+  });
+
+  describe("canManageMemberships", () => {
+    it("allows owners and administrators only", () => {
+      expect(canManageMemberships("owner")).toBe(true);
+      expect(canManageMemberships("administrator")).toBe(true);
+      expect(canManageMemberships("accountant")).toBe(false);
+      expect(canManageMemberships("contributor")).toBe(false);
+      expect(canManageMemberships("viewer")).toBe(false);
     });
   });
 });

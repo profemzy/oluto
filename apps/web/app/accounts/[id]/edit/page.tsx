@@ -25,10 +25,11 @@ export default function EditAccountPage({
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (!user?.business_id) return;
+    const businessId = user?.business_id;
+    if (!businessId) return;
     const load = async () => {
       try {
-        const account = await api.getAccount(user.business_id, accountId);
+        const account = await api.getAccount(businessId, accountId);
         setCode(account.code || "");
         setName(account.name);
         setAccountType(account.account_type);

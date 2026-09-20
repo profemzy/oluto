@@ -292,7 +292,7 @@ export default function InvoiceDetailPage({
                   {item.quantity}
                 </div>
                 <div className="col-span-2 text-sm text-body text-right">
-                  {formatCurrency(item.unit_price)}
+                  {formatCurrency(item.unit_price ?? "0")}
                 </div>
                 <div className="col-span-1 text-sm text-body text-right">
                   {item.discount_percent &&

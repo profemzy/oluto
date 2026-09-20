@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api, Invoice, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -13,6 +14,7 @@ import {
 } from "@/app/lib/status";
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const { loading: authLoading, user, canWrite } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -257,7 +259,7 @@ export default function InvoicesPage() {
         onSearch={setSearchQuery}
         loading={loadingState}
         onRowClick={(invoice) => {
-          window.location.href = `/invoices/${invoice.id}`;
+          router.push(`/invoices/${invoice.id}`);
         }}
         pageSize={25}
         emptyState={{

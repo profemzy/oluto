@@ -229,7 +229,7 @@ export default function ImportTransactionsPage() {
 
     try {
       const result = await api.confirmImport(user.business_id, {
-        file_type: parseResult.file_type,
+        file_type: parseResult.file_type ?? "csv",
         transactions: selected.map((t) => ({
           transaction_date: t.transaction_date,
           vendor_name: t.vendor_name,
@@ -238,13 +238,13 @@ export default function ImportTransactionsPage() {
           category: t.category || undefined,
           classification: t.classification || undefined,
           ai_suggested_category:
-            t.ai_confidence > 0 ? t.category || undefined : undefined,
+            (t.ai_confidence ?? 0) > 0 ? t.category || undefined : undefined,
           ai_confidence: t.ai_confidence || undefined,
         })),
       });
-      setImportedCount(result.imported_count);
-      setSkippedDuplicates(result.skipped_duplicates);
-      setBatchId(result.batch_id);
+      setImportedCount(result.imported_count ?? 0);
+      setSkippedDuplicates(result.skipped_duplicates ?? 0);
+      setBatchId(result.batch_id ?? null);
       // Invalidate transactions cache so the list shows new drafts immediately
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       setStep("success");
@@ -535,7 +535,7 @@ export default function ImportTransactionsPage() {
                         : "bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 ring-1 ring-rose-200"
                     }`}
                   >
-                    {parseResult.file_type.toUpperCase()}
+                    {(parseResult.file_type ?? "unknown").toUpperCase()}
                   </span>
                   <span className="text-sm font-bold text-heading">
                     {parseResult.file_name}
@@ -559,13 +559,13 @@ export default function ImportTransactionsPage() {
             </div>
 
             {/* Warnings */}
-            {parseResult.parse_warnings.length > 0 && (
+            {(parseResult.parse_warnings?.length ?? 0) > 0 && (
               <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200 p-4">
                 <h4 className="text-sm font-bold text-amber-800 mb-2">
                   Parse warnings
                 </h4>
                 <ul className="text-sm text-amber-700 list-disc list-inside space-y-1">
-                  {parseResult.parse_warnings.map((w, i) => (
+                  {(parseResult.parse_warnings ?? []).map((w, i) => (
                     <li key={i}>{w}</li>
                   ))}
                 </ul>
@@ -575,7 +575,7 @@ export default function ImportTransactionsPage() {
             {/* AI categorization banner */}
             {(() => {
               const aiCount = editedTransactions.filter(
-                (t) => t.ai_confidence > 0
+                (t) => (t.ai_confidence ?? 0) > 0
               ).length;
               return aiCount > 0 ? (
                 <div className="mb-6 rounded-xl bg-gradient-to-r from-cyan-50 to-teal-50 border border-cyan-200 p-4 flex items-center gap-3">
@@ -603,7 +603,7 @@ export default function ImportTransactionsPage() {
             })()}
 
             {/* Duplicates warning */}
-            {parseResult.duplicate_count > 0 && (
+            {(parseResult.duplicate_count ?? 0) > 0 && (
               <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-bold text-amber-800">
@@ -770,13 +770,13 @@ export default function ImportTransactionsPage() {
                                 </option>
                               ))}
                             </select>
-                            {txn.ai_confidence >= 0.8 && (
+                            {(txn.ai_confidence ?? 0) >= 0.8 && (
                               <span className="inline-flex items-center rounded-md bg-gradient-to-r from-emerald-50 to-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-300">
                                 AI
                               </span>
                             )}
-                            {txn.ai_confidence >= 0.5 &&
-                              txn.ai_confidence < 0.8 && (
+                            {(txn.ai_confidence ?? 0) >= 0.5 &&
+                              (txn.ai_confidence ?? 0) < 0.8 && (
                                 <span className="inline-flex items-center rounded-md bg-gradient-to-r from-amber-50 to-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-inset ring-amber-300">
                                   AI?
                                 </span>
