@@ -28,6 +28,7 @@ const marketingLinks: NavItem[] = [
 // Core app links - most important items visible by default
 const primaryAppLinks: NavItem[] = [
   { name: "Dashboard", href: "/dashboard" },
+  { name: "Daily Briefing", href: "/daily-briefings" },
   { name: "Transactions", href: "/transactions" },
   { name: "Contacts", href: "/contacts" },
 ];
@@ -342,7 +343,8 @@ export function Navigation() {
     pathname.startsWith("/payments") ||
     pathname.startsWith("/reconciliation") ||
     pathname.startsWith("/settings") ||
-    pathname.startsWith("/chat");
+    pathname.startsWith("/chat") ||
+    pathname.startsWith("/daily-briefings");
 
   // Until client mounts, always show marketing links to match SSR output
   const showAppNav = hasMounted && isAppPage && authed;

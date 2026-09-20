@@ -54,6 +54,10 @@ describe("Navigation", () => {
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByRole("link", { name: "Chat with Oluto" })).toHaveAttribute("href", "/chat");
+    expect(screen.getByRole("link", { name: "Daily Briefing" })).toHaveAttribute(
+      "href",
+      "/daily-briefings"
+    );
     expect(screen.getByText("Add Transaction")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
   });
@@ -69,6 +73,19 @@ describe("Navigation", () => {
       "href",
       "/settings/team"
     );
+  });
+
+  it("keeps authenticated navigation on the Daily Briefing page", () => {
+    mocks.pathname = "/daily-briefings";
+    mocks.authenticated = true;
+
+    render(<Navigation />);
+
+    expect(screen.getByRole("link", { name: "Daily Briefing" })).toHaveAttribute(
+      "href",
+      "/daily-briefings"
+    );
+    expect(screen.queryByRole("link", { name: "Sign in" })).not.toBeInTheDocument();
   });
 
   it("opens and closes the mobile menu with accessible state", () => {

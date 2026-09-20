@@ -98,6 +98,98 @@ describe("ChatApi", () => {
     expect(headers.get("idempotency-key")).toBeTruthy();
   });
 
+  it("loads Daily Briefing automation settings and delivered briefings", async () => {
+    const automationId = "66666666-6666-4666-8666-666666666666";
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce(
+        Response.json({
+          items: [
+            {
+              id: automationId,
+              business_id: businessId,
+              name: "Daily Finance Briefing",
+              workflow_name: "daily_briefing",
+              locale: "en-CA",
+              cron_expression: "30 8 * * *",
+              time_zone_name: "America/Vancouver",
+              status: "active",
+              version: 3,
+            },
+          ],
+          next_cursor: null,
+        })
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          items: [
+            {
+              run_id: runId,
+              scheduled_for: "2026-09-20T15:30:00Z",
+              locale: "en-CA",
+              status: "succeeded",
+              answer: "Your cash position is healthy.",
+            },
+          ],
+          next_cursor: null,
+        })
+      );
+
+    const [automations, briefings] = await Promise.all([
+      chat.listAutomations(businessId),
+      chat.listDailyBriefings(businessId),
+    ]);
+
+    expect(automations).toEqual([expect.objectContaining({ id: automationId })]);
+    expect(briefings).toEqual([expect.objectContaining({ run_id: runId })]);
+    expect(vi.mocked(global.fetch).mock.calls[1][0]).toBe(
+      `/agent/api/v1/businesses/${businessId}/daily-briefings?limit=30`
+    );
+  });
+
+  it("creates and updates a Daily Briefing schedule with optimistic concurrency", async () => {
+    const automationId = "66666666-6666-4666-8666-666666666666";
+    const schedule = {
+      name: "Daily Finance Briefing",
+      locale: "fr-CA" as const,
+      cronExpression: "15 7 * * *",
+      timeZoneName: "America/Toronto",
+      status: "active" as const,
+    };
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce(
+        Response.json({
+          id: automationId,
+          business_id: businessId,
+          workflow_name: "daily_briefing",
+          version: 1,
+          ...schedule,
+        })
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          id: automationId,
+          business_id: businessId,
+          workflow_name: "daily_briefing",
+          version: 2,
+          ...schedule,
+        })
+      );
+
+    const created = await chat.saveDailyBriefingSchedule(businessId, schedule);
+    await chat.saveDailyBriefingSchedule(businessId, {
+      ...schedule,
+      automation: created,
+    });
+
+    const [createUrl, createOptions] = vi.mocked(global.fetch).mock.calls[0];
+    expect(createUrl).toBe(`/agent/api/v1/businesses/${businessId}/automations`);
+    expect(createOptions?.method).toBe("POST");
+    const [updateUrl, updateOptions] = vi.mocked(global.fetch).mock.calls[1];
+    expect(updateUrl).toBe(`/agent/api/v1/businesses/${businessId}/automations/${automationId}`);
+    expect(updateOptions?.method).toBe("PATCH");
+    expect(new Headers(updateOptions?.headers).get("if-match")).toBe('"1"');
+  });
+
   it("uploads a receipt directly to private storage before starting its durable Run", async () => {
     const documentId = "44444444-4444-4444-8444-444444444444";
     const file = new File([new Uint8Array([1, 2, 3, 4])], "receipt.png", {
