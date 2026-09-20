@@ -70,7 +70,7 @@ class UnifiedApiClient {
   readonly quickbooks: QuickBooksApi;
   readonly memberships: MembershipsApi;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, agentApiBaseUrl: string) {
     this.auth = new AuthApi(baseUrl);
     this.businesses = new BusinessesApi(baseUrl);
     this.transactions = new TransactionsApi(baseUrl);
@@ -82,7 +82,7 @@ class UnifiedApiClient {
     this.receipts = new ReceiptsApi(baseUrl);
     this.reports = new ReportsApi(baseUrl);
     this.reconciliation = new ReconciliationApi(baseUrl);
-    this.chat = new ChatApi(baseUrl);
+    this.chat = new ChatApi(agentApiBaseUrl);
     this.quickbooks = new QuickBooksApi(baseUrl);
     this.memberships = new MembershipsApi(baseUrl);
   }
@@ -338,23 +338,6 @@ class UnifiedApiClient {
   async listMessages(businessId: string, convId: string) {
     return this.chat.listMessages(businessId, convId);
   }
-  async createMessage(businessId: string, convId: string, data: any) {
-    return this.chat.createMessage(businessId, convId, data);
-  }
-  async deleteMessage(businessId: string, convId: string, msgId: string) {
-    return this.chat.deleteMessage(businessId, convId, msgId);
-  }
-  async sendChatMessage(message: string, businessId: string, timezone?: string) {
-    return this.chat.sendChatMessage(message, businessId, timezone);
-  }
-  async sendChatMessageWithFile(
-    message: string,
-    file: File,
-    businessId: string,
-    timezone?: string
-  ) {
-    return this.chat.sendChatMessageWithFile(message, file, businessId, timezone);
-  }
   async parseQuickBooksImport(businessId: string, files: Record<string, File>) {
     return this.quickbooks.parseImport(businessId, files);
   }
@@ -365,7 +348,8 @@ class UnifiedApiClient {
 
 // Create the default API instance
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
-export const api = new UnifiedApiClient(API_BASE_URL);
+const AGENT_API_BASE_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || "/agent";
+export const api = new UnifiedApiClient(API_BASE_URL, AGENT_API_BASE_URL);
 
 // Default export for backward compatibility
 export default api;

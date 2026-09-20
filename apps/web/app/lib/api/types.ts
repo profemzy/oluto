@@ -806,6 +806,7 @@ export interface Conversation {
   created_at: string;
   updated_at: string;
   archived: boolean;
+  version: number;
 }
 
 export interface ChatMessage {
@@ -815,15 +816,8 @@ export interface ChatMessage {
   content: string;
   model?: string;
   created_at: string;
-}
-
-export interface SendChatResponse {
-  success: boolean;
-  message: string;
-  response?: string; // Alias for backward compatibility
-  model?: string;
-  error?: string; // For error messages
-  conversation_id?: string;
+  run_id?: string;
+  status?: "streaming" | "completed" | "interrupted";
 }
 
 // ==================== QuickBooks Import Types ====================

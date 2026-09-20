@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, Conversation, ChatMessage } from "@/app/lib/api";
+import { api } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { PageLoader } from "@/app/components";
 import { toastError } from "@/app/lib/toast";
@@ -11,15 +11,17 @@ import { ChatArea } from "./components/ChatArea";
 import { QuickAction } from "./components/QuickActions";
 
 export default function ChatPage() {
-  const { user, loading: authLoading, timezone } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [sending, setSending] = useState(false);
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingQuickActionRef = useRef<QuickAction | null>(null);
+  const observedRunsRef = useRef(new Set<string>());
 
   const businessId = user?.business_id;
 
@@ -45,7 +47,8 @@ export default function ChatPage() {
       queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
       setActiveId(conv.id);
     },
-    onError: (err) => toastError(err instanceof Error ? err.message : "Failed to create conversation"),
+    onError: (err) =>
+      toastError(err instanceof Error ? err.message : "Failed to create conversation"),
   });
 
   const renameConversation = useMutation({
@@ -62,14 +65,69 @@ export default function ChatPage() {
       queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
       if (activeId === deletedId) setActiveId(null);
     },
-    onError: (err) => toastError(err instanceof Error ? err.message : "Failed to delete conversation"),
+    onError: (err) =>
+      toastError(err instanceof Error ? err.message : "Failed to delete conversation"),
   });
+
+  // --- Durable Run lifecycle ---
+
+  const pendingRunId = useMemo(() => {
+    const assistantRunIds = new Set(
+      messages.filter((message) => message.role === "assistant").map((message) => message.run_id)
+    );
+    return [...messages]
+      .reverse()
+      .find(
+        (message) =>
+          message.role === "user" && message.run_id && !assistantRunIds.has(message.run_id)
+      )?.run_id;
+  }, [messages]);
+
+  const observeRun = useCallback(
+    async (conversationId: string, runId: string) => {
+      if (!businessId || observedRunsRef.current.has(runId)) return;
+      observedRunsRef.current.add(runId);
+      setActiveRunId(runId);
+      setSending(true);
+      try {
+        const run = await api.chat.waitForRun(businessId, runId, async ({ event }) => {
+          if (event.type === "message.completed") {
+            await queryClient.invalidateQueries({
+              queryKey: ["messages", businessId, conversationId],
+            });
+          }
+        });
+        if (run.status === "failed" || run.status === "expired") {
+          toastError("Oluto could not complete that request. Please try again.");
+        }
+      } catch (err) {
+        toastError(err instanceof Error ? err.message : "Lost connection to the agent Run");
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["messages", businessId, conversationId] }),
+          queryClient.invalidateQueries({ queryKey: ["conversations", businessId] }),
+        ]);
+        setActiveRunId((current) => (current === runId ? null : current));
+        setSending(false);
+      }
+    },
+    [businessId, queryClient]
+  );
+
+  useEffect(() => {
+    if (activeId && pendingRunId) void observeRun(activeId, pendingRunId);
+  }, [activeId, pendingRunId, observeRun]);
 
   // --- Send message flow ---
 
   const sendMessage = useCallback(
     async (content: string, file?: File) => {
       if (!businessId || sending) return;
+
+      if (file) {
+        toastError("Receipt uploads will be enabled with the Receipt Snap workflow.");
+        return;
+      }
 
       let convId = activeId;
 
@@ -86,86 +144,25 @@ export default function ChatPage() {
         }
       }
 
-      // Build content with file annotation
-      const msgContent = file ? `[file: ${file.name}] ${content}` : content;
-
-      // Save user message to LedgerForge
-      let userMsg: ChatMessage;
       try {
-        userMsg = await api.createMessage(businessId, convId, {
-          role: "user",
-          content: msgContent,
-        });
-        queryClient.setQueryData<ChatMessage[]>(
-          ["messages", businessId, convId],
-          (old = []) => [...old, userMsg],
-        );
+        const accepted = await api.chat.postUserMessage(businessId, convId, content);
+        await queryClient.invalidateQueries({ queryKey: ["messages", businessId, convId] });
+        await observeRun(convId, accepted.run_id);
       } catch (err) {
-        toastError(err instanceof Error ? err.message : "Failed to save message");
-        return;
-      }
-
-      // Call gateway
-      setSending(true);
-      try {
-        const gatewayRes = file
-          ? await api.sendChatMessageWithFile(content, file, businessId, timezone)
-          : await api.sendChatMessage(content, businessId, timezone);
-
-        if (gatewayRes.error) {
-          // Save error message
-          const errMsg = await api.createMessage(businessId, convId, {
-            role: "error",
-            content: gatewayRes.error,
-          });
-          queryClient.setQueryData<ChatMessage[]>(
-            ["messages", businessId, convId],
-            (old = []) => [...old, errMsg],
-          );
-        } else if (gatewayRes.response) {
-          // Save assistant response
-          const assistantMsg = await api.createMessage(businessId, convId, {
-            role: "assistant",
-            content: gatewayRes.response,
-            model: gatewayRes.model,
-          });
-          queryClient.setQueryData<ChatMessage[]>(
-            ["messages", businessId, convId],
-            (old = []) => [...old, assistantMsg],
-          );
-
-          // Auto-title conversation from first assistant response
-          const currentMsgs = queryClient.getQueryData<ChatMessage[]>(["messages", businessId, convId]) || [];
-          const assistantCount = currentMsgs.filter((m) => m.role === "assistant").length;
-          if (assistantCount === 1) {
-            const title = gatewayRes.response.slice(0, 60).replace(/\n/g, " ");
-            api.updateConversation(businessId, convId, { title }).then(() => {
-              queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
-            }).catch(() => {});
-          }
-        }
-      } catch (err) {
-        // Save gateway error as error message
-        const errorContent = err instanceof Error ? err.message : "Failed to get response";
-        try {
-          const errMsg = await api.createMessage(businessId, convId, {
-            role: "error",
-            content: errorContent,
-          });
-          queryClient.setQueryData<ChatMessage[]>(
-            ["messages", businessId, convId],
-            (old = []) => [...old, errMsg],
-          );
-        } catch {
-          toastError(errorContent);
-        }
-      } finally {
-        setSending(false);
-        queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
+        toastError(err instanceof Error ? err.message : "Failed to start the agent Run");
       }
     },
-    [businessId, activeId, sending, timezone, queryClient],
+    [businessId, activeId, sending, queryClient, observeRun]
   );
+
+  const cancelRun = useCallback(async () => {
+    if (!businessId || !activeRunId) return;
+    try {
+      await api.chat.cancelRun(businessId, activeRunId);
+    } catch (err) {
+      toastError(err instanceof Error ? err.message : "Failed to stop the Run");
+    }
+  }, [businessId, activeRunId]);
 
   // --- Quick action handler ---
 
@@ -178,7 +175,7 @@ export default function ChatPage() {
         sendMessage(action.prompt);
       }
     },
-    [sendMessage],
+    [sendMessage]
   );
 
   const handleQuickActionFile = useCallback(
@@ -191,7 +188,7 @@ export default function ChatPage() {
       pendingQuickActionRef.current = null;
       if (fileInputRef.current) fileInputRef.current.value = "";
     },
-    [sendMessage],
+    [sendMessage]
   );
 
   // --- Render ---
@@ -217,30 +214,42 @@ export default function ChatPage() {
       />
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile header bar */}
-        <div className="md:hidden flex items-center gap-3 px-3 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f0f18]">
+        <div className="flex items-center gap-3 border-b border-gray-200 bg-white px-3 py-2 md:hidden dark:border-gray-800 dark:bg-[#0f0f18]">
           <button
             onClick={() => setMobileOpen(true)}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center">
+          <div className="flex flex-1 items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-cyan-500 to-teal-600">
               <span className="text-xs font-bold text-white">O</span>
             </div>
             <span className="text-sm font-semibold text-gray-900 dark:text-white">Oluto Chat</span>
           </div>
           <button
-            onClick={() => { setActiveId(null); }}
-            className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors"
+            onClick={() => {
+              setActiveId(null);
+            }}
+            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-900/20"
             title="New chat"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </button>
         </div>
@@ -250,6 +259,7 @@ export default function ChatPage() {
           loading={sending}
           onSend={sendMessage}
           onQuickAction={handleQuickAction}
+          onCancel={activeRunId ? cancelRun : undefined}
         />
       </div>
 
