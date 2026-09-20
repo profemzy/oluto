@@ -152,6 +152,31 @@ describe("TeamSettingsPage", () => {
       version: 7,
       activated_at: "2026-09-02T12:00:00Z",
     });
+    vi.spyOn(api.memberships, "transferOwnership").mockResolvedValue({
+      business_id: "business-1",
+      previous_owner: {
+        id: "membership-1",
+        business_id: "business-1",
+        user_id: "user-1",
+        email: "owner@example.com",
+        full_name: "Alex Owner",
+        role: "administrator",
+        status: "active",
+        version: 3,
+        activated_at: "2026-09-01T12:00:00Z",
+      },
+      new_owner: {
+        id: "membership-2",
+        business_id: "business-1",
+        user_id: "user-2",
+        email: "team@example.com",
+        full_name: "Taylor Team",
+        role: "owner",
+        status: "active",
+        version: 7,
+        activated_at: "2026-09-02T12:00:00Z",
+      },
+    });
   });
 
   it("shows members, invitation delivery failures, and retries through the public action", async () => {
@@ -255,6 +280,27 @@ describe("TeamSettingsPage", () => {
       expect(api.memberships.update).toHaveBeenCalledWith("business-1", "membership-2", {
         status: "revoked",
         expected_version: 6,
+      });
+    });
+  });
+
+  it("requires explicit confirmation before transferring ownership", async () => {
+    renderPage();
+    await screen.findByText("Taylor Team");
+
+    fireEvent.click(screen.getByRole("button", { name: "Transfer ownership to Taylor Team" }));
+    expect(api.memberships.transferOwnership).not.toHaveBeenCalled();
+    expect(screen.getByText("You will become Administrator.")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Confirm transfer ownership to Taylor Team" })
+    );
+
+    await waitFor(() => {
+      expect(api.memberships.transferOwnership).toHaveBeenCalledWith("business-1", {
+        new_owner_membership_id: "membership-2",
+        expected_owner_version: 2,
+        expected_new_owner_version: 6,
       });
     });
   });
