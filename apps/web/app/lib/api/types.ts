@@ -54,6 +54,17 @@ export type MembershipRole = "owner" | "administrator" | "accountant" | "contrib
 
 export type MembershipStatus = "invited" | "active" | "suspended" | "revoked";
 
+export type BusinessPermission =
+  | "business.read"
+  | "financial.read"
+  | "financial.write"
+  | "financial.approve"
+  | "documents.manage"
+  | "memberships.read"
+  | "memberships.manage"
+  | "memberships.transfer_ownership"
+  | "imports.manage";
+
 export type MembershipInvitationStatus = "pending" | "accepted" | "revoked" | "expired";
 
 export type MembershipInvitationDeliveryStatus =
@@ -69,6 +80,7 @@ export interface BusinessAuthContext {
   membership_id: string;
   role: MembershipRole;
   membership_version: number;
+  permissions: BusinessPermission[];
 }
 
 export interface Membership {
