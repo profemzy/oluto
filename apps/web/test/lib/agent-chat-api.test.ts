@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { webcrypto } from "node:crypto";
 import { ChatApi } from "@/app/lib/api/chat";
 
 const businessId = "11111111-1111-4111-8111-111111111111";
@@ -10,6 +11,7 @@ describe("ChatApi", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal("crypto", webcrypto);
     chat.setTokenProvider(async () => "agent-token");
   });
 
@@ -94,5 +96,57 @@ describe("ChatApi", () => {
     expect(options?.method).toBe("POST");
     expect(headers.get("if-match")).toBe('"8"');
     expect(headers.get("idempotency-key")).toBeTruthy();
+  });
+
+  it("uploads a receipt directly to private storage before starting its durable Run", async () => {
+    const documentId = "44444444-4444-4444-8444-444444444444";
+    const file = new File([new Uint8Array([1, 2, 3, 4])], "receipt.png", {
+      type: "image/png",
+    });
+    Object.defineProperty(file, "arrayBuffer", {
+      value: async () => new Uint8Array([1, 2, 3, 4]).buffer,
+    });
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce(
+        Response.json({
+          document_id: documentId,
+          status: "awaiting_upload",
+          version: 1,
+          upload: {
+            method: "PUT",
+            url: "http://storage.test/private-upload",
+            headers: { "content-type": "image/png", "x-amz-meta-expected-byte-length": "4" },
+            expires_at: "2026-09-20T12:05:00Z",
+          },
+        })
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
+      .mockResolvedValueOnce(
+        Response.json({ document_id: documentId, status: "validating", version: 2 })
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          message_id: "55555555-5555-4555-8555-555555555555",
+          run_id: runId,
+          status: "queued",
+          events_url: `/api/v1/businesses/${businessId}/runs/${runId}/events`,
+        })
+      );
+
+    const accepted = await chat.uploadReceipt(businessId, conversationId, file);
+
+    expect(accepted.run_id).toBe(runId);
+    const [uploadUrl, uploadOptions] = vi.mocked(global.fetch).mock.calls[1];
+    expect(uploadUrl).toBe("http://storage.test/private-upload");
+    expect(uploadOptions?.method).toBe("PUT");
+    expect(uploadOptions?.body).toBe(file);
+    const [startUrl, startOptions] = vi.mocked(global.fetch).mock.calls[3];
+    expect(startUrl).toBe(
+      `/agent/api/v1/businesses/${businessId}/documents/${documentId}/receipt-runs`
+    );
+    expect(JSON.parse(String(startOptions?.body))).toEqual({
+      conversation_id: conversationId,
+      locale: "en-CA",
+    });
   });
 });

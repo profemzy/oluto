@@ -5,7 +5,10 @@ import {
   AgentApiError,
   type AgentRunEventEnvelope,
   type AgentRunResponse,
+  type ApprovalRequestResponse,
+  type ArtifactResponse,
   type ConversationResponse,
+  type InputRequestResponse,
   type MessageResponse,
   type PostUserMessageResponse,
 } from "../generated/agent-api";
@@ -107,6 +110,99 @@ export class ChatApi {
     });
   }
 
+  async uploadReceipt(
+    businessId: string,
+    conversationId: string,
+    file: File,
+    locale: "en-CA" | "fr-CA" = "en-CA"
+  ): Promise<PostUserMessageResponse> {
+    if (!["image/jpeg", "image/png", "application/pdf"].includes(file.type)) {
+      throw new Error("Use a JPEG, PNG, or PDF receipt.");
+    }
+    if (file.size < 1 || file.size > 20 * 1024 * 1024) {
+      throw new Error("Receipt files must be between 1 byte and 20 MB.");
+    }
+    const sha256 = await digestFile(file);
+    const reservation = await this.client.request("reserveDocumentUpload", {
+      path: { business_id: businessId },
+      headers: { "Idempotency-Key": crypto.randomUUID() },
+      body: {
+        byte_length: file.size,
+        media_type: file.type as "image/jpeg" | "image/png" | "application/pdf",
+        purpose: "receipt_processing",
+        safe_display_name: file.name,
+        sha256,
+      },
+    });
+    const uploadHeaders = new Headers(reservation.upload.headers);
+    const upload = await fetch(reservation.upload.url, {
+      method: reservation.upload.method,
+      headers: uploadHeaders,
+      body: file,
+    });
+    if (!upload.ok) throw new Error("The receipt could not be uploaded to private storage.");
+    await this.client.request("completeDocumentUpload", {
+      path: { business_id: businessId, document_id: reservation.document_id },
+      body: { byte_length: file.size, sha256 },
+    });
+    return this.client.request("startReceiptRun", {
+      path: { business_id: businessId, document_id: reservation.document_id },
+      headers: { "Idempotency-Key": crypto.randomUUID() },
+      body: { conversation_id: conversationId, locale },
+    });
+  }
+
+  async getInputRequest(businessId: string, inputRequestId: string): Promise<InputRequestResponse> {
+    return this.client.request("getInputRequest", {
+      path: { business_id: businessId, input_request_id: inputRequestId },
+    });
+  }
+
+  async answerInputRequest(
+    businessId: string,
+    request: InputRequestResponse,
+    response: Record<string, unknown>
+  ): Promise<void> {
+    await this.client.request("answerInputRequest", {
+      path: { business_id: businessId, input_request_id: request.id },
+      headers: {
+        "Idempotency-Key": crypto.randomUUID(),
+        "If-Match": `"${request.version}"`,
+      },
+      body: { schema_version: request.schema_version, response },
+    });
+  }
+
+  async getApprovalRequest(
+    businessId: string,
+    approvalRequestId: string
+  ): Promise<ApprovalRequestResponse> {
+    return this.client.request("getApprovalRequest", {
+      path: { business_id: businessId, approval_request_id: approvalRequestId },
+    });
+  }
+
+  async getArtifact(businessId: string, artifactId: string): Promise<ArtifactResponse> {
+    return this.client.request("getArtifact", {
+      path: { business_id: businessId, artifact_id: artifactId },
+    });
+  }
+
+  async decideApprovalRequest(
+    businessId: string,
+    request: ApprovalRequestResponse,
+    decision: "approve" | "reject"
+  ): Promise<void> {
+    await this.client.request("decideApprovalRequest", {
+      path: { business_id: businessId, approval_request_id: request.id },
+      headers: {
+        "Idempotency-Key": crypto.randomUUID(),
+        "If-Match": `"${request.version}"`,
+      },
+      body: { decision },
+    });
+  }
+
   async getRun(businessId: string, runId: string): Promise<AgentRunResponse> {
     return this.client.request("getAgentRun", {
       path: { business_id: businessId, run_id: runId },
@@ -146,6 +242,11 @@ export class ChatApi {
       body: { reason_code: "user_requested" },
     });
   }
+}
+
+async function digestFile(file: File): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function consumeRunEventStream(

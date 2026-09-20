@@ -9,6 +9,16 @@ import { toastError } from "@/app/lib/toast";
 import { ChatSidebar } from "./components/ChatSidebar";
 import { ChatArea } from "./components/ChatArea";
 import { QuickAction } from "./components/QuickActions";
+import { ReceiptApprovalDialog, ReceiptReviewDialog } from "./components/ReceiptRunDialogs";
+import type {
+  ApprovalRequestResponse,
+  ArtifactResponse,
+  InputRequestResponse,
+} from "@/app/lib/generated/agent-api";
+import type { Account } from "@/app/lib/api/types";
+
+type PendingReceiptReview = { request: InputRequestResponse; accounts: Account[] };
+type PendingReceiptApproval = { request: ApprovalRequestResponse; artifact: ArtifactResponse };
 
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
@@ -19,6 +29,9 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [receiptReview, setReceiptReview] = useState<PendingReceiptReview | null>(null);
+  const [receiptApproval, setReceiptApproval] = useState<PendingReceiptApproval | null>(null);
+  const [submittingReceiptAction, setSubmittingReceiptAction] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingQuickActionRef = useRef<QuickAction | null>(null);
   const observedRunsRef = useRef(new Set<string>());
@@ -96,6 +109,27 @@ export default function ChatPage() {
               queryKey: ["messages", businessId, conversationId],
             });
           }
+          if (event.type === "input.requested") {
+            const requestId = String(event.data.input_request_id ?? "");
+            if (requestId) {
+              const [request, accounts] = await Promise.all([
+                api.chat.getInputRequest(businessId, requestId),
+                api.listAccounts(businessId),
+              ]);
+              setReceiptReview({ request, accounts });
+            }
+          }
+          if (event.type === "approval.requested") {
+            const requestId = String(event.data.approval_request_id ?? "");
+            const artifactId = String(event.data.draft_artifact_id ?? "");
+            if (requestId && artifactId) {
+              const [request, artifact] = await Promise.all([
+                api.chat.getApprovalRequest(businessId, requestId),
+                api.chat.getArtifact(businessId, artifactId),
+              ]);
+              setReceiptApproval({ request, artifact });
+            }
+          }
         });
         if (run.status === "failed" || run.status === "expired") {
           toastError("Oluto could not complete that request. Please try again.");
@@ -124,11 +158,6 @@ export default function ChatPage() {
     async (content: string, file?: File) => {
       if (!businessId || sending) return;
 
-      if (file) {
-        toastError("Receipt uploads will be enabled with the Receipt Snap workflow.");
-        return;
-      }
-
       let convId = activeId;
 
       // Create conversation if none active
@@ -145,7 +174,9 @@ export default function ChatPage() {
       }
 
       try {
-        const accepted = await api.chat.postUserMessage(businessId, convId, content);
+        const accepted = file
+          ? await api.chat.uploadReceipt(businessId, convId, file)
+          : await api.chat.postUserMessage(businessId, convId, content);
         await queryClient.invalidateQueries({ queryKey: ["messages", businessId, convId] });
         await observeRun(convId, accepted.run_id);
       } catch (err) {
@@ -163,6 +194,44 @@ export default function ChatPage() {
       toastError(err instanceof Error ? err.message : "Failed to stop the Run");
     }
   }, [businessId, activeRunId]);
+
+  const cancelReceiptRun = useCallback(async () => {
+    setReceiptReview(null);
+    setReceiptApproval(null);
+    await cancelRun();
+  }, [cancelRun]);
+
+  const submitReceiptReview = useCallback(
+    async (response: Record<string, unknown>) => {
+      if (!businessId || !receiptReview) return;
+      setSubmittingReceiptAction(true);
+      try {
+        await api.chat.answerInputRequest(businessId, receiptReview.request, response);
+        setReceiptReview(null);
+      } catch (err) {
+        toastError(err instanceof Error ? err.message : "Failed to submit receipt review");
+      } finally {
+        setSubmittingReceiptAction(false);
+      }
+    },
+    [businessId, receiptReview]
+  );
+
+  const decideReceiptApproval = useCallback(
+    async (decision: "approve" | "reject") => {
+      if (!businessId || !receiptApproval) return;
+      setSubmittingReceiptAction(true);
+      try {
+        await api.chat.decideApprovalRequest(businessId, receiptApproval.request, decision);
+        setReceiptApproval(null);
+      } catch (err) {
+        toastError(err instanceof Error ? err.message : "Failed to record approval decision");
+      } finally {
+        setSubmittingReceiptAction(false);
+      }
+    },
+    [businessId, receiptApproval]
+  );
 
   // --- Quick action handler ---
 
@@ -271,6 +340,23 @@ export default function ChatPage() {
         accept="image/*,.pdf,.csv"
         onChange={handleQuickActionFile}
       />
+      {receiptReview && (
+        <ReceiptReviewDialog
+          request={receiptReview.request}
+          accounts={receiptReview.accounts}
+          submitting={submittingReceiptAction}
+          onSubmit={submitReceiptReview}
+          onCancel={cancelReceiptRun}
+        />
+      )}
+      {receiptApproval && (
+        <ReceiptApprovalDialog
+          request={receiptApproval.request}
+          artifact={receiptApproval.artifact}
+          submitting={submittingReceiptAction}
+          onDecide={decideReceiptApproval}
+        />
+      )}
     </div>
   );
 }
