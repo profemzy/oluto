@@ -84,11 +84,23 @@ spec:
               value: "development"
             - name: PORT
               value: "3000"
+            - name: INTERNAL_PORT
+              value: "3002"
+            - name: OLUTO_FINANCE_SERVICE_CLIENT_ID
+              value: "oluto-finance"
+            - name: OLUTO_FINANCE_SERVICE_NAME
+              value: "Oluto Finance Agent API"
+            - name: OLUTO_FINANCE_SERVICE_SECRET_FILE
+              value: "/run/secrets/finance-service-secret"
+            - name: OLUTO_FINANCE_SERVICE_AUDIENCES
+              value: "ledgerforge-agent"
             - name: RUST_LOG
               value: "info"
           ports:
             - containerPort: 3000
               name: http
+            - containerPort: 3002
+              name: delegated-http
           livenessProbe:
             httpGet:
               path: /api/v1/health
@@ -110,3 +122,14 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          volumeMounts:
+            - name: finance-service-secret
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: finance-service-secret
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_FINANCE_SERVICE_SECRET
+                path: finance-service-secret

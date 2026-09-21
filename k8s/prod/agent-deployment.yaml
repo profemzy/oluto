@@ -1,96 +1,476 @@
-# =============================================================================
-# ZeroClaw Agent Gateway — Rust/Axum (PROD)
-# Runs with --target dev Docker stage (skills baked into image).
-# Image is built and pushed by the ZeroClaw CI pipeline.
-#
-# Config loaded from zeroclaw-config ConfigMap (config.toml + oluto-config.json).
-# Gateway JWT validation uses Keycloak OIDC settings from env vars.
-# API key injected via ZEROCLAW_API_KEY env var from oluto-secret.
-# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oluto-finance-config
+  namespace: oluto
+data:
+  OLUTO_ENVIRONMENT: prod
+  OLUTO_LEDGERFORGE_BASE_URL: http://oluto-backend
+  OLUTO_LEDGERFORGE_INTERNAL_BASE_URL: http://oluto-backend:3002
+  OLUTO_TEMPORAL_NAMESPACE: oluto-prod
+  OLUTO_BLOBSTORE_BUCKET: oluto-private
+  OLUTO_BLOBSTORE_BUCKET_ALIAS: private
+  OLUTO_BLOBSTORE_REGION: ca-central-1
+  OLUTO_MODEL_CONFIGURATION_VERSION: "1"
+  OLUTO_MODEL_REQUALIFICATION_SECONDS: "300"
+  OLUTO_MODEL_READINESS_MAX_AGE_SECONDS: "900"
+  OLUTO_MODEL_CONTEXT_TOKENS: "32768"
+  OLUTO_MODEL_MAX_OUTPUT_TOKENS: "4096"
+  OLUTO_MODEL_CONNECT_TIMEOUT_SECONDS: "5"
+  OLUTO_MODEL_REQUEST_TIMEOUT_SECONDS: "120"
+  OLUTO_WORKER_BUILD_ID: prod-bookkeeper-v1
+  OLUTO_MODEL_WORKER_BUILD_ID: prod-model-v1
+  OLUTO_FINANCE_SERVICE_CLIENT_ID: oluto-finance
+  OLUTO_AGENT_PLATFORM_ENABLED: "false"
+  OLUTO_CONVERSATIONAL_BOOKKEEPER_ENABLED: "false"
+  OLUTO_RECEIPT_SNAP_ENABLED: "false"
+  OLUTO_DAILY_BRIEFING_ENABLED: "false"
+  OLUTO_FINANCIAL_PROPOSALS_ENABLED: "false"
+  OLUTO_FINANCIAL_APPROVALS_ENABLED: "false"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oluto-finance-migrate
+  namespace: oluto
+  labels:
+    app: oluto-finance-migrate
+    environment: prod
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: oluto-finance-migrate
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: wackopscoachprodacr.azurecr.io/oluto-finance:latest
+          imagePullPolicy: Always
+          command: ["oluto-migrate"]
+          envFrom:
+            - configMapRef:
+                name: oluto-finance-config
+            - secretRef:
+                name: oluto-secret
+          env:
+            - name: OLUTO_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_AGENT_MIGRATOR_USER
+            - name: OLUTO_DATABASE_PASSWORD_FILE
+              value: /run/secrets/agent-migrator-password
+          volumeMounts:
+            - name: secrets
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_AGENT_MIGRATOR_PASSWORD
+                path: agent-migrator-password
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oluto-agent
+  name: oluto-finance-api
   namespace: oluto
   labels:
-    app: oluto-agent
-    environment: production
+    app: oluto-finance-api
+    environment: prod
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: oluto-agent
+      app: oluto-finance-api
   template:
     metadata:
       labels:
-        app: oluto-agent
-        environment: production
+        app: oluto-finance-api
+        environment: prod
     spec:
       containers:
-        - name: oluto-agent
-          image: wackopscoachprodacr.azurecr.io/oluto-agent:latest
+        - name: api
+          image: wackopscoachprodacr.azurecr.io/oluto-finance:latest
           imagePullPolicy: Always
+          command: ["uvicorn", "oluto_finance.api.runtime:create_runtime_app", "--factory", "--host", "0.0.0.0", "--port", "18790"]
+          envFrom:
+            - configMapRef:
+                name: oluto-finance-config
+            - secretRef:
+                name: oluto-secret
           env:
-            - name: HOME
-              value: "/zeroclaw-data"
-            - name: ZEROCLAW_WORKSPACE
-              value: "/zeroclaw-data/workspace"
-            - name: ZEROCLAW_GATEWAY_PORT
-              value: "18790"
-            - name: ZEROCLAW_API_KEY
+            - name: OLUTO_DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
-                  key: FUELIX_API_KEY
-            - name: ZEROCLAW_MODEL
+                  key: OLUTO_AGENT_RUNTIME_USER
+            - name: OLUTO_DATABASE_PASSWORD_FILE
+              value: /run/secrets/agent-runtime-password
+            - name: OLUTO_BLOBSTORE_INTERNAL_ENDPOINT
               valueFrom:
                 secretKeyRef:
                   name: oluto-secret
-                  key: ZEROCLAW_FUELIX_MODEL
-            - name: ZEROCLAW_GATEWAY_KEYCLOAK_URL
-              value: "https://auth.oluto.app"
-            - name: ZEROCLAW_GATEWAY_KEYCLOAK_REALM
-              value: "oluto"
-            - name: ZEROCLAW_GATEWAY_KEYCLOAK_ISSUER_URL
-              value: "https://auth.oluto.app"
-            - name: OLUTO_API_BASE_URL
-              value: "http://oluto-backend"
-            - name: RUST_LOG
-              value: "info"
-          volumeMounts:
-            - name: zeroclaw-config
-              mountPath: /zeroclaw-data/.zeroclaw/config.toml
-              subPath: config.toml
-              readOnly: true
-            - name: zeroclaw-config
-              mountPath: /zeroclaw-data/.oluto-config.json
-              subPath: oluto-config.json
-              readOnly: true
+                  key: OLUTO_BLOBSTORE_INTERNAL_ENDPOINT
+            - name: OLUTO_BLOBSTORE_PUBLIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_BLOBSTORE_PUBLIC_ENDPOINT
+            - name: OLUTO_BLOBSTORE_ACCESS_KEY_FILE
+              value: /run/secrets/blobstore-access-key
+            - name: OLUTO_BLOBSTORE_SECRET_KEY_FILE
+              value: /run/secrets/blobstore-secret-key
+            - name: OLUTO_MODEL_CONFIGURATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_MODEL_CONFIGURATION_ID
           ports:
-            - containerPort: 18790
-              name: http
+            - name: http
+              containerPort: 18790
           livenessProbe:
             httpGet:
-              path: /health
-              port: 18790
-            initialDelaySeconds: 15
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
             periodSeconds: 30
-            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /health
-              port: 18790
+              path: /health/ready
+              port: http
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 5
           resources:
             requests:
               cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: secrets
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_AGENT_RUNTIME_PASSWORD
+                path: agent-runtime-password
+              - key: OLUTO_BLOBSTORE_ACCESS_KEY
+                path: blobstore-access-key
+              - key: OLUTO_BLOBSTORE_SECRET_KEY
+                path: blobstore-secret-key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oluto-finance-dispatcher
+  namespace: oluto
+  labels:
+    app: oluto-finance-dispatcher
+    environment: prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oluto-finance-dispatcher
+  template:
+    metadata:
+      labels:
+        app: oluto-finance-dispatcher
+        environment: prod
+    spec:
+      containers:
+        - name: dispatcher
+          image: wackopscoachprodacr.azurecr.io/oluto-finance:latest
+          imagePullPolicy: Always
+          command: ["oluto-dispatch"]
+          envFrom:
+            - configMapRef:
+                name: oluto-finance-config
+            - secretRef:
+                name: oluto-secret
+          env:
+            - name: OLUTO_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_AGENT_DISPATCHER_USER
+            - name: OLUTO_DATABASE_PASSWORD_FILE
+              value: /run/secrets/agent-dispatcher-password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: secrets
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_AGENT_DISPATCHER_PASSWORD
+                path: agent-dispatcher-password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oluto-finance-worker
+  namespace: oluto
+  labels:
+    app: oluto-finance-worker
+    environment: prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oluto-finance-worker
+  template:
+    metadata:
+      labels:
+        app: oluto-finance-worker
+        environment: prod
+    spec:
+      containers:
+        - name: worker
+          image: wackopscoachprodacr.azurecr.io/oluto-finance:latest
+          imagePullPolicy: Always
+          command: ["oluto-worker"]
+          envFrom:
+            - configMapRef:
+                name: oluto-finance-config
+            - secretRef:
+                name: oluto-secret
+          env:
+            - name: OLUTO_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_AGENT_WORKER_USER
+            - name: OLUTO_DATABASE_PASSWORD_FILE
+              value: /run/secrets/agent-worker-password
+            - name: OLUTO_FINANCE_SERVICE_SECRET_FILE
+              value: /run/secrets/finance-service-secret
+            - name: OLUTO_BLOBSTORE_INTERNAL_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_BLOBSTORE_INTERNAL_ENDPOINT
+            - name: OLUTO_BLOBSTORE_PUBLIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_BLOBSTORE_PUBLIC_ENDPOINT
+            - name: OLUTO_BLOBSTORE_ACCESS_KEY_FILE
+              value: /run/secrets/blobstore-access-key
+            - name: OLUTO_BLOBSTORE_SECRET_KEY_FILE
+              value: /run/secrets/blobstore-secret-key
+            - name: OLUTO_MODEL_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_MODEL_BASE_URL
+            - name: OLUTO_PRIMARY_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_PRIMARY_MODEL
+            - name: OLUTO_EMBEDDING_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_EMBEDDING_MODEL
+            - name: OLUTO_MODEL_CONFIGURATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_MODEL_CONFIGURATION_ID
+            - name: OLUTO_MODEL_API_KEY_FILE
+              value: /run/secrets/model-api-key
+          resources:
+            requests:
+              cpu: 500m
               memory: 512Mi
             limits:
-              cpu: 1000m
-              memory: 1Gi
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: secrets
+              mountPath: /run/secrets
+              readOnly: true
       volumes:
-        - name: zeroclaw-config
-          configMap:
-            name: zeroclaw-config
+        - name: secrets
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_AGENT_WORKER_PASSWORD
+                path: agent-worker-password
+              - key: OLUTO_FINANCE_SERVICE_SECRET
+                path: finance-service-secret
+              - key: OLUTO_BLOBSTORE_ACCESS_KEY
+                path: blobstore-access-key
+              - key: OLUTO_BLOBSTORE_SECRET_KEY
+                path: blobstore-secret-key
+              - key: OLUTO_MODEL_API_KEY
+                path: model-api-key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oluto-model-worker
+  namespace: oluto
+  labels:
+    app: oluto-model-worker
+    environment: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oluto-model-worker
+  template:
+    metadata:
+      labels:
+        app: oluto-model-worker
+        environment: prod
+    spec:
+      containers:
+        - name: model-worker
+          image: wackopscoachprodacr.azurecr.io/oluto-finance:latest
+          imagePullPolicy: Always
+          command: ["oluto-model-worker"]
+          envFrom:
+            - configMapRef:
+                name: oluto-finance-config
+            - secretRef:
+                name: oluto-secret
+          env:
+            - name: OLUTO_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_AGENT_WORKER_USER
+            - name: OLUTO_DATABASE_PASSWORD_FILE
+              value: /run/secrets/agent-worker-password
+            - name: OLUTO_MODEL_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_MODEL_BASE_URL
+            - name: OLUTO_PRIMARY_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_PRIMARY_MODEL
+            - name: OLUTO_EMBEDDING_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_EMBEDDING_MODEL
+            - name: OLUTO_MODEL_CONFIGURATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: oluto-secret
+                  key: OLUTO_MODEL_CONFIGURATION_ID
+            - name: OLUTO_MODEL_API_KEY_FILE
+              value: /run/secrets/model-api-key
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: secrets
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: oluto-secret
+            items:
+              - key: OLUTO_AGENT_WORKER_PASSWORD
+                path: agent-worker-password
+              - key: OLUTO_MODEL_API_KEY
+                path: model-api-key
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: oluto-finance-api
+  namespace: oluto
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: oluto-finance-api
+  minReplicas: 2
+  maxReplicas: 10
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: oluto-finance-worker
+  namespace: oluto
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: oluto-finance-worker
+  minReplicas: 2
+  maxReplicas: 20
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 600
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: oluto-finance-api
+  namespace: oluto
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: oluto-finance-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: oluto-finance-worker
+  namespace: oluto
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: oluto-finance-worker

@@ -1,7 +1,7 @@
 # =============================================================================
-# Ingress for ZeroClaw Agent (DEV)
+# Ingress for Oluto Finance Agent API (DEV)
 # URL: https://dev.oluto.app/agent/*
-# Routes /agent/* to ZeroClaw gateway with extended timeout for AI responses
+# Routes /agent/* to the Agent API with extended timeout for streamed responses.
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -26,7 +26,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: oluto-agent
+                name: oluto-finance-api
                 port:
                   number: 18790
   tls:

@@ -22,8 +22,8 @@ spec:
           image: wackopscoachdevacr.azurecr.io/oluto-frontend:latest
           imagePullPolicy: Always
           env:
-            - name: GATEWAY_URL
-              value: "http://oluto-agent:18790"
+            - name: AGENT_API_URL
+              value: "http://oluto-finance-api:18790"
             - name: NEXT_PUBLIC_KEYCLOAK_URL
               value: "https://auth.dev.oluto.app"
             - name: NEXT_PUBLIC_KEYCLOAK_REALM

@@ -1,0 +1,99 @@
+# Deploys one qualified Oluto Finance image digest to DEV or PROD.
+# The image is built and tested in the oluto-finance repository.
+trigger: none
+pr: none
+
+parameters:
+  - name: environment
+    type: string
+    default: dev
+    values: [dev, prod]
+  - name: image
+    displayName: Qualified image reference including sha256 digest
+    type: string
+  - name: agentPlatformEnabled
+    type: boolean
+    default: false
+  - name: conversationalBookkeeperEnabled
+    type: boolean
+    default: false
+  - name: receiptSnapEnabled
+    type: boolean
+    default: false
+  - name: dailyBriefingEnabled
+    type: boolean
+    default: false
+  - name: financialProposalsEnabled
+    type: boolean
+    default: false
+  - name: financialApprovalsEnabled
+    type: boolean
+    default: false
+
+variables:
+  azureServiceConnection: terraformiacdevops1
+
+stages:
+  - stage: Deploy_Agent
+    jobs:
+      - deployment: Deploy_Oluto_Finance
+        environment: ${{ parameters.environment }}
+        pool:
+          vmImage: ubuntu-24.04
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: Bash@3
+                  displayName: Validate release inputs
+                  inputs:
+                    targetType: inline
+                    script: |
+                      set -euo pipefail
+                      if ! [[ '${{ parameters.image }}' =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]]; then
+                        echo "The image must be immutable and include a sha256 digest."
+                        exit 1
+                      fi
+                - task: Bash@3
+                  displayName: Render immutable deployment manifest
+                  inputs:
+                    targetType: inline
+                    script: |
+                      set -euo pipefail
+                      manifest="k8s/${{ parameters.environment }}/agent-deployment.yaml"
+                      sed -i "s|image: .*oluto-finance:latest|image: ${{ parameters.image }}|g" "$manifest"
+                      sed -i 's|OLUTO_AGENT_PLATFORM_ENABLED: "false"|OLUTO_AGENT_PLATFORM_ENABLED: "${{ lower(parameters.agentPlatformEnabled) }}"|' "$manifest"
+                      sed -i 's|OLUTO_CONVERSATIONAL_BOOKKEEPER_ENABLED: "false"|OLUTO_CONVERSATIONAL_BOOKKEEPER_ENABLED: "${{ lower(parameters.conversationalBookkeeperEnabled) }}"|' "$manifest"
+                      sed -i 's|OLUTO_RECEIPT_SNAP_ENABLED: "false"|OLUTO_RECEIPT_SNAP_ENABLED: "${{ lower(parameters.receiptSnapEnabled) }}"|' "$manifest"
+                      sed -i 's|OLUTO_DAILY_BRIEFING_ENABLED: "false"|OLUTO_DAILY_BRIEFING_ENABLED: "${{ lower(parameters.dailyBriefingEnabled) }}"|' "$manifest"
+                      sed -i 's|OLUTO_FINANCIAL_PROPOSALS_ENABLED: "false"|OLUTO_FINANCIAL_PROPOSALS_ENABLED: "${{ lower(parameters.financialProposalsEnabled) }}"|' "$manifest"
+                      sed -i 's|OLUTO_FINANCIAL_APPROVALS_ENABLED: "false"|OLUTO_FINANCIAL_APPROVALS_ENABLED: "${{ lower(parameters.financialApprovalsEnabled) }}"|' "$manifest"
+                - task: AzureCLI@2
+                  displayName: Migrate, deploy, and verify
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      if [ '${{ parameters.environment }}' = prod ]; then
+                        resource_group=wackopscoach-prod-rg
+                        cluster=wackopscoach-prod-aks
+                        base_url=https://oluto.app
+                      else
+                        resource_group=wackopscoach-dev-rg
+                        cluster=wackopscoach-dev-aks
+                        base_url=https://dev.oluto.app
+                      fi
+
+                      az aks install-cli
+                      az aks get-credentials --resource-group "$resource_group" --name "$cluster" --overwrite-existing
+                      kubelogin convert-kubeconfig -l azurecli
+                      kubectl delete job oluto-finance-migrate -n oluto --ignore-not-found
+                      kubectl apply -f "k8s/${{ parameters.environment }}/agent-deployment.yaml" -n oluto
+                      kubectl wait --for=condition=complete job/oluto-finance-migrate -n oluto --timeout=300s
+                      for deployment in oluto-finance-api oluto-finance-dispatcher oluto-finance-worker oluto-model-worker; do
+                        kubectl rollout status "deployment/$deployment" -n oluto --timeout=600s
+                      done
+                      curl --fail --silent --show-error "$base_url/agent/health/live"
