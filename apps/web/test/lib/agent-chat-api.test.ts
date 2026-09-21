@@ -44,6 +44,28 @@ describe("ChatApi", () => {
     const [url, options] = vi.mocked(global.fetch).mock.calls[0];
     expect(url).toBe(`/agent/api/v1/businesses/${businessId}/conversations?limit=100`);
     expect(new Headers(options?.headers).get("authorization")).toBe("Bearer agent-token");
+    expect(new Headers(options?.headers).get("x-oluto-client")).toBe("web");
+    expect(new Headers(options?.headers).get("x-oluto-client-version")).toBe("1.4.0");
+  });
+
+  it("loads the server-authoritative capability document", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      Response.json({
+        contract_version: 1,
+        capabilities: {
+          agent_platform: true,
+          conversational_bookkeeper: true,
+          receipt_snap: false,
+        },
+      })
+    );
+
+    await expect(chat.getCapabilities(businessId)).resolves.toEqual(
+      expect.objectContaining({
+        contract_version: 1,
+        capabilities: expect.objectContaining({ receipt_snap: false }),
+      })
+    );
   });
 
   it("creates a placeholder conversation in the selected agent language", async () => {
