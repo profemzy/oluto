@@ -102,7 +102,13 @@ export class ChatApi {
   }
 
   async deleteConversation(businessId: string, conversationId: string): Promise<void> {
-    await this.updateConversation(businessId, conversationId, { archived: true });
+    const current = await this.client.request("getConversation", {
+      path: { business_id: businessId, conversation_id: conversationId },
+    });
+    await this.client.request("deleteConversation", {
+      path: { business_id: businessId, conversation_id: conversationId },
+      headers: { "If-Match": `"${current.version}"` },
+    });
   }
 
   async listMessages(businessId: string, conversationId: string): Promise<ChatMessage[]> {
