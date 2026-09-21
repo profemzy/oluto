@@ -63,6 +63,17 @@ export default function ChatPage() {
     enabled: !!businessId,
   });
 
+  const { data: capabilityDocument } = useQuery({
+    queryKey: ["agent-capabilities", businessId],
+    queryFn: () => api.chat.getCapabilities(businessId!),
+    enabled: !!businessId,
+    refetchInterval: 60_000,
+  });
+
+  const capabilities = capabilityDocument?.capabilities;
+  const bookkeeperEnabled = capabilities?.conversational_bookkeeper !== false;
+  const receiptEnabled = capabilities?.receipt_snap !== false;
+
   const { data: messages = [] } = useQuery({
     queryKey: ["messages", businessId, activeId],
     queryFn: () => api.listMessages(businessId!, activeId!),
@@ -164,6 +175,10 @@ export default function ChatPage() {
   const sendMessage = useCallback(
     async (content: string, file?: File) => {
       if (!businessId || sending) return;
+      if (!bookkeeperEnabled || (file && !receiptEnabled)) {
+        toastError("This agent capability is temporarily unavailable.");
+        return;
+      }
 
       let convId = activeId;
 
@@ -190,7 +205,16 @@ export default function ChatPage() {
         toastError(err instanceof Error ? err.message : "Failed to start the agent Run");
       }
     },
-    [businessId, activeId, sending, queryClient, observeRun, locale]
+    [
+      businessId,
+      activeId,
+      sending,
+      queryClient,
+      observeRun,
+      locale,
+      bookkeeperEnabled,
+      receiptEnabled,
+    ]
   );
 
   const cancelRun = useCallback(async () => {
@@ -338,6 +362,11 @@ export default function ChatPage() {
           onSend={sendMessage}
           onQuickAction={handleQuickAction}
           onCancel={activeRunId ? cancelRun : undefined}
+          unavailableReason={
+            bookkeeperEnabled
+              ? undefined
+              : "The financial assistant is temporarily unavailable. Your existing conversations remain readable."
+          }
         />
       </div>
 

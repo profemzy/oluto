@@ -13,6 +13,7 @@ interface ChatAreaProps {
   onSend: (message: string, file?: File) => void;
   onQuickAction: (action: QuickAction) => void;
   onCancel?: () => void;
+  unavailableReason?: string;
 }
 
 // Group messages by date
@@ -195,7 +196,14 @@ function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction
   );
 }
 
-export function ChatArea({ messages, loading, onSend, onQuickAction, onCancel }: ChatAreaProps) {
+export function ChatArea({
+  messages,
+  loading,
+  onSend,
+  onQuickAction,
+  onCancel,
+  unavailableReason,
+}: ChatAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
@@ -267,7 +275,7 @@ export function ChatArea({ messages, loading, onSend, onQuickAction, onCancel }:
       return;
     }
 
-    onSend(`Upload: ${file.name}`, file);
+    if (!unavailableReason) onSend(`Upload: ${file.name}`, file);
   };
 
   const isEmpty = messages.length === 0;
@@ -384,11 +392,20 @@ export function ChatArea({ messages, loading, onSend, onQuickAction, onCancel }:
       )}
 
       {/* Input */}
+      {unavailableReason && (
+        <p
+          role="status"
+          className="mx-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100"
+        >
+          {unavailableReason}
+        </p>
+      )}
       <InputBar
         onSend={onSend}
         loading={loading}
         onToggleQuickActions={() => setShowQuickActions((v) => !v)}
         quickActionsActive={showQuickActions}
+        disabled={Boolean(unavailableReason)}
       />
     </div>
   );

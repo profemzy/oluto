@@ -8,6 +8,7 @@ import {
   type ApprovalRequestResponse,
   type ArtifactResponse,
   type AutomationResponse,
+  type CapabilityResponse,
   type ConversationResponse,
   type DailyBriefingResponse,
   type InputRequestResponse,
@@ -36,15 +37,25 @@ export class ChatApi {
   private readonly client: AgentApiClient;
 
   constructor(baseUrl: string) {
-    this.client = new AgentApiClient(baseUrl, async () => {
-      const token = await this.tokenProvider?.();
-      if (!token) throw new AgentApiError(401, { code: "authentication_required" });
-      return token;
-    });
+    this.client = new AgentApiClient(
+      baseUrl,
+      async () => {
+        const token = await this.tokenProvider?.();
+        if (!token) throw new AgentApiError(401, { code: "authentication_required" });
+        return token;
+      },
+      { name: "web", version: "1.4.0" }
+    );
   }
 
   setTokenProvider(provider: TokenProvider): void {
     this.tokenProvider = provider;
+  }
+
+  async getCapabilities(businessId: string): Promise<CapabilityResponse> {
+    return this.client.request("getCapabilities", {
+      path: { business_id: businessId },
+    });
   }
 
   async listConversations(businessId: string): Promise<Conversation[]> {
