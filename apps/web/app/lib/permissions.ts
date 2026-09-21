@@ -2,7 +2,7 @@
  * Role-based permission utilities.
  *
  * Business membership hierarchy with temporary support for the legacy admin role.
- * Mirrors the backend (LedgerForge + ZeroClaw) role enforcement.
+ * Mirrors LedgerForge business-role enforcement.
  */
 
 export type UserRole =
