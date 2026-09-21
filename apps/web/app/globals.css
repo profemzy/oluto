@@ -4,92 +4,122 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================
-   SEMANTIC COLOR TOKENS — Light / Dark
+   OLUTO FINANCIAL OPERATING SYSTEM DESIGN TOKENS
+   Light / Dark Mode Architecture
    ============================================ */
 
 :root {
-  /* Backgrounds */
+  /* Canvas & Structural Backgrounds */
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-bg-tertiary: #f3f4f6;
+  --color-bg-secondary: #f6f7f4; /* Paper canvas */
+  --color-bg-tertiary: #eef1f2;  /* Section fill / header */
   --color-bg-elevated: #ffffff;
-  --color-bg-hover: #f9fafb;
+  --color-bg-hover: #f1f4f6;
 
-  /* Text */
-  --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
-  --color-text-tertiary: #6b7280;
-  --color-text-muted: #9ca3af;
+  /* Typography */
+  --color-text-primary: #14202b;   /* Ink */
+  --color-text-secondary: #2c3844; /* Body */
+  --color-text-tertiary: #5b6874;  /* Muted metadata */
+  --color-text-muted: #7e8b97;     /* Caption */
 
-  /* Borders */
-  --color-border-primary: #e5e7eb;
-  --color-border-secondary: #f3f4f6;
+  /* Structural Dividers & Outlines */
+  --color-border-primary: #d8dee3;
+  --color-border-secondary: #e5eaef;
 
-  /* Glass surfaces */
-  --color-surface-glass: rgba(255, 255, 255, 0.7);
-  --color-surface-glass-strong: rgba(255, 255, 255, 0.85);
-  --color-surface-glass-border: rgba(255, 255, 255, 0.3);
-  --color-border-glass: rgba(229, 231, 235, 0.5);
+  /* Inputs & Rings */
+  --color-ring-default: #d8dee3;
+  --color-ring-hover: #9ba8b4;
 
-  /* Inputs / rings */
-  --color-ring-default: #d1d5db;
-  --color-ring-hover: #9ca3af;
+  /* Primary Brand Action (Oluto Teal) */
+  --color-brand-primary: #087e78;
+  --color-brand-hover: #066762;
+  --color-brand-muted: #e6f3f2;
 
-  /* Shadows */
-  --color-shadow-base: rgba(0, 0, 0, 0.1);
-  --color-shadow-heavy: rgba(0, 0, 0, 0.15);
+  /* Semantic Financial Colors */
+  --color-positive: #177245;
+  --color-positive-bg: #edf7f2;
+  --color-positive-border: #bce3cf;
+
+  --color-warning: #9a6700;
+  --color-warning-bg: #fdf8eb;
+  --color-warning-border: #f5dfa8;
+
+  --color-critical: #b42318;
+  --color-critical-bg: #fef3f2;
+  --color-critical-border: #fecdca;
+
+  --color-info: #315e8a;
+  --color-info-bg: #eff6fc;
+  --color-info-border: #c2daf0;
+
+  /* Natural Shadows (No glowing neon) */
+  --color-shadow-base: rgba(11, 24, 37, 0.05);
+  --color-shadow-heavy: rgba(11, 24, 37, 0.12);
 }
 
 .dark {
-  /* Backgrounds */
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-elevated: #1e293b;
-  --color-bg-hover: #334155;
+  /* Canvas & Structural Backgrounds */
+  --color-bg-primary: #14202b;   /* Ink Surface */
+  --color-bg-secondary: #0b1825; /* Deep Navy Canvas */
+  --color-bg-tertiary: #1b2a38;  /* Subtle Underlay */
+  --color-bg-elevated: #1a2734;
+  --color-bg-hover: #223445;
 
-  /* Text */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-tertiary: #64748b;
-  --color-text-muted: #64748b;
+  /* Typography */
+  --color-text-primary: #f6f7f4;   /* Paper */
+  --color-text-secondary: #c2cbd2; /* High contrast body */
+  --color-text-tertiary: #8e9ca8;  /* Muted */
+  --color-text-muted: #6b7a86;     /* Caption */
 
-  /* Borders */
-  --color-border-primary: #334155;
-  --color-border-secondary: #1e293b;
+  /* Structural Dividers & Outlines */
+  --color-border-primary: #2c3e50;
+  --color-border-secondary: #233342;
 
-  /* Glass surfaces */
-  --color-surface-glass: rgba(15, 23, 42, 0.7);
-  --color-surface-glass-strong: rgba(15, 23, 42, 0.85);
-  --color-surface-glass-border: rgba(51, 65, 85, 0.3);
-  --color-border-glass: rgba(51, 65, 85, 0.5);
+  /* Inputs & Rings */
+  --color-ring-default: #2c3e50;
+  --color-ring-hover: #4a6176;
 
-  /* Inputs / rings */
-  --color-ring-default: #475569;
-  --color-ring-hover: #64748b;
+  /* Primary Brand Action (Oluto Teal) */
+  --color-brand-primary: #14b8a6;
+  --color-brand-hover: #2dd4bf;
+  --color-brand-muted: #133336;
+
+  /* Semantic Financial Colors */
+  --color-positive: #34d399;
+  --color-positive-bg: #0d281e;
+  --color-positive-border: #134e38;
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: #2d2005;
+  --color-warning-border: #59400a;
+
+  --color-critical: #f87171;
+  --color-critical-bg: #2e0d0b;
+  --color-critical-border: #5f1d19;
+
+  --color-info: #60a5fa;
+  --color-info-bg: #0c2338;
+  --color-info-border: #1a446c;
 
   /* Shadows */
-  --color-shadow-base: rgba(0, 0, 0, 0.3);
-  --color-shadow-heavy: rgba(0, 0, 0, 0.4);
+  --color-shadow-base: rgba(0, 0, 0, 0.35);
+  --color-shadow-heavy: rgba(0, 0, 0, 0.55);
 }
 
 @theme {
   --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* Extend Tailwind colors with Oluto brand */
-  --color-brand-cyan: #06b6d4;
-  --color-brand-cyan-dark: #0891b2;
-  --color-brand-teal: #14b8a6;
-  --color-brand-green: #10b981;
-  --color-brand-green-vibrant: #22c55e;
-  --color-brand-blue: #3b82f6;
-  --color-brand-purple: #8b5cf6;
+  /* Oluto Institutional Palette */
+  --color-ink: #14202b;
+  --color-navy: #0b1825;
+  --color-paper: #f6f7f4;
 
-  /* Orange accent colors for highlights */
-  --color-accent-orange: #f97316;
-  --color-accent-amber: #fbbf24;
+  /* Primary Action */
+  --color-brand-teal: var(--color-brand-primary);
+  --color-brand-teal-hover: var(--color-brand-hover);
+  --color-brand-teal-subtle: var(--color-brand-muted);
 
-  /* Semantic tokens — these flip with dark mode */
+  /* Semantic Aliases */
   --color-surface: var(--color-bg-primary);
   --color-surface-secondary: var(--color-bg-secondary);
   --color-surface-tertiary: var(--color-bg-tertiary);
@@ -102,26 +132,11 @@
   --color-edge: var(--color-border-primary);
   --color-edge-subtle: var(--color-border-secondary);
 
-  /* Custom animations */
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-float-slow: float 6s ease-in-out infinite;
-  --animate-float-fast: float 2.5s ease-in-out infinite;
-  --animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
-  --animate-glow: glow 2s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
-  --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
-
-  /* Animation delay utilities - replaces inline styles */
-  --delay-100: 100ms;
-  --delay-200: 200ms;
-  --delay-300: 300ms;
-  --delay-400: 400ms;
-  --delay-500: 500ms;
-  --delay-600: 600ms;
-  --delay-700: 700ms;
-  --delay-800: 800ms;
-  --delay-900: 900ms;
-  --delay-1000: 1000ms;
+  /* Semantic Alerts */
+  --color-finance-positive: var(--color-positive);
+  --color-finance-warning: var(--color-warning);
+  --color-finance-critical: var(--color-critical);
+  --color-finance-info: var(--color-info);
 }
 
 html {
@@ -130,890 +145,293 @@ html {
 
 body {
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ============================================
-   GRADIENT TEXT UTILITIES - Oluto Brand
+   NUMERICAL & MONETARY FINANCIAL STYLING
+   Enforce tabular figures for aligned precision
    ============================================ */
 
-.gradient-text {
-  background: linear-gradient(135deg, var(--color-brand-cyan) 0%, var(--color-brand-teal) 50%, var(--color-brand-green) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-wealth {
-  background: linear-gradient(135deg, var(--color-brand-cyan-dark) 0%, var(--color-brand-green) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-highlight {
-  background: linear-gradient(135deg, var(--color-accent-orange) 0%, var(--color-accent-amber) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.font-tabular,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* ============================================
-   FLOATING ANIMATIONS - Background Orbs
+   FINANCIAL CARDS & CONTAINERS
+   Restrained 1px borders, solid surface, no glass
    ============================================ */
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(2deg);
-  }
+.card-financial {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px var(--color-shadow-base);
 }
 
-@keyframes float-reverse {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(20px) rotate(-2deg);
-  }
+.card-financial-subtle {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 8px;
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-fast {
-  animation: float 2.5s ease-in-out infinite;
-}
-
-.animate-float-reverse {
-  animation: float-reverse 4s ease-in-out infinite;
-}
-
-/* ============================================
-   PULSE ANIMATIONS
-   ============================================ */
-
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 2px rgba(6, 182, 212, 0.5));
-  }
-  50% {
-    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.8));
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 3s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* ============================================
-   BOUNCE ANIMATIONS - Decorative Elements
-   ============================================ */
-
-@keyframes bounce-subtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes bounce-gentle {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-5px) scale(1.05);
-  }
-}
-
-.animate-bounce-subtle {
-  animation: bounce-subtle 2s ease-in-out infinite;
-}
-
-.animate-bounce-gentle {
-  animation: bounce-gentle 3s ease-in-out infinite;
-}
-
-/* ============================================
-   GRADIENT BACKGROUNDS
-   ============================================ */
-
-.gradient-bg-wealth {
-  background: linear-gradient(135deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-}
-
-.gradient-bg-success {
-  background: linear-gradient(135deg, var(--color-brand-green) 0%, var(--color-brand-green-vibrant) 100%);
-}
-
-.gradient-bg-warning {
-  background: linear-gradient(135deg, var(--color-accent-amber) 0%, var(--color-accent-orange) 100%);
-}
-
-.gradient-bg-info {
-  background: linear-gradient(135deg, var(--color-brand-cyan-dark) 0%, var(--color-brand-teal) 100%);
-}
-
-.gradient-bg-hero {
-  background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 50%, #f0fdf4 100%);
-}
-
-.dark .gradient-bg-hero {
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-}
-
-/* ============================================
-   GLASS MORPHISM EFFECTS
-   ============================================ */
-
-.glass-card {
-  background: var(--color-surface-glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--color-surface-glass-border);
-  box-shadow: 0 8px 32px 0 var(--color-shadow-heavy);
-}
-
-.glass-card-strong {
-  background: var(--color-surface-glass-strong);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-surface-glass-border);
-  box-shadow: 0 8px 32px 0 var(--color-shadow-heavy);
-}
-
+/* Legacy alias mappings for backward compatibility during overhaul */
+.glass-card,
+.glass-card-strong,
 .glass-dark {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  box-shadow: 0 1px 3px var(--color-shadow-base);
+  border-radius: 8px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-/* ============================================
-   ENHANCED CARD SHADOWS
-   ============================================ */
-
-.card-shadow-cyan {
-  box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.3);
-}
-
-.card-shadow-green {
-  box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
-}
-
-.card-shadow-orange {
-  box-shadow: 0 10px 40px -10px rgba(249, 115, 22, 0.3);
-}
-
-.card-shadow-purple {
-  box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3);
-}
-
+.card-shadow-cyan,
+.card-shadow-green,
+.card-shadow-orange,
+.card-shadow-purple,
 .card-shadow-glow {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2), 0 10px 40px -10px rgba(6, 182, 212, 0.3);
-}
-
-.dark .card-shadow-cyan {
-  box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.15);
-}
-
-.dark .card-shadow-green {
-  box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.15);
-}
-
-.dark .card-shadow-orange {
-  box-shadow: 0 10px 40px -10px rgba(249, 115, 22, 0.15);
-}
-
-.dark .card-shadow-purple {
-  box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.15);
-}
-
-.dark .card-shadow-glow {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.1), 0 10px 40px -10px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 1px 3px var(--color-shadow-base);
 }
 
 /* ============================================
-   HOVER EFFECTS - Cards Lift & Glow
+   BUTTONS & ACTIONS
+   Solid Oluto Teal, crisp borders, no glowing gradient
    ============================================ */
 
-.hover-lift {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.btn-primary {
+  background-color: var(--color-brand-primary);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px -12px rgba(6, 182, 212, 0.25);
+.btn-primary:hover {
+  background-color: var(--color-brand-hover);
 }
 
-.hover-lift-green:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px -12px rgba(16, 185, 129, 0.25);
+.btn-secondary {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.hover-lift-orange:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px -12px rgba(249, 115, 22, 0.25);
+.btn-secondary:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-ring-hover);
 }
 
-.hover-glow {
-  transition: box-shadow 0.3s ease;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
-}
-
-.hover-scale {
-  transition: transform 0.2s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.05);
-}
-
-.hover-icon-scale {
-  transition: transform 0.2s ease;
-}
-
-.group:hover .hover-icon-scale {
-  transform: scale(1.1);
-}
-
-/* ============================================
-   BUTTON ENHANCEMENTS
-   ============================================ */
-
-.btn-gradient {
-  background: linear-gradient(135deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-gradient:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px rgba(6, 182, 212, 0.5);
-}
-
+/* Neutralise legacy gradient buttons */
+.btn-gradient,
 .btn-glow {
-  position: relative;
-  overflow: hidden;
+  background-color: var(--color-brand-primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 2px var(--color-shadow-base) !important;
+  border-radius: 6px !important;
+}
+
+.btn-gradient:hover,
+.btn-glow:hover {
+  background-color: var(--color-brand-hover) !important;
+  transform: none !important;
+  box-shadow: 0 2px 4px var(--color-shadow-heavy) !important;
 }
 
 .btn-glow::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s ease;
+  display: none !important;
 }
 
-.btn-glow:hover::before {
-  left: 100%;
+/* Neutralise legacy gradient text */
+.gradient-text,
+.gradient-text-wealth,
+.gradient-text-highlight {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  background-clip: unset !important;
+  color: var(--color-text-primary) !important;
 }
 
-/* ============================================
-   TEXT HIGHLIGHTS - Orange Accent
-   ============================================ */
-
-.text-highlight {
-  position: relative;
-  display: inline-block;
+/* Neutralise hover lifts and animations */
+.hover-lift,
+.hover-lift-green,
+.hover-lift-orange,
+.hover-glow,
+.hover-scale {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.text-highlight::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: -2px;
-  right: -2px;
-  height: 8px;
-  background: linear-gradient(135deg, var(--color-accent-orange) 0%, var(--color-accent-amber) 100%);
-  opacity: 0.3;
-  z-index: -1;
-  border-radius: 4px;
+.hover-lift:hover,
+.hover-lift-green:hover,
+.hover-lift-orange:hover,
+.hover-glow:hover,
+.hover-scale:hover {
+  transform: none !important;
+  box-shadow: 0 2px 6px var(--color-shadow-heavy) !important;
 }
 
-
-/* ============================================
-   GRADIENT UNDERLINE - Pulsing Effect
-   ============================================ */
-
-.gradient-underline {
-  position: relative;
-}
-
-.gradient-underline::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-  border-radius: 2px;
-  animation: pulse-slow 2s ease-in-out infinite;
-}
-
-/* ============================================
-   DECORATIVE ELEMENTS
-   ============================================ */
-
-.decorative-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(40px);
-  pointer-events: none;
-}
-
-.decorative-orb-cyan {
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
-}
-
-.decorative-orb-green {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
-}
-
-.decorative-orb-orange {
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
-}
-
-.dark .decorative-orb-cyan {
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
-}
-
-.dark .decorative-orb-green {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
-}
-
-.dark .decorative-orb-orange {
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
-}
-
+/* Remove decorative orbs */
+.decorative-orb,
+.decorative-orb-cyan,
+.decorative-orb-green,
+.decorative-orb-orange,
 .decorative-dot {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
+  display: none !important;
 }
 
 /* ============================================
-   STATS HOVER ANIMATION
+   STATUS BADGES
+   Crisp, legible, high-contrast indicators
    ============================================ */
 
-.stat-card {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.stat-card:hover {
-  transform: scale(1.1);
+.status-badge-positive {
+  background-color: var(--color-positive-bg);
+  color: var(--color-positive);
+  border: 1px solid var(--color-positive-border);
 }
 
-.stat-card:hover .stat-value {
-  background: linear-gradient(135deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.status-badge-warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning-border);
+}
+
+.status-badge-critical {
+  background-color: var(--color-critical-bg);
+  color: var(--color-critical);
+  border: 1px solid var(--color-critical-border);
+}
+
+.status-badge-info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+  border: 1px solid var(--color-info-border);
+}
+
+.status-badge-neutral {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border-secondary);
 }
 
 /* ============================================
-   FEATURE CARDS - Enhanced
+   TABLE & DATA GRID STYLES
    ============================================ */
 
-.feature-card {
-  position: relative;
-  background: var(--color-bg-elevated);
-  border-radius: 1rem;
-  border: 1px solid var(--color-border-primary);
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-}
-
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px -12px rgba(6, 182, 212, 0.2);
-  border-color: rgba(6, 182, 212, 0.3);
-}
-
-.feature-card:hover::before {
-  transform: scaleX(1);
-}
-
-.feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
-}
-
-.feature-icon {
-  transition: transform 0.3s ease;
-}
-
-/* ============================================
-   STEP CARDS - How It Works
-   ============================================ */
-
-.step-card {
-  position: relative;
-  background: var(--color-bg-elevated);
-  border-radius: 1rem;
-  border: 1px solid var(--color-border-primary);
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.step-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(6, 182, 212, 0.15);
-}
-
-.step-number {
-  background: linear-gradient(135deg, var(--color-brand-cyan) 0%, var(--color-brand-teal) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  transition: transform 0.3s ease;
-}
-
-.step-card:hover .step-number {
-  transform: scale(1.1);
-}
-
-/* ============================================
-   DASHBOARD PREVIEW - Enhanced
-   ============================================ */
-
-.dashboard-preview {
-  position: relative;
-  background: var(--color-bg-elevated);
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px var(--color-shadow-heavy);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dashboard-preview:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 30px 60px -12px var(--color-shadow-heavy);
-}
-
-/* ============================================
-   CTA SECTION - Enhanced
-   ============================================ */
-
-.cta-section {
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-/* ============================================
-   PROGRESS RING
-   ============================================ */
-
-.progress-ring-circle {
-  transition: stroke-dashoffset 0.35s;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-}
-
-/* ============================================
-   SHIMMER EFFECT
-   ============================================ */
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s linear infinite;
-}
-
-.dark .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
-  background-size: 200% 100%;
-}
-
-/* ============================================
-   NAVIGATION - Enhanced
-   ============================================ */
-
-.nav-glass {
-  background: var(--color-surface-glass-strong);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-border-glass);
-}
-
-.nav-link {
-  position: relative;
-  transition: color 0.2s ease;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--color-brand-cyan) 0%, var(--color-brand-green) 100%);
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover::after {
+.table-financial {
   width: 100%;
+  border-collapse: collapse;
+}
+
+.table-financial th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--color-border-primary);
+  text-align: left;
+}
+
+.table-financial td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+}
+
+.table-financial tr:last-child td {
+  border-bottom: none;
+}
+
+.table-financial tbody tr:hover {
+  background-color: var(--color-bg-hover);
 }
 
 /* ============================================
-   FORM ELEMENTS - Enhanced
-   ============================================ */
-
-.input-glow:focus {
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
-}
-
-/* ============================================
-   LOADING SPINNER - Enhanced
-   ============================================ */
-
-.spinner-gradient {
-  border: 3px solid transparent;
-  border-top-color: var(--color-brand-cyan);
-  border-right-color: var(--color-brand-teal);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ============================================
-   DECORATIVE DOTS PATTERN
-   ============================================ */
-
-.decorative-dots::before,
-.decorative-dots::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.1;
-}
-
-.decorative-dots::before {
-  width: 100px;
-  height: 100px;
-  background: var(--color-brand-cyan);
-  top: -50px;
-  right: -50px;
-}
-
-.decorative-dots::after {
-  width: 60px;
-  height: 60px;
-  background: var(--color-brand-green);
-  bottom: -30px;
-  left: -30px;
-}
-
-/* ============================================
-   BADGE STYLES - Enhanced
-   ============================================ */
-
-.badge-gradient {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
-  border: 2px solid rgba(6, 182, 212, 0.3);
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
-}
-
-.dark .badge-gradient {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
-  border-color: rgba(6, 182, 212, 0.4);
-}
-
-/* ============================================
-   WAVE SEPARATOR
-   ============================================ */
-
-.wave-separator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
-  background-size: cover;
-  background-position: center bottom;
-}
-
-.dark .wave-separator {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230f172a' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
-  background-size: cover;
-  background-position: center bottom;
-}
-
-/* ============================================
-   FADE IN ANIMATION — Chat UI
-   ============================================ */
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
-}
-
-/* ============================================
-   PAGE TRANSITION ANIMATIONS
-   ============================================ */
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.4s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.3s ease-out forwards;
-}
-
-/* Staggered animations for lists */
-.stagger-children > * {
-  opacity: 0;
-  animation: slide-up 0.4s ease-out forwards;
-}
-
-.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
-.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
-.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
-.stagger-children > *:nth-child(10) { animation-delay: 450ms; }
-
-/* ============================================
-   SKELETON LOADING - Shimmer Effect
-   ============================================ */
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-bg-tertiary) 25%,
-    var(--color-bg-hover) 50%,
-    var(--color-bg-tertiary) 75%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s infinite;
-  border-radius: 0.5rem;
-}
-
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* ============================================
-   FOCUS VISIBLE STYLES
+   FOCUS & ACCESSIBILITY
    ============================================ */
 
 *:focus-visible {
-  outline: 2px solid var(--color-brand-cyan);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--color-brand-cyan);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
-  border-radius: 0.375rem;
+  border-radius: 4px;
 }
 
-/* Remove focus outline for mouse users */
 *:focus:not(:focus-visible) {
   outline: none;
 }
 
 /* ============================================
-   SCROLLBAR STYLES
+   SCROLLBAR & SELECTION
    ============================================ */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--color-bg-secondary);
-  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-primary);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
 
-/* ============================================
-   SELECTION STYLES
-   ============================================ */
-
 ::selection {
-  background: rgba(6, 182, 212, 0.3);
+  background: rgba(8, 126, 120, 0.2);
   color: var(--color-text-primary);
 }
 
-.dark ::selection {
-  background: rgba(6, 182, 212, 0.4);
-}
-
-/* ============================================
-   REDUCED MOTION
-   ============================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================
-   ANIMATION DELAY UTILITIES
-   Replaces inline styles for staggered animations
-   ============================================ */
-
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-600 { animation-delay: 600ms; }
-.delay-700 { animation-delay: 700ms; }
-.delay-800 { animation-delay: 800ms; }
-.delay-900 { animation-delay: 900ms; }
-.delay-1000 { animation-delay: 1000ms; }
-
-/* Dynamic delay via CSS custom property */
-[style*="--index"] {
-  animation-delay: calc(var(--index, 0) * 100ms);
-}
-
-/* ============================================
-   SR-ONLY UTILITY (screen reader only)
-   ============================================ */
-
+/* Screen reader only utility */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1026,10 +444,7 @@ a:focus-visible {
   border-width: 0;
 }
 
-/* ============================================
-   DARK MODE: Native form controls
-   ============================================ */
-
+/* Dark mode native form controls */
 .dark input[type="date"],
 .dark input[type="time"],
 .dark input[type="datetime-local"],

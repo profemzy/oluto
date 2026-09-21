@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navigation, Footer } from "./components";
+import { AppLayoutManager } from "./components/layout/AppLayoutManager";
 import { QueryProvider } from "./components/QueryProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProviderWrapper } from "./components/AuthProviderWrapper";
@@ -18,30 +18,24 @@ import { headers } from "next/headers";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap", // Prevents FOIT (Flash of Invisible Text)
+  display: "swap",
 });
 
 /**
  * Core metadata for SEO and social sharing.
- * OpenGraph and Twitter cards ensure proper preview on social platforms.
  */
 export const metadata: Metadata = {
-  title: "Oluto — AI Finance Team for Canadian Small Business",
+  title: "Oluto — Financial Operating System for Canadian Small Business",
   description:
-    "8 AI agents that handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO. Built on real double-entry accounting for Canadian small businesses.",
+    "Institutional double-entry bookkeeping, automated receipt reconciliation, GST/HST compliance, and CFO-level briefings built specifically for Canadian corporations and sole proprietors.",
   keywords: [
-    "AI bookkeeping",
-    "AI accountant",
-    "AI agents",
-    "receipt OCR",
-    "small business",
-    "accounting",
-    "Canadian business",
-    "cashflow",
-    "bookkeeping",
-    "GST",
-    "HST",
-    "financial management",
+    "Canadian accounting",
+    "double-entry bookkeeping",
+    "GST HST filing",
+    "receipt matching",
+    "small business finance",
+    "LedgerForge",
+    "cashflow management",
   ],
   authors: [{ name: "Oluto" }],
   creator: "Oluto",
@@ -55,39 +49,29 @@ export const metadata: Metadata = {
     locale: "en_CA",
     url: "/",
     siteName: "Oluto",
-    title: "Oluto — AI Finance Team for Canadian Small Business",
+    title: "Oluto — Financial Operating System for Canadian Small Business",
     description:
-      "8 AI agents that handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO.",
+      "Institutional double-entry bookkeeping, automated receipt reconciliation, and GST/HST compliance.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Oluto - AI Finance Team for Canadian Small Businesses",
+        alt: "Oluto - Financial Operating System for Canadian Small Business",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Oluto — AI Finance Team for Canadian Small Business",
+    title: "Oluto — Financial Operating System for Canadian Small Business",
     description:
-      "8 AI agents that handle your bookkeeping, chase invoices, snap receipts, and brief you like a CFO.",
+      "Institutional double-entry bookkeeping, automated receipt reconciliation, and GST/HST compliance.",
     images: ["/og-image.png"],
     creator: "@oluto",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   icons: {
     icon: [
@@ -95,75 +79,51 @@ export const metadata: Metadata = {
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
-    other: [
-      {
-        rel: "mask-icon",
-        url: "/safari-pinned-tab.svg",
-        color: "#06b6d4",
-      },
-    ],
   },
   manifest: "/site.webmanifest",
-  category: "business",
+  category: "finance",
 };
 
-/**
- * Viewport configuration for responsive design.
- * theme-color adapts to light/dark mode for mobile browsers.
- */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f7f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1825" },
   ],
 };
 
-/**
- * Root layout component.
- * Provides global providers, navigation, and accessibility features.
- */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get nonce from middleware for CSP compliance
   let nonce: string | undefined;
   try {
     const headersList = await headers();
     nonce = headersList.get("x-nonce") ?? undefined;
   } catch {
-    // Headers not available during static generation
     nonce = undefined;
   }
 
   return (
     <html lang="en-CA" className={inter.variable} suppressHydrationWarning>
       <head>
-        {/* Theme initialization script - prevents flash of wrong theme */}
-        {/* Synchronous by design so the saved theme is applied before first paint. */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script src="/init-theme.js" nonce={nonce} />
-        {/* Preconnect to API domain for faster requests */}
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"} />
       </head>
-      <body className="bg-surface text-body min-h-screen font-sans antialiased transition-colors duration-300">
+      <body className="bg-surface-secondary text-body min-h-screen font-sans antialiased">
         <SkipLink />
         <QueryProvider>
           <ThemeProvider>
             <AuthProviderWrapper>
               <LiveRegion />
               <Toast />
-              <div className="flex min-h-screen flex-col">
-                <Navigation />
-                <main id="main-content" className="flex-1 pt-16" tabIndex={-1}>
-                  <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
-                </main>
-                <Footer />
-              </div>
+              <AppLayoutManager>
+                <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
+              </AppLayoutManager>
             </AuthProviderWrapper>
           </ThemeProvider>
         </QueryProvider>

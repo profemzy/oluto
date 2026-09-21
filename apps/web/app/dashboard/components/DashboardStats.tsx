@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardSummary } from "@/app/lib/api";
-import { formatCurrency } from "@/app/lib/format";
+import { formatCurrency, isNegativeAmount } from "@/app/lib/format";
 
 interface DashboardStatsProps {
   summary: DashboardSummary | null;
@@ -9,91 +9,99 @@ interface DashboardStatsProps {
 }
 
 export function DashboardStats({ summary, hasTransactions }: DashboardStatsProps) {
-  return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-      {/* Safe to Spend */}
-      <div className="group bg-surface rounded-2xl border border-edge-subtle p-6 shadow-lg shadow-green-500/10 hover:shadow-xl hover:shadow-green-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-        <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
-        <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm font-semibold text-body">Safe to Spend</p>
-          {hasTransactions && (
-            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm animate-pulse-slow">
-              Available
-            </span>
-          )}
-        </div>
-        <p className="mt-3 text-4xl font-black bg-gradient-to-r from-cyan-600 to-green-600 bg-clip-text text-transparent relative z-10 group-hover:scale-105 transition-transform origin-left">
-          {summary ? formatCurrency(summary.safe_to_spend) : "$0.00"}
-        </p>
-        <div className="mt-5 h-2.5 bg-surface-tertiary rounded-full overflow-hidden relative z-10">
-          <div className="h-full w-3/4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full shadow-sm" />
-        </div>
-      </div>
+  const safeToSpend = summary?.safe_to_spend ?? "0.00";
+  const isDeficit = isNegativeAmount(safeToSpend) || parseFloat(safeToSpend) < 0;
 
-      {/* CRA Lockbox */}
-      <div className="group bg-surface rounded-2xl border border-edge-subtle p-6 shadow-lg shadow-cyan-500/10 hover:shadow-xl hover:shadow-cyan-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-        <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
-        <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm font-semibold text-body">CRA Lockbox</p>
-          <span className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-600 to-teal-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-            Net Owed
+  const revenueNum = parseFloat(summary?.total_revenue || "0");
+  const expenseNum = parseFloat(summary?.total_expenses || "0");
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+      {/* 1. Safe to Spend */}
+      <div className={`card-financial p-5 border-l-4 ${isDeficit ? "border-l-[#B42318]" : "border-l-[#087E78]"}`}>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider">Safe to Spend</p>
+          <span
+            className={`status-badge text-[10px] ${
+              isDeficit ? "status-badge-critical" : "status-badge-positive"
+            }`}
+          >
+            {isDeficit ? "Deficit" : "Available"}
           </span>
         </div>
-        <p className="mt-3 text-4xl font-black bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent relative z-10 group-hover:scale-105 transition-transform origin-left">
-          {summary ? formatCurrency(summary.tax_reserved) : "$0.00"}
-        </p>
-        {summary && hasTransactions && (
-          <div className="mt-2 space-y-0.5 relative z-10">
-            <p className="text-xs text-muted">
-              Collected: <span className="font-semibold text-body">{formatCurrency(summary.tax_collected)}</span>
-              {" "}&minus;{" "}ITCs: <span className="font-semibold text-green-600">{formatCurrency(summary.tax_itc)}</span>
-            </p>
-          </div>
-        )}
-        {!(summary && hasTransactions) && (
-          <p className="mt-2 text-xs font-medium text-muted relative z-10">GST/HST collected &minus; ITCs</p>
-        )}
-      </div>
 
-      {/* Revenue */}
-      <div className="group bg-surface rounded-2xl border border-edge-subtle p-6 shadow-lg shadow-green-500/10 hover:shadow-xl hover:shadow-green-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-        <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
-        <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm font-semibold text-body">Revenue</p>
-          {hasTransactions && (
-            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-              Posted
-            </span>
-          )}
-        </div>
-        <p className="mt-3 text-4xl font-black text-heading relative z-10 group-hover:scale-105 transition-transform origin-left">
-          {summary ? formatCurrency(summary.total_revenue) : "$0.00"}
+        <p
+          className={`mt-2 text-2xl sm:text-3xl font-bold font-tabular tracking-tight ${
+            isDeficit ? "text-[#B42318] dark:text-[#F87171]" : "text-heading"
+          }`}
+        >
+          {formatCurrency(safeToSpend)}
         </p>
-        <p className="mt-2 text-xs font-medium text-muted relative z-10">
-          {summary && parseFloat(summary.payments_received) > 0
-            ? `Incl. ${formatCurrency(summary.payments_received)} in payments`
-            : summary ? `${summary.transactions_count} transaction${summary.transactions_count === 1 ? "" : "s"}` : "No transactions yet"}
+
+        <p className="mt-2 text-xs text-muted">
+          {isDeficit
+            ? "Tax lock and bills exceed cash"
+            : "After CRA reservation & open bills"}
         </p>
       </div>
 
-      {/* Expenses */}
-      <div className="group bg-surface rounded-2xl border border-edge-subtle p-6 shadow-lg shadow-orange-500/10 hover:shadow-xl hover:shadow-orange-500/25 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-        <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full opacity-10 blur-xl group-hover:opacity-20 group-hover:scale-125 transition-all duration-500" />
-        <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm font-semibold text-body">Expenses</p>
-          {hasTransactions && (
-            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-              Posted
-            </span>
-          )}
+      {/* 2. CRA Tax Lockbox */}
+      <div className="card-financial p-5 border-l-4 border-l-[#9A6700]">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider">CRA Tax Lockbox</p>
+          <span className="status-badge status-badge-warning text-[10px]">
+            Reserved
+          </span>
         </div>
-        <p className="mt-3 text-4xl font-black text-heading relative z-10 group-hover:scale-105 transition-transform origin-left">
-          {summary ? formatCurrency(summary.total_expenses) : "$0.00"}
+
+        <p className="mt-2 text-2xl sm:text-3xl font-bold font-tabular tracking-tight text-heading">
+          {formatCurrency(summary?.tax_reserved ?? "0.00")}
         </p>
-        <p className="mt-2 text-xs font-medium text-muted relative z-10">
-          {hasTransactions && parseFloat(summary!.total_revenue) > 0
-            ? `${Math.round((parseFloat(summary!.total_expenses) / parseFloat(summary!.total_revenue)) * 100)}% of revenue`
-            : ""}
+
+        <div className="mt-2 text-xs text-muted flex items-center gap-1 font-tabular">
+          <span>Collected: {formatCurrency(summary?.tax_collected ?? "0.00")}</span>
+          <span>&minus;</span>
+          <span>ITCs: {formatCurrency(summary?.tax_itc ?? "0.00")}</span>
+        </div>
+      </div>
+
+      {/* 3. Operating Revenue */}
+      <div className="card-financial p-5 border-l-4 border-l-[#177245]">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider">Revenue</p>
+          <span className="status-badge status-badge-positive text-[10px]">
+            Posted
+          </span>
+        </div>
+
+        <p className="mt-2 text-2xl sm:text-3xl font-bold font-tabular tracking-tight text-heading">
+          {formatCurrency(summary?.total_revenue ?? "0.00")}
+        </p>
+
+        <p className="mt-2 text-xs text-muted">
+          {summary && parseFloat(summary.payments_received || "0") > 0
+            ? `Incl. ${formatCurrency(summary.payments_received)} in cash received`
+            : `${summary?.transactions_count || 0} total ledger transaction${summary?.transactions_count === 1 ? "" : "s"}`}
+        </p>
+      </div>
+
+      {/* 4. Operating Expenses */}
+      <div className="card-financial p-5 border-l-4 border-l-[#5B6874]">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider">Expenses</p>
+          <span className="status-badge status-badge-neutral text-[10px]">
+            Operating
+          </span>
+        </div>
+
+        <p className="mt-2 text-2xl sm:text-3xl font-bold font-tabular tracking-tight text-heading">
+          {formatCurrency(summary?.total_expenses ?? "0.00")}
+        </p>
+
+        <p className="mt-2 text-xs text-muted font-tabular">
+          {hasTransactions && revenueNum > 0
+            ? `${Math.round((expenseNum / revenueNum) * 100)}% of revenue`
+            : "No posted expenses"}
         </p>
       </div>
     </div>

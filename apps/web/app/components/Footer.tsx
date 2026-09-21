@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ThemeLogo } from "./ThemeLogo";
 
 interface FooterProps {
@@ -9,177 +8,62 @@ interface FooterProps {
   tagline?: string;
 }
 
-/**
- * Navigation link configuration.
- * Using absolute paths instead of hash anchors for consistency across pages.
- */
 const footerLinks = [
-  { label: "Agents", href: "/#agents", isAnchor: true },
-  { label: "How it Works", href: "/#how-it-works", isAnchor: true },
-  { label: "Sign In", href: "/auth/login", isAnchor: false },
-  { label: "Get Started", href: "/auth/register", isAnchor: false },
+  { label: "Platform", href: "/#agents" },
+  { label: "Accounting Engine", href: "/#bookkeepers" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Sign In", href: "/auth/login" },
+  { label: "Get Started", href: "/auth/register" },
 ] as const;
 
-/**
- * Social media links with actual URLs.
- * Using target="_blank" with security attributes for external links.
- */
-const socialLinks = [
-  {
-    label: "Twitter",
-    href: "https://twitter.com/oluto",
-    icon: (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-      </svg>
-    ),
-  },
-  {
-    label: "LinkedIn",
-    href: "https://linkedin.com/company/oluto",
-    icon: (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fillRule="evenodd"
-          d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-  },
-  {
-    label: "GitHub",
-    href: "https://github.com/profemzy/oluto",
-    icon: (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fillRule="evenodd"
-          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-  },
-] as const;
-
-/**
- * Footer component with accessible navigation and responsive layout.
- * Uses semantic <footer> element and proper heading hierarchy.
- */
 export function Footer({
   companyName = "InfoTitans LTD",
-  tagline = "8 AI agents that handle your bookkeeping, chase invoices, and brief you like a CFO. Built for Canadian small businesses.",
+  tagline = "Double-entry financial operating system built for Canadian small businesses and bookkeeping teams.",
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
-  const pathname = usePathname();
-
-  /**
-   * Determines if a link should use smooth scroll behavior.
-   * Anchor links only work as expected when on the homepage.
-   */
-  const getLinkProps = (link: (typeof footerLinks)[number]) => {
-    const isOnHomepage = pathname === "/";
-    
-    if (link.isAnchor && isOnHomepage) {
-      return {
-        href: link.href,
-        scroll: true,
-      };
-    }
-    
-    // On non-homepage, navigate to homepage then scroll to section
-    return {
-      href: link.href,
-    };
-  };
 
   return (
     <footer
-      className="relative border-t border-edge bg-gradient-to-b from-surface to-surface-secondary/50 overflow-hidden"
+      className="border-t border-edge bg-surface"
       role="contentinfo"
       aria-label="Site footer"
     >
-      {/* Decorative elements - hidden from screen readers */}
-      <div
-        className="absolute top-0 left-[10%] w-32 h-32 bg-cyan-100 dark:bg-cyan-900 rounded-full opacity-30 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-0 right-[10%] w-40 h-40 bg-green-100 dark:bg-green-900 rounded-full opacity-30 blur-3xl"
-        aria-hidden="true"
-      />
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <Link href="/" className="inline-block" aria-label="Oluto homepage">
+              <ThemeLogo className="h-8 w-auto" />
+            </Link>
+            <p className="mt-2 text-xs text-muted max-w-sm leading-relaxed">
+              {tagline}
+            </p>
+          </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8 py-12 lg:py-16">
-        <div className="flex flex-col items-center text-center">
-          {/* Logo with hover effect */}
-          <Link
-            href="/"
-            className="inline-block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded-lg"
-            aria-label="Oluto homepage"
-          >
-            <ThemeLogo className="h-10 w-auto group-hover:scale-105 transition-transform duration-300" />
-          </Link>
-
-          {/* Tagline */}
-          <p className="mt-4 text-sm leading-6 text-muted max-w-md">
-            {tagline}
-          </p>
-
-          {/* Navigation Links */}
           <nav
-            className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm"
+            className="flex flex-wrap items-center gap-6 text-xs font-semibold text-body"
             aria-label="Footer navigation"
           >
             {footerLinks.map((link) => (
               <Link
-                key={link.href}
-                href={getLinkProps(link).href}
-                className="text-muted hover:text-cyan-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded"
+                key={link.label}
+                href={link.href}
+                className="hover:text-[#087E78] transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-
-          {/* Social Links */}
-          <nav
-            className="mt-6 flex items-center gap-4"
-            aria-label="Social media links"
-          >
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-surface-tertiary text-muted hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:text-cyan-600 transition-all duration-300 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-                aria-label={`Visit our ${social.label} profile (opens in new tab)`}
-              >
-                {social.icon}
-              </a>
-            ))}
-          </nav>
         </div>
 
-        {/* Copyright and Legal */}
-        <div className="mt-8 pt-8 border-t border-edge flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-caption" suppressHydrationWarning>
-            &copy; {currentYear} {companyName}. All rights reserved.
+        <div className="mt-8 pt-6 border-t border-edge-subtle flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-caption">
+          <p suppressHydrationWarning>
+            &copy; {currentYear} {companyName}. Built in Canada. All rights reserved.
           </p>
-          <nav
-            className="flex items-center gap-4 text-xs text-caption"
-            aria-label="Legal links"
-          >
-            <Link
-              href="/privacy"
-              className="hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded"
-            >
+          <nav className="flex items-center gap-4" aria-label="Legal links">
+            <Link href="/privacy" className="hover:text-body transition-colors">
               Privacy Policy
             </Link>
-            <Link
-              href="/terms"
-              className="hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 rounded"
-            >
+            <Link href="/terms" className="hover:text-body transition-colors">
               Terms of Service
             </Link>
           </nav>
@@ -188,3 +72,5 @@ export function Footer({
     </footer>
   );
 }
+
+export default Footer;

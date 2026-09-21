@@ -38,7 +38,7 @@
                 </div>
             </#if>
 
-            <button type="submit" class="oluto-btn-primary">
+            <button type="submit" id="kc-login" class="oluto-btn oluto-btn-primary">
                 Sign in
             </button>
         </form>

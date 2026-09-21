@@ -63,38 +63,28 @@ function DateSeparator({ label }: { label: string }) {
   );
 }
 
-// Loading banner — sticky pill at top
+// Durable Run Status Banner
 function LoadingBanner({ onCancel }: { onCancel?: () => void }) {
   return (
-    <div className="sticky top-0 z-10 mb-4 flex justify-center">
-      <div className="flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-white shadow-lg shadow-cyan-500/25">
-        <div className="relative">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+    <div className="sticky top-2 z-20 mb-4 mx-auto max-w-xl">
+      <div className="card-financial p-3 bg-surface border-l-4 border-l-[#087E78] shadow-md flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="h-4 w-4 rounded-full border-2 border-[#087E78] border-t-transparent animate-spin flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-heading">Agent Run in Progress</p>
+            <p className="text-[11px] text-muted truncate">Executing workflow steps and inspecting double-entry ledger...</p>
+          </div>
         </div>
-        <span className="text-sm font-medium">Oluto is thinking...</span>
+
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-white/50 px-2.5 py-1 text-xs font-semibold hover:bg-white/15"
+            className="text-xs font-semibold px-2.5 py-1 rounded border border-edge text-muted hover:text-heading hover:bg-surface-hover transition-colors"
           >
-            Stop
+            Cancel Run
           </button>
         )}
-        <div className="flex items-center gap-1">
-          <div
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
-            style={{ animationDelay: "0ms" }}
-          />
-          <div
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
-            style={{ animationDelay: "150ms" }}
-          />
-          <div
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-white"
-            style={{ animationDelay: "300ms" }}
-          />
-        </div>
       </div>
     </div>
   );
@@ -104,20 +94,10 @@ function LoadingBanner({ onCancel }: { onCancel?: () => void }) {
 function TypingIndicator() {
   return (
     <div className="flex justify-start">
-      <div className="rounded-2xl rounded-tl-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-[#1a1a25]">
-        <div className="flex items-center gap-2">
-          <div
-            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-            style={{ animationDelay: "0ms" }}
-          />
-          <div
-            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-            style={{ animationDelay: "150ms" }}
-          />
-          <div
-            className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-            style={{ animationDelay: "300ms" }}
-          />
+      <div className="rounded-lg rounded-tl-none border border-edge bg-surface px-4 py-3 shadow-xs">
+        <div className="flex items-center gap-2 text-xs text-muted font-medium">
+          <div className="h-3.5 w-3.5 rounded-full border-2 border-[#087E78] border-t-transparent animate-spin" />
+          <span>Generating verifiable ledger response...</span>
         </div>
       </div>
     </div>

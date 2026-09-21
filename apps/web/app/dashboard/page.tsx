@@ -20,7 +20,7 @@ import {
 } from "./components";
 
 export default function DashboardPage() {
-  const { user, loading: authLoading, timezone } = useAuth();
+  const { user, loading: authLoading, timezone, role } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [overdueInvoices, setOverdueInvoices] = useState<Invoice[]>([]);
   const [overdueBills, setOverdueBills] = useState<Bill[]>([]);
@@ -60,20 +60,21 @@ export default function DashboardPage() {
   const hasTransactions = summary && summary.transactions_count > 0;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] relative">
-      {/* Decorative Background Dots with animations */}
-      <div className="absolute top-20 right-10 w-20 h-20 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-30 blur-2xl animate-bounce-subtle" />
-      <div className="absolute top-40 left-20 w-32 h-32 bg-green-200 dark:bg-green-800 rounded-full opacity-30 blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-1/4 w-24 h-24 bg-teal-200 dark:bg-teal-800 rounded-full opacity-25 blur-2xl animate-float-slow" />
-      <div className="absolute top-1/3 left-[5%] w-16 h-16 bg-cyan-100 rounded-full opacity-40 blur-xl animate-bounce-gentle" />
+    <div className="min-h-full">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        {/* Welcome & Context Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-edge pb-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-heading">Financial Overview</h1>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              Welcome back{user?.full_name ? `, ${user.full_name}` : ""}. Here is your business cash position and operating health.
+            </p>
+          </div>
+          <div className="text-xs text-muted font-mono self-start sm:self-auto">
+            Timezone: {timezone}
+          </div>
+        </div>
 
-      <PageHeader
-        title="Dashboard"
-        subtitle={`Welcome back${user?.full_name ? `, ${user.full_name}` : ""}!`}
-      />
-
-      {/* Dashboard Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <ErrorAlert error={error} className="mb-6" />
 
         <DashboardStats summary={summary} hasTransactions={!!hasTransactions} />
@@ -83,16 +84,14 @@ export default function DashboardPage() {
             <OutstandingSummary summary={summary} />
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Top row: Cashflow + Status side by side */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column (2 cols wide on desktop) */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <CashflowBreakdown summary={summary} />
                   <TransactionStatus summary={summary} />
                 </div>
 
-                {/* Exceptions Inbox */}
                 <ExceptionsInbox 
                   summary={summary} 
                   overdueInvoices={overdueInvoices} 
@@ -100,10 +99,10 @@ export default function DashboardPage() {
                 />
               </div>
 
-              {/* Sidebar */}
+              {/* Right Sidebar */}
               <div className="space-y-6">
-                {user && <UserInfoCard user={user} />}
-                
+                <QuickActions />
+
                 {summary && (
                   <RecentActivity transactions={summary.recent_transactions} />
                 )}
@@ -112,7 +111,7 @@ export default function DashboardPage() {
 
                 {reconSummary && <ReconciliationStatus reconSummary={reconSummary} />}
 
-                <QuickActions />
+                {user && <UserInfoCard user={user} role={role} />}
               </div>
             </div>
           </>

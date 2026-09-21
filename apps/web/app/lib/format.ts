@@ -51,25 +51,62 @@ export function firstOfYearInTimezone(timezone = DEFAULT_TIMEZONE): string {
   return `${y}-01-01`;
 }
 
-export function formatCurrency(
-  amount: string | number,
-  currency = "CAD",
-): string {
-  const num = typeof amount === "string" ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency,
-  }).format(num);
+/**
+ * Determine whether a monetary amount is negative without float rounding errors.
+ */
+export function isNegativeAmount(amount: string | number | null | undefined): boolean {
+  if (amount == null) return false;
+  if (typeof amount === "number") return amount < 0;
+  const trimmed = amount.trim();
+  return trimmed.startsWith("-");
 }
 
-export function formatDate(dateStr: string | null | undefined): string {
+/**
+ * Format currency with strict sign preservation and Canadian locale support (en-CA and fr-CA).
+ * Always preserves negative signs (e.g. -$219.00 or -219,00 $).
+ */
+export function formatCurrency(
+  amount: string | number | null | undefined,
+  currency = "CAD",
+  locale = "en-CA",
+): string {
+  if (amount == null || amount === "") {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(0);
+  }
+
+  const isNeg = isNegativeAmount(amount);
+  const rawNum = typeof amount === "string" ? parseFloat(amount) : amount;
+
+  // Intl handles negative numbers according to locale conventions
+  // (e.g., -$123.45 in en-CA, -123,45 $ in fr-CA)
+  const formatted = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(rawNum);
+
+  // Safety guarantee: if the input was negative string, ensure the output has a negative sign
+  if (isNeg && !formatted.includes("-") && !formatted.includes("(") && !formatted.includes("−")) {
+    return `-${formatted}`;
+  }
+
+  return formatted;
+}
+
+export function formatDate(dateStr: string | null | undefined, locale = "en-CA"): string {
   if (!dateStr) return "—";
   // Append T00:00:00 for date-only strings (YYYY-MM-DD) to parse as local time
   // instead of UTC, preventing off-by-one-day errors in Western Hemisphere timezones
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(dateStr)
     ? dateStr + "T00:00:00"
     : dateStr;
-  return new Date(normalized).toLocaleDateString("en-CA", {
+  return new Date(normalized).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",

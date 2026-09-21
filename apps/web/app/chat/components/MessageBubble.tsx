@@ -97,28 +97,26 @@ function UserBubble({ message }: { message: ChatMessage }) {
   return (
     <div className="flex justify-end">
       <div className="max-w-[90%] sm:max-w-[85%] lg:max-w-[80%]">
-        <div
-          className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-2xl rounded-tr-sm shadow-sm p-4 sm:p-5 group transition-all duration-200 hover:shadow-md"
-        >
+        <div className="bg-[#0B1825] text-white border border-[#1E2C3A] rounded-lg rounded-tr-none p-4 shadow-xs">
           {/* Avatar row */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center bg-white/20">
-              <UserIcon />
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/10">
+            <div className="w-5 h-5 rounded bg-[#087E78] text-white flex items-center justify-center text-[10px] font-bold">
+              U
             </div>
-            <span className="text-xs font-medium text-white/80">You</span>
-            <span className="text-[10px] text-white/50">
+            <span className="text-xs font-semibold text-slate-200">You</span>
+            <span className="text-[10px] text-slate-400 font-mono">
               {formatTime(message.created_at)}
             </span>
           </div>
 
           {/* File attachment */}
           {fileName && (
-            <div className="flex items-center gap-3 p-3 mb-3 rounded-xl bg-white/10">
-              <div className="p-2 rounded-lg bg-white/20">
+            <div className="flex items-center gap-2.5 p-2.5 mb-2 rounded border border-white/10 bg-white/5">
+              <div className="p-1 rounded bg-white/10 text-white">
                 <FileIcon />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate text-white">{fileName}</p>
+                <p className="text-xs font-medium truncate text-white">{fileName}</p>
               </div>
             </div>
           )}
@@ -143,29 +141,29 @@ function AssistantBubble({
   return (
     <div className="flex justify-start">
       <div className="max-w-[90%] sm:max-w-[85%] lg:max-w-[80%]">
-        <div
-          className="bg-white dark:bg-[#1a1a25] border border-gray-200 dark:border-gray-800 rounded-2xl rounded-tl-sm shadow-sm p-4 sm:p-5 group transition-all duration-200 hover:shadow-md relative"
-        >
-          {/* Avatar row */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900 dark:to-cyan-800 text-cyan-600 dark:text-cyan-400">
+        <div className="bg-surface border border-edge rounded-lg rounded-tl-none p-4 shadow-xs relative">
+          {/* Header row */}
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-edge-subtle">
+            <div className="w-5 h-5 rounded bg-[#087E78]/10 text-[#087E78] flex items-center justify-center text-[10px] font-bold">
               <BotIcon />
             </div>
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Oluto</span>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-xs font-bold text-heading">Oluto Finance</span>
+            <span className="text-[10px] text-muted font-mono">
               {formatTime(message.created_at)}
             </span>
             {message.model && (
-              <span className="text-[10px] text-gray-400">&middot; {message.model}</span>
+              <span className="text-[10px] text-muted font-mono bg-surface-tertiary px-1.5 py-0.5 rounded border border-edge-subtle">
+                {message.model}
+              </span>
             )}
 
             {/* Copy button */}
             <button
               onClick={onCopy}
-              className={`ml-auto p-1.5 rounded-lg transition-all duration-200 ${
+              className={`ml-auto p-1 rounded text-xs transition-colors ${
                 copied
-                  ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100"
+                  ? "text-[#177245] bg-[var(--color-positive-bg)]"
+                  : "text-muted hover:text-heading hover:bg-surface-hover"
               }`}
               title={copied ? "Copied!" : "Copy to clipboard"}
             >

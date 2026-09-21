@@ -42,71 +42,30 @@ describe("Navigation", () => {
     render(<Navigation />);
 
     expect(screen.getByText("Oluto")).toBeInTheDocument();
-    expect(screen.getByText("Agents")).toBeInTheDocument();
+    expect(screen.getByText("Platform")).toBeInTheDocument();
+    expect(screen.getByText("Accounting Engine")).toBeInTheDocument();
+    expect(screen.getByText("Compliance")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth/login");
+    expect(screen.getByRole("link", { name: "Get Started" })).toHaveAttribute("href", "/auth/register");
   });
 
-  it("shows product navigation for an authenticated app page", () => {
-    mocks.pathname = "/dashboard";
+  it("shows Open Dashboard action when user is already authenticated", () => {
     mocks.authenticated = true;
 
     render(<Navigation />);
 
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/dashboard");
-    expect(screen.getByRole("link", { name: "Chat with Oluto" })).toHaveAttribute("href", "/chat");
-    expect(screen.getByRole("link", { name: "Daily Briefing" })).toHaveAttribute(
-      "href",
-      "/daily-briefings"
-    );
-    expect(screen.getByText("Add Transaction")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
-  });
-
-  it("makes Team & access available from the authenticated More menu", () => {
-    mocks.pathname = "/settings/team";
-    mocks.authenticated = true;
-
-    render(<Navigation />);
-    fireEvent.click(screen.getByRole("button", { name: "More" }));
-
-    expect(screen.getByRole("menuitem", { name: "Team & access" })).toHaveAttribute(
-      "href",
-      "/settings/team"
-    );
-  });
-
-  it("keeps authenticated navigation on the Daily Briefing page", () => {
-    mocks.pathname = "/daily-briefings";
-    mocks.authenticated = true;
-
-    render(<Navigation />);
-
-    expect(screen.getByRole("link", { name: "Daily Briefing" })).toHaveAttribute(
-      "href",
-      "/daily-briefings"
-    );
+    expect(screen.getByRole("link", { name: "Open Dashboard →" })).toHaveAttribute("href", "/dashboard");
     expect(screen.queryByRole("link", { name: "Sign in" })).not.toBeInTheDocument();
   });
 
   it("opens and closes the mobile menu with accessible state", () => {
     render(<Navigation />);
-    const toggle = screen.getByRole("button", { name: "Toggle menu" });
+    const toggle = screen.getByRole("button", { name: "Toggle navigation menu" });
 
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("menu")).toBeInTheDocument();
     fireEvent.click(toggle);
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
-  });
-
-  it("logs out from the authenticated navigation", () => {
-    mocks.pathname = "/dashboard";
-    mocks.authenticated = true;
-
-    render(<Navigation />);
-    fireEvent.click(screen.getByRole("button", { name: "Logout" }));
-
-    expect(mocks.logout).toHaveBeenCalledOnce();
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 });

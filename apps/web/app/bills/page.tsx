@@ -221,12 +221,12 @@ export default function BillsPage() {
 
       {/* Overdue alert */}
       {overdueBills.length > 0 && !statusFilter && (
-        <div className="mb-6 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950 border border-red-200 dark:border-red-800 p-4 shadow-sm">
+        <div className="mb-6 rounded-lg bg-[var(--color-critical-bg)] border border-[var(--color-critical-border)] p-4">
           <div className="flex items-center gap-3">
-            <svg className="h-5 w-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-[var(--color-critical)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
-            <p className="text-sm font-bold text-red-700 dark:text-red-300">
+            <p className="text-sm font-bold text-[var(--color-critical)]">
               {overdueBills.length} overdue bill{overdueBills.length === 1 ? "" : "s"} require attention
             </p>
           </div>
@@ -239,7 +239,7 @@ export default function BillsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border-0 py-2.5 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm bg-surface"
+            className="rounded-md border border-edge py-2 px-3 text-heading text-xs bg-surface"
           >
             {BILL_STATUS_OPTIONS.map((f) => (
               <option key={f.value} value={f.value}>
@@ -250,7 +250,7 @@ export default function BillsPage() {
           {statusFilter && (
             <button
               onClick={() => setStatusFilter("")}
-              className="text-sm text-muted hover:text-heading transition-colors"
+              className="text-xs text-muted hover:text-heading transition-colors"
             >
               Clear
             </button>
@@ -259,10 +259,10 @@ export default function BillsPage() {
         {canWrite && (
           <Link
             href="/bills/new"
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            className="btn-primary text-xs py-2 px-3.5"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
             New Bill
           </Link>

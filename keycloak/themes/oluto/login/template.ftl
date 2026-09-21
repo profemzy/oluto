@@ -16,11 +16,6 @@
     </#if>
 </head>
 <body class="oluto-body ${bodyClass}">
-    <!-- Animated background orbs -->
-    <div class="orb orb-cyan" aria-hidden="true"></div>
-    <div class="orb orb-green" aria-hidden="true"></div>
-    <div class="orb orb-teal" aria-hidden="true"></div>
-
     <div class="oluto-container">
         <!-- Logo -->
         <div class="oluto-logo">

@@ -263,28 +263,31 @@ function TransactionsContent() {
     () => [
       {
         key: "vendor",
-        header: "Vendor",
+        header: "Vendor / Payee",
         width: "2fr",
         sortable: true,
-        render: (txn) => (
-          <div>
-            <div className="flex items-center gap-1.5">
-              {txn.reconciled && (
-                <span title="Reconciled">
-                  <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+        render: (txn) => {
+          const hasVendor = Boolean(txn.vendor_name && txn.vendor_name.trim());
+          return (
+            <div>
+              <div className="flex items-center gap-1.5">
+                {txn.reconciled && (
+                  <span title="Reconciled with bank">
+                    <svg className="w-3.5 h-3.5 text-[#177245] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                )}
+                <span className={`text-xs font-semibold truncate ${hasVendor ? "text-heading" : "text-muted italic"}`}>
+                  {hasVendor ? txn.vendor_name : "Unlabelled transaction"}
                 </span>
+              </div>
+              {txn.description && (
+                <p className="text-[11px] text-muted truncate">{txn.description}</p>
               )}
-              <span className="font-semibold text-heading truncate">
-                {txn.vendor_name}
-              </span>
             </div>
-            {txn.description && (
-              <p className="text-xs text-muted truncate">{txn.description}</p>
-            )}
-          </div>
-        ),
+          );
+        },
       },
       {
         key: "amount",
@@ -294,7 +297,7 @@ function TransactionsContent() {
         align: "right",
         render: (txn) => (
           <div className="text-right">
-            <p className={`text-sm font-bold ${txn.classification === "business_income" ? "text-emerald-600" : "text-red-600"}`}>
+            <p className={`text-xs font-bold font-tabular ${txn.classification === "business_income" ? "text-[#177245] dark:text-[#34d399]" : "text-heading"}`}>
               {formatCurrency(txn.amount)}
             </p>
             {(parseFloat(txn.gst_amount) > 0 || parseFloat(txn.pst_amount) > 0) && (
@@ -367,8 +370,9 @@ function TransactionsContent() {
   );
 
   // Define table actions
-  const actions: DataTableAction<Transaction>[] = useMemo(
-    () => [
+  const actions: DataTableAction<Transaction>[] = useMemo(() => {
+    if (!canWrite) return [];
+    return [
       {
         key: "edit",
         label: "Edit transaction",
@@ -405,13 +409,13 @@ function TransactionsContent() {
           }
         },
       },
-    ],
-    [deleteMutation]
-  );
+    ];
+  }, [canWrite, deleteMutation]);
 
   // Bulk actions
-  const bulkActions = useMemo(
-    () => [
+  const bulkActions = useMemo(() => {
+    if (!canWrite) return [];
+    return [
       {
         key: "post",
         label: "Post Selected",
@@ -443,9 +447,8 @@ function TransactionsContent() {
         },
         variant: "danger" as const,
       },
-    ],
-    [bulkPostMutation, deleteMutation]
-  );
+    ];
+  }, [canWrite, bulkPostMutation, deleteMutation]);
 
   if (authLoading || loading) {
     return <ListSkeleton title="Transactions" actionButton />;
@@ -458,23 +461,23 @@ function TransactionsContent() {
     >
       <ErrorAlert error={error} className="mb-6" />
 
-      {/* Action buttons */}
+      {/* Action buttons — strictly gated by canWrite */}
       {canWrite && (
-        <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
+        <div className="mb-4 flex flex-wrap items-center justify-end gap-2.5">
           {draftTransactions.length > 0 && (
             <button
               onClick={handlePostAllDrafts}
               disabled={bulkPostMutation.isPending}
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="btn-primary text-xs py-2 px-3 disabled:opacity-50"
             >
               {bulkPostMutation.isPending ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
                   Posting...
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   Post {draftTransactions.length} Draft{draftTransactions.length === 1 ? "" : "s"}
@@ -484,9 +487,9 @@ function TransactionsContent() {
           )}
           <Link
             href="/transactions/import"
-            className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+            className="btn-secondary text-xs py-2 px-3"
           >
-            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
             Import Statements
@@ -494,9 +497,9 @@ function TransactionsContent() {
           {canAdmin && (
             <Link
               href="/transactions/import-quickbooks"
-              className="group inline-flex items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-sm font-bold text-body shadow-sm hover:bg-surface-hover hover:border-gray-400 hover:-translate-y-0.5 transition-all duration-200"
+              className="btn-secondary text-xs py-2 px-3"
             >
-              <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
               QuickBooks Import
@@ -504,9 +507,9 @@ function TransactionsContent() {
           )}
           <Link
             href="/transactions/new"
-            className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            className="btn-primary text-xs py-2 px-3"
           >
-            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Add Transaction
