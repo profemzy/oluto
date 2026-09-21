@@ -73,8 +73,8 @@ export function InputBar({
     <div className="space-y-3 p-3 sm:p-4">
       {/* Selected file preview */}
       {file && (
-        <div className="flex items-center gap-3 rounded-xl border border-cyan-200 bg-cyan-50 p-3 dark:border-cyan-800/50 dark:bg-cyan-900/20">
-          <div className="rounded-lg bg-cyan-100 p-2 text-cyan-600 dark:bg-cyan-800 dark:text-cyan-400">
+        <div className="flex items-center gap-3 rounded-xl border border-edge bg-surface-secondary p-3">
+          <div className="rounded-lg bg-surface p-2 text-[var(--color-brand-primary)] border border-edge-subtle">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -85,15 +85,17 @@ export function InputBar({
             </svg>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+            <p className="truncate text-xs font-semibold text-heading">
               {file.name}
             </p>
-            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+            <p className="text-[11px] text-muted">{formatFileSize(file.size)}</p>
           </div>
           <button
+            type="button"
             onClick={() => setFile(null)}
-            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-cyan-100 hover:text-gray-600 dark:hover:bg-cyan-800 dark:hover:text-gray-300"
+            className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-heading min-h-[36px] min-w-[36px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
             title="Remove file"
+            aria-label="Remove attached file"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -110,22 +112,24 @@ export function InputBar({
       {/* Input container */}
       <div className="relative">
         <div
-          className={`flex items-end gap-2 rounded-2xl border bg-white p-2 transition-all duration-300 sm:gap-3 sm:p-3 dark:bg-[#1a1a25] ${
+          className={`flex items-end gap-2 rounded-2xl border bg-surface p-2 transition-all duration-200 sm:gap-3 sm:p-3 ${
             isFocused
-              ? "border-cyan-400 shadow-lg shadow-cyan-500/10 dark:border-cyan-600"
-              : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
+              ? "border-[var(--color-brand-primary)] ring-2 ring-[var(--color-brand-primary)]/20"
+              : "border-edge hover:border-gray-400"
           } ${loading ? "opacity-70" : ""}`}
         >
           {/* Quick actions toggle */}
           {onToggleQuickActions && (
             <button
+              type="button"
               onClick={onToggleQuickActions}
-              className={`shrink-0 rounded-xl p-2 transition-colors ${
+              className={`shrink-0 rounded-xl p-2 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
                 quickActionsActive
-                  ? "bg-cyan-50 text-cyan-600 dark:bg-cyan-900/20 dark:text-cyan-400"
-                  : "text-gray-400 hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-900/20 dark:hover:text-cyan-400"
-              } disabled:opacity-50`}
+                  ? "bg-teal-50 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300"
+                  : "text-muted hover:bg-surface-hover hover:text-heading"
+              } disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]`}
               title={quickActionsActive ? "Hide quick actions" : "Show quick actions"}
+              aria-label={quickActionsActive ? "Hide quick actions" : "Show quick actions"}
               disabled={loading || disabled}
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,9 +145,11 @@ export function InputBar({
 
           {/* File attach */}
           <button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="shrink-0 rounded-xl p-2 text-gray-400 transition-colors hover:bg-cyan-50 hover:text-cyan-600 disabled:opacity-50 dark:hover:bg-cyan-900/20 dark:hover:text-cyan-400"
+            className="shrink-0 rounded-xl p-2 text-muted transition-colors hover:bg-surface-hover hover:text-heading disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
             title="Attach file"
+            aria-label="Attach file"
             disabled={loading || disabled}
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,31 +177,34 @@ export function InputBar({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder={file ? "Add a message (optional)..." : "Ask about your finances..."}
+            placeholder={file ? "Add instruction for attached file..." : "Instruct agent or query double-entry records..."}
+            aria-label="Message or instructions for Oluto Agent"
             rows={1}
             disabled={loading || disabled}
-            className="max-h-[160px] min-h-[24px] flex-1 resize-none border-0 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none disabled:cursor-not-allowed sm:text-[15px] dark:text-gray-100 dark:placeholder-gray-500"
+            className="max-h-[160px] min-h-[24px] flex-1 resize-none border-0 bg-transparent py-2 text-sm text-heading placeholder:text-muted focus:ring-0 focus:outline-none disabled:cursor-not-allowed sm:text-[14px]"
           />
 
           {/* Character count */}
           {isFocused && charCount > 0 && (
-            <span className="shrink-0 self-center pb-2 text-[10px] text-gray-400">{charCount}</span>
+            <span className="shrink-0 self-center pb-2 text-[10px] text-muted font-tabular">{charCount}</span>
           )}
 
           {/* Send button */}
           <button
+            type="button"
             onClick={handleSend}
             disabled={loading || disabled || isEmpty}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300 focus:ring-2 focus:ring-cyan-500/50 focus:outline-none sm:h-11 sm:w-11 ${
+            aria-label="Send instruction"
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] sm:h-11 sm:w-11 ${
               isEmpty || loading || disabled
-                ? "cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800"
-                : "bg-gradient-to-br from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/25 hover:scale-105 hover:from-cyan-400 hover:to-cyan-500 hover:shadow-cyan-500/40 active:scale-95"
+                ? "cursor-not-allowed bg-surface-tertiary text-muted"
+                : "bg-[#087E78] dark:bg-teal-600 text-white hover:bg-[#066762] dark:hover:bg-teal-500 shadow-sm"
             }`}
           >
             {loading ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             ) : (
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -209,24 +218,24 @@ export function InputBar({
 
         {/* Floating hint */}
         <div
-          className={`absolute -top-8 right-0 text-[10px] text-gray-400 transition-opacity duration-200 ${
+          className={`absolute -top-6 right-0 text-[10px] text-muted transition-opacity duration-200 ${
             isFocused && text.includes(" ") ? "opacity-100" : "opacity-0"
           }`}
         >
-          Press Enter to send, Shift+Enter for new line
+          Enter to send, Shift+Enter for newline
         </div>
       </div>
 
       {/* Footer */}
       <div className="flex items-center justify-between px-1">
-        <p className="text-[10px] text-gray-400 sm:text-xs">
+        <p className="text-[10px] text-muted sm:text-xs">
           {file
-            ? "Receipt will be interpreted by the configured vision-capable model"
-            : "AI can make mistakes. Always verify important financial information."}
+            ? "Receipt will be parsed by configured vision model; proposal requires human approval before posting."
+            : "Agent proposals require human review before creating durable financial effects."}
         </p>
-        <div className="hidden items-center gap-2 text-[10px] text-gray-400 sm:flex">
+        <div className="hidden items-center gap-2 text-[10px] text-muted sm:flex">
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-sans dark:border-gray-700 dark:bg-gray-800">
+            <kbd className="rounded border border-edge bg-surface-secondary px-1.5 py-0.5 font-sans">
               &#x21B5;
             </kbd>
             <span>to send</span>

@@ -55,25 +55,17 @@ export default function SetupBusinessPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-20 left-[10%] w-64 h-64 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
-      <div className="absolute bottom-20 right-[10%] w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float" />
-
-      {/* Bouncing decorative dots */}
-      <div className="absolute top-32 right-[25%] w-3 h-3 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle" />
-      <div className="absolute bottom-32 left-[20%] w-2 h-2 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.5s' }} />
-
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden bg-surface-secondary">
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         {/* Progress indicator */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-8 h-8 rounded-full bg-brand-teal flex items-center justify-center text-white text-sm font-bold">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div className="w-12 h-1 rounded-full bg-gradient-to-r from-cyan-500 to-green-500" />
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-green-500 flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-12 h-1 rounded-full bg-brand-teal" />
+          <div className="w-8 h-8 rounded-full bg-brand-teal flex items-center justify-center text-white text-sm font-bold">
             2
           </div>
           <div className="w-12 h-1 rounded-full bg-surface-tertiary" />
@@ -156,12 +148,12 @@ export default function SetupBusinessPage() {
               </div>
             </div>
 
-            <div className="rounded-xl bg-gradient-to-r from-cyan-50 to-teal-50 border border-cyan-200 p-4">
+            <div className="rounded-xl bg-surface-secondary border border-edge p-4">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-brand-teal flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm text-cyan-800">
+                <p className="text-sm text-body">
                   Tax (GST/HST/PST) will be automatically calculated based on your business province.
                 </p>
               </div>
@@ -171,7 +163,7 @@ export default function SetupBusinessPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative flex w-full justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold leading-6 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 btn-glow"
+                className="group relative flex w-full justify-center rounded-xl bg-brand-teal px-3 py-3 text-sm font-bold leading-6 text-white shadow-sm hover:bg-brand-teal-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

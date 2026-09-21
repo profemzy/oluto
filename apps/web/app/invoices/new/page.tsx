@@ -168,7 +168,6 @@ export default function NewInvoicePage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title="New Invoice"
         subtitle="Create an invoice for a customer"
@@ -182,7 +181,7 @@ export default function NewInvoicePage() {
         }
       />
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-edge-subtle sm:px-10">
+        <div className="bg-surface py-8 px-4 shadow-sm rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} className="mb-6" />
           <form className="space-y-8" onSubmit={handleSubmit}>
             {/* Header Fields */}
@@ -330,10 +329,10 @@ export default function NewInvoicePage() {
 
               {/* Totals */}
               <div className="mt-4 flex justify-end">
-                <div className="w-64 bg-gradient-to-r from-surface-secondary to-surface-tertiary rounded-xl p-4">
+                <div className="w-64 bg-surface-secondary border border-edge rounded-xl p-4">
                   <div className="flex justify-between text-sm">
                     <span className="font-bold text-body">Subtotal</span>
-                    <span className="font-bold text-heading">${subtotal.toFixed(2)}</span>
+                    <span className="font-bold text-heading tabular-nums">${subtotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -342,10 +341,10 @@ export default function NewInvoicePage() {
             {/* Actions */}
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={loading}
-                className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-glow">
+                className="flex-1 flex justify-center rounded-xl bg-brand-teal px-3 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? "Creating..." : "Create Invoice"}
               </button>
-              <Link href="/invoices" className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
+              <Link href="/invoices" className="flex items-center justify-center rounded-xl border border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
                 Cancel
               </Link>
             </div>

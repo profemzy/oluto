@@ -341,7 +341,7 @@ function TransactionsContent() {
                   }
                 }}
                 disabled={updateStatusMutation.isPending}
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-cyan-500 transition-all ${
+                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-[var(--color-brand-primary)] transition-all ${
                   TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"
                 } ${updateStatusMutation.isPending ? "opacity-50" : "hover:shadow-md"}`}
                 onClick={(e) => e.stopPropagation()}
@@ -450,6 +450,144 @@ function TransactionsContent() {
     ];
   }, [canWrite, bulkPostMutation, deleteMutation]);
 
+  const renderMobileCard = useCallback(
+    (txn: Transaction, { isSelected, toggleSelection }: { isSelected: boolean; toggleSelection: () => void }) => {
+      const hasVendor = Boolean(txn.vendor_name && txn.vendor_name.trim());
+      const isIncome = txn.classification === "business_income";
+      const totalTax = parseFloat(txn.gst_amount || "0") + parseFloat(txn.pst_amount || "0");
+      const hasTransitions = (VALID_TRANSITIONS[txn.status]?.length ?? 0) > 0 && canWrite;
+
+      return (
+        <div className="space-y-2.5">
+          {/* Reading Line 1: Checkbox (if canWrite) + Merchant/Vendor + Signed Amount */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {canWrite && (
+                <input
+                  type="checkbox"
+                  aria-label={`Select transaction ${txn.vendor_name || txn.id}`}
+                  checked={isSelected}
+                  onChange={toggleSelection}
+                  className="rounded border-edge text-[var(--color-brand-primary)] focus:ring-[var(--color-brand-primary)] h-4 w-4 flex-shrink-0"
+                />
+              )}
+              <div className="flex items-center gap-1.5 min-w-0">
+                {txn.reconciled && (
+                  <span title="Reconciled with bank">
+                    <svg className="w-3.5 h-3.5 text-[#177245] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                )}
+                <span className={`text-sm font-semibold truncate ${hasVendor ? "text-heading" : "text-muted italic"}`}>
+                  {hasVendor ? txn.vendor_name : "Unlabelled transaction"}
+                </span>
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <span className={`text-sm font-bold font-tabular ${isIncome ? "text-[#177245] dark:text-[#34d399]" : "text-heading"}`}>
+                {isIncome ? `+${formatCurrency(txn.amount)}` : `-${formatCurrency(txn.amount)}`}
+              </span>
+            </div>
+          </div>
+
+          {/* Reading Line 2: Date + Category + Tax */}
+          <div className="flex items-center justify-between text-xs text-muted gap-2">
+            <div className="flex items-center gap-2 truncate">
+              <span>{formatDate(txn.transaction_date)}</span>
+              <span>•</span>
+              <span className="truncate">{txn.category || "Uncategorized"}</span>
+            </div>
+            {totalTax > 0 && (
+              <span className="text-[11px] text-caption flex-shrink-0 font-tabular">
+                Tax: {formatCurrency(String(totalTax))}
+              </span>
+            )}
+          </div>
+
+          {/* Reading Line 3: Status Badge / Transition Select + Action Buttons */}
+          <div className="flex items-center justify-between pt-1 border-t border-edge-subtle">
+            <div className="flex items-center gap-1.5">
+              {hasTransitions ? (
+                <select
+                  value={txn.status}
+                  onChange={(e) => {
+                    if (user?.business_id) {
+                      updateStatusMutation.mutate({ txnId: txn.id, status: e.target.value });
+                    }
+                  }}
+                  disabled={updateStatusMutation.isPending}
+                  aria-label={`Update status for ${txn.vendor_name || txn.id}`}
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-[var(--color-brand-primary)] transition-all ${
+                    TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"
+                  } ${updateStatusMutation.isPending ? "opacity-50" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <option value={txn.status}>
+                    {TRANSACTION_STATUS_OPTIONS.find((o) => o.value === txn.status)?.label ?? txn.status}
+                  </option>
+                  {VALID_TRANSITIONS[txn.status]?.map((val) => (
+                    <option key={val} value={val}>
+                      {TRANSACTION_STATUS_OPTIONS.find((o) => o.value === val)?.label ?? val}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"}`}>
+                  {TRANSACTION_STATUS_OPTIONS.find((o) => o.value === txn.status)?.label ?? txn.status}
+                </span>
+              )}
+            </div>
+
+            {/* Action buttons (min 44px touch targets for mobile accessibility) */}
+            {canWrite && (
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <Link
+                  href={`/transactions/${txn.id}/edit`}
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted hover:text-heading rounded-md transition-colors"
+                  aria-label={`Edit transaction ${txn.vendor_name || txn.id}`}
+                  title="Edit transaction"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </Link>
+                {txn.classification === "business_expense" && (
+                  <Link
+                    href={`/transactions/${txn.id}/edit#receipts`}
+                    className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted hover:text-heading rounded-md transition-colors"
+                    aria-label={`Attach receipt for ${txn.vendor_name || txn.id}`}
+                    title="Attach receipt"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to delete this transaction?")) {
+                      deleteMutation.mutate(txn.id);
+                    }
+                  }}
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted hover:text-red-600 rounded-md transition-colors"
+                  aria-label={`Delete transaction ${txn.vendor_name || txn.id}`}
+                  title="Delete transaction"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    },
+    [canWrite, updateStatusMutation, deleteMutation, user?.business_id]
+  );
+
   if (authLoading || loading) {
     return <ListSkeleton title="Transactions" actionButton />;
   }
@@ -543,56 +681,58 @@ function TransactionsContent() {
 
       {/* Filter Bar */}
       <div className="mb-6 space-y-3">
-        <FilterBar
-          filters={[
-            {
-              key: "status",
-              label: "Status",
-              options: TRANSACTION_STATUS_OPTIONS.filter((o) => o.value).map((o) => ({
-                value: o.value,
-                label: o.label,
-              })),
-            },
-            {
-              key: "category",
-              label: "Category",
-              options: [
-                { value: "uncategorized", label: "Uncategorized" },
-                ...CRA_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
-              ],
-            },
-            {
-              key: "classification",
-              label: "Type",
-              options: ALL_CLASSIFICATIONS.map((opt) => ({
-                value: opt.value,
-                label: opt.label,
-              })),
-            },
-          ]}
-          activeFilters={{
-            status: statusFilter,
-            category: categoryFilter,
-            classification: classificationFilter,
-          }}
-          onFilterChange={(key, value) => {
-            if (key === "status") setStatusFilter(value);
-            if (key === "category") setCategoryFilter(value);
-            if (key === "classification") setClassificationFilter(value);
-          }}
-          onClearAll={() => {
-            setStatusFilter("");
-            setCategoryFilter("");
-            setClassificationFilter("");
-          }}
-        />
+        <div className="overflow-x-auto no-scrollbar pb-1 max-w-full">
+          <FilterBar
+            filters={[
+              {
+                key: "status",
+                label: "Status",
+                options: TRANSACTION_STATUS_OPTIONS.filter((o) => o.value).map((o) => ({
+                  value: o.value,
+                  label: o.label,
+                })),
+              },
+              {
+                key: "category",
+                label: "Category",
+                options: [
+                  { value: "uncategorized", label: "Uncategorized" },
+                  ...CRA_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
+                ],
+              },
+              {
+                key: "classification",
+                label: "Type",
+                options: ALL_CLASSIFICATIONS.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                })),
+              },
+            ]}
+            activeFilters={{
+              status: statusFilter,
+              category: categoryFilter,
+              classification: classificationFilter,
+            }}
+            onFilterChange={(key, value) => {
+              if (key === "status") setStatusFilter(value);
+              if (key === "category") setCategoryFilter(value);
+              if (key === "classification") setClassificationFilter(value);
+            }}
+            onClearAll={() => {
+              setStatusFilter("");
+              setCategoryFilter("");
+              setClassificationFilter("");
+            }}
+          />
+        </div>
 
         {/* Date filter row */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-w-full">
           <select
             value={datePreset}
             onChange={(e) => setDatePreset(e.target.value)}
-            className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 bg-surface hover:ring-gray-400 transition-all"
+            className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-brand-primary)] bg-surface hover:ring-gray-400 transition-all"
           >
             {DATE_PRESETS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -602,12 +742,12 @@ function TransactionsContent() {
           </select>
 
           {datePreset === "custom" && (
-            <>
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 type="date"
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
-                className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 bg-surface"
+                className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-brand-primary)] bg-surface"
                 aria-label="Start date"
               />
               <span className="text-xs text-muted">to</span>
@@ -615,10 +755,10 @@ function TransactionsContent() {
                 type="date"
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
-                className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-cyan-600 bg-surface"
+                className="rounded-xl border-0 py-2 px-3 text-sm text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-inset focus:ring-[var(--color-brand-primary)] bg-surface"
                 aria-label="End date"
               />
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -630,6 +770,7 @@ function TransactionsContent() {
         keyExtractor={(txn) => txn.id}
         actions={canWrite ? actions : []}
         bulkActions={canWrite ? bulkActions : []}
+        renderMobileCard={renderMobileCard}
         searchFields={["vendor_name", "description", "category"]}
         searchPlaceholder="Search by vendor, description, or category..."
         searchQuery={searchQuery}

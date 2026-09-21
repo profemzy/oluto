@@ -55,11 +55,11 @@ export function AgentsSection() {
             Platform Architecture
           </p>
           <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-heading">
-            Autonomous Accounting Workflows
+            Accounting Workflows & Financial Engine
           </h2>
           <p className="mt-3 text-sm text-muted leading-relaxed">
             Engineered around Canadian corporate tax guidelines and standard accounting principles.
-            No conversational guesswork—only verified financial operations.
+            Double-entry operations with strict human review gates and deterministic audit trails.
           </p>
         </div>
 

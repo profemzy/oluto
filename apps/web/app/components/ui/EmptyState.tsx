@@ -95,9 +95,8 @@ export function EmptyState({
     >
       <div
         className={`
-          mx-auto rounded-full bg-gradient-to-br from-cyan-50 to-teal-50
-          dark:from-cyan-950 dark:to-teal-950
-          flex items-center justify-center text-cyan-600
+          mx-auto rounded-full bg-surface-secondary border border-edge
+          flex items-center justify-center text-brand-teal
           ${iconContainerStyles[variant]}
         `}
       >
@@ -118,14 +117,14 @@ export function EmptyState({
             action.onClick ? (
               <button
                 onClick={action.onClick}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-teal px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
               >
                 {action.label}
               </button>
             ) : (
               <Link
                 href={action.href}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-teal px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
               >
                 {action.label}
               </Link>
@@ -136,14 +135,14 @@ export function EmptyState({
             secondaryAction.onClick ? (
               <button
                 onClick={secondaryAction.onClick}
-                className="text-sm font-bold text-cyan-600 hover:text-cyan-700 transition-colors"
+                className="text-sm font-bold text-brand-teal hover:text-brand-teal-hover transition-colors"
               >
                 {secondaryAction.label}
               </button>
             ) : (
               <Link
                 href={secondaryAction.href}
-                className="text-sm font-bold text-cyan-600 hover:text-cyan-700 transition-colors"
+                className="text-sm font-bold text-brand-teal hover:text-brand-teal-hover transition-colors"
               >
                 {secondaryAction.label}
               </Link>

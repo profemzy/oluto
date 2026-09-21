@@ -184,11 +184,7 @@ export default function NewTransactionPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      {/* Decorative background elements */}
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-2xl animate-float" />
-      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
-
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary">
       <PageHeader
         title="Add Transaction"
         subtitle="Record a new financial transaction"
@@ -493,12 +489,12 @@ export default function NewTransactionPage() {
               )}
             </div>
             ) : (
-            <div className="rounded-xl bg-gradient-to-r from-cyan-50 to-teal-50 border border-cyan-200 p-4">
+            <div className="rounded-xl bg-surface-secondary border border-edge p-4">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-brand-teal flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm text-cyan-800">
+                <p className="text-sm text-body">
                   Tax (GST/HST/PST) will be automatically calculated based on your business province.
                 </p>
               </div>
@@ -509,7 +505,7 @@ export default function NewTransactionPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold leading-6 text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 btn-glow"
+                className="flex-1 flex justify-center rounded-xl bg-brand-teal px-3 py-3 text-sm font-bold leading-6 text-white shadow-sm hover:bg-brand-teal-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

@@ -65,13 +65,24 @@ describe("AppShell", () => {
     expect(screen.getByText("Dashboard Content")).toBeInTheDocument();
   });
 
-  it("shows Add Transaction button when user has canWrite permission", () => {
+  it("shows Add Transaction button when user has canWrite permission on other routes", () => {
+    mocks.pathname = "/reports";
     mocks.canWrite = true;
     mocks.role = "accountant";
 
     render(<AppShell><div>Content</div></AppShell>);
 
     expect(screen.getByRole("link", { name: /Add Transaction/i })).toHaveAttribute("href", "/transactions/new");
+  });
+
+  it("omits redundant Add Transaction button in header on dashboard and transactions", () => {
+    mocks.pathname = "/dashboard";
+    mocks.canWrite = true;
+    mocks.role = "accountant";
+
+    render(<AppShell><div>Content</div></AppShell>);
+
+    expect(screen.queryByRole("link", { name: /Add Transaction/i })).not.toBeInTheDocument();
   });
 
   it("strictly hides Add Transaction button and shows Viewer badge when user is a viewer", () => {

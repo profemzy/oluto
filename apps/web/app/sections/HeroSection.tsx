@@ -31,7 +31,7 @@ export function HeroSection() {
           id="hero-heading"
           className="text-4xl sm:text-6xl font-bold tracking-tight text-heading leading-[1.15]"
         >
-          Autonomous Bookkeeping Built on Verified Double-Entry Accounting.
+          Double-Entry Accounting & Financial Operating System for Canadian Business.
         </h1>
 
         {/* Subheadline */}

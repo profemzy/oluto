@@ -45,6 +45,12 @@ export interface DataTableAction<T> {
   show?: (item: T) => boolean;
 }
 
+export interface MobileCardHelpers<T> {
+  isSelected: boolean;
+  toggleSelection: () => void;
+  actions?: DataTableAction<T>[];
+}
+
 interface DataTableProps<T> {
   columns: DataTableColumn<T>[];
   data: T[];
@@ -86,6 +92,7 @@ interface DataTableProps<T> {
   enableColumnVisibility?: boolean;
   onRowClick?: (item: T) => void;
   highlightedRows?: Set<string>;
+  renderMobileCard?: (item: T, helpers: MobileCardHelpers<T>) => ReactNode;
 }
 
 // ============================================================================
@@ -112,7 +119,7 @@ function SortIcon({ direction }: { direction: SortDirection | null }) {
   }
   return direction === "asc" ? (
     <svg
-      className="h-3.5 w-3.5 text-cyan-600"
+      className="h-3.5 w-3.5 text-[var(--color-brand-primary)]"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -121,7 +128,7 @@ function SortIcon({ direction }: { direction: SortDirection | null }) {
     </svg>
   ) : (
     <svg
-      className="h-3.5 w-3.5 text-cyan-600"
+      className="h-3.5 w-3.5 text-[var(--color-brand-primary)]"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -159,6 +166,7 @@ export function DataTable<T>({
   enableColumnVisibility = false,
   onRowClick,
   highlightedRows,
+  renderMobileCard,
 }: DataTableProps<T>) {
   // State
   const [sort, setSort] = useState<SortState | null>(defaultSort || null);
@@ -369,9 +377,9 @@ export function DataTable<T>({
   if (data.length === 0 && emptyState) {
     return (
       <div className="bg-surface border-edge-subtle rounded-2xl border p-12 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-50 dark:bg-cyan-950">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950/60">
           <svg
-            className="h-8 w-8 text-cyan-600"
+            className="h-8 w-8 text-[var(--color-brand-primary)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -389,7 +397,7 @@ export function DataTable<T>({
         {emptyState.action && (
           <Link
             href={emptyState.action.href}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            className="btn-primary inline-flex text-sm py-2.5 px-6"
           >
             {emptyState.action.label}
           </Link>
@@ -402,7 +410,7 @@ export function DataTable<T>({
   if (processedData.length === 0 && noResultsState) {
     return (
       <div className="bg-surface border-edge-subtle rounded-2xl border p-12 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/60">
           <svg
             className="h-8 w-8 text-amber-600"
             fill="none"
@@ -422,7 +430,7 @@ export function DataTable<T>({
         {noResultsState.onClearFilters && (
           <button
             onClick={noResultsState.onClearFilters}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            className="btn-primary inline-flex text-sm py-2.5 px-6"
           >
             Clear Filters
           </button>
@@ -442,7 +450,7 @@ export function DataTable<T>({
       <div className="mb-4 flex flex-col gap-4 lg:flex-row">
         {/* Search */}
         {searchFields && (
-          <div className="relative max-w-md flex-1">
+          <div className="relative w-full lg:max-w-md flex-1">
             <svg
               className="text-muted pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2"
               fill="none"
@@ -461,7 +469,7 @@ export function DataTable<T>({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="text-heading bg-surface placeholder:text-muted w-full rounded-xl border-0 py-2.5 pr-10 pl-10 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] transition-all ring-inset focus:ring-2 focus:ring-cyan-600 focus:ring-inset"
+              className="text-heading bg-surface placeholder:text-muted w-full rounded-xl border-0 py-2.5 pr-10 pl-10 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] transition-all ring-inset focus:ring-2 focus:ring-[var(--color-brand-primary)] focus:ring-inset"
             />
             {searchQuery && (
               <button
@@ -496,7 +504,7 @@ export function DataTable<T>({
                   aria-label={`Filter by ${column.header}`}
                   value={filters[column.key] ?? ""}
                   onChange={(event) => handleFilter(column.key, event.target.value)}
-                  className="bg-surface text-heading rounded-xl border-0 px-3 py-2 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-cyan-600"
+                  className="bg-surface text-heading rounded-xl border-0 px-3 py-2 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-[var(--color-brand-primary)]"
                 >
                   <option value="">All {column.header.toLowerCase()}</option>
                   {column.filterOptions?.map((option) => (
@@ -541,7 +549,7 @@ export function DataTable<T>({
                           else next.delete(col.key);
                           setVisibleColumns(next);
                         }}
-                        className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                        className="rounded border-edge text-[var(--color-brand-primary)] focus:ring-[var(--color-brand-primary)]"
                       />
                       <span className="text-body text-sm">{col.header}</span>
                     </label>
@@ -574,8 +582,8 @@ export function DataTable<T>({
 
       {/* Bulk actions bar */}
       {enableRowSelection && selectedRows.size > 0 && bulkActions && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-cyan-200 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-950/50">
-          <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-edge bg-surface-secondary p-3">
+          <span className="text-sm font-semibold text-heading">
             {selectedRows.size} item{selectedRows.size === 1 ? "" : "s"} selected
           </span>
           <div className="flex items-center gap-2">
@@ -585,10 +593,10 @@ export function DataTable<T>({
                 onClick={() => action.onClick(selectedItems)}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   action.variant === "danger"
-                    ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                    ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-950 border border-red-200 dark:border-red-900"
                     : action.variant === "primary"
-                      ? "bg-cyan-600 text-white hover:bg-cyan-700"
-                      : "text-cyan-700 hover:bg-cyan-100 dark:text-cyan-300 dark:hover:bg-cyan-900"
+                      ? "btn-primary"
+                      : "btn-secondary text-heading"
                 }`}
               >
                 {action.icon}
@@ -597,7 +605,7 @@ export function DataTable<T>({
             ))}
             <button
               onClick={() => setSelectedRows(new Set())}
-              className="text-muted hover:text-heading text-sm transition-colors"
+              className="text-muted hover:text-heading text-sm transition-colors px-2 py-1"
             >
               Cancel
             </button>
@@ -608,7 +616,7 @@ export function DataTable<T>({
       {/* Table */}
       <div className="bg-surface border-edge-subtle overflow-hidden rounded-2xl border shadow-sm">
         {/* Header */}
-        <div className="from-surface-secondary to-surface-tertiary border-edge text-muted hidden border-b bg-gradient-to-r text-xs font-bold tracking-wider uppercase sm:grid">
+        <div className="bg-surface-secondary border-edge text-muted hidden border-b text-xs font-bold tracking-wider uppercase md:grid">
           <div
             className="grid gap-4 px-6 py-4"
             style={{
@@ -629,7 +637,7 @@ export function DataTable<T>({
                     paginatedData.every((item) => selectedRows.has(keyExtractor(item)))
                   }
                   onChange={toggleAllSelection}
-                  className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                  className="rounded border-edge text-[var(--color-brand-primary)] focus:ring-[var(--color-brand-primary)]"
                 />
               </div>
             )}
@@ -688,18 +696,26 @@ export function DataTable<T>({
                 key={id}
                 role="row"
                 aria-selected={isSelected}
-                className={`grid items-center gap-2 px-6 py-4 transition-all duration-200 sm:gap-4 ${
+                className={`transition-all duration-200 ${
+                  renderMobileCard
+                    ? ""
+                    : "block md:grid items-center gap-2 px-4 py-3 sm:px-6 sm:py-4 md:gap-4"
+                } ${
                   onRowClick
-                    ? "cursor-pointer hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
-                    : "hover:bg-cyan-50/50 dark:hover:bg-cyan-950/30"
-                } ${isSelected ? "bg-cyan-50/70 dark:bg-cyan-950/50" : ""} ${isHighlighted ? "ring-1 ring-cyan-500 ring-inset" : ""} ${rowClassName?.(item) || ""} sm:grid-cols-none`}
-                style={{
-                  gridTemplateColumns: `
-                    ${enableRowSelection ? "40px " : ""}
-                    ${columns.map((c) => c.width || "1fr").join(" ")}
-                    ${actions ? " auto" : ""}
-                  `,
-                }}
+                    ? "cursor-pointer hover:bg-surface-secondary"
+                    : "hover:bg-surface-secondary"
+                } ${isSelected ? "bg-teal-50/50 dark:bg-teal-950/30" : ""} ${isHighlighted ? "ring-1 ring-[var(--color-brand-primary)] ring-inset" : ""} ${rowClassName?.(item) || ""}`}
+                style={
+                  renderMobileCard
+                    ? undefined
+                    : {
+                        gridTemplateColumns: `
+                          ${enableRowSelection ? "40px " : ""}
+                          ${columns.map((c) => c.width || "1fr").join(" ")}
+                          ${actions ? " auto" : ""}
+                        `,
+                      }
+                }
                 onClick={() => onRowClick?.(item)}
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={(e) => {
@@ -719,66 +735,136 @@ export function DataTable<T>({
                   }
                 }}
               >
-                {enableRowSelection && (
-                  <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      aria-label={`Select ${String((item as Record<string, unknown>)[columns[0]?.key] ?? id)}`}
-                      checked={isSelected}
-                      onChange={() => toggleRowSelection(id)}
-                      className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
-                    />
-                  </div>
-                )}
-                {columns.map((column) => (
-                  <div
-                    key={column.key}
-                    role="gridcell"
-                    className={` ${column.align === "right" ? "text-right" : ""} ${column.align === "center" ? "text-center" : ""} `}
-                  >
-                    {/* Mobile label */}
-                    <span className="text-muted mr-2 text-xs font-medium uppercase sm:hidden">
-                      {column.header}:
-                    </span>
-                    {column.render(item)}
-                  </div>
-                ))}
-                {actions && (
-                  <div
-                    className="flex items-center justify-end gap-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {actions.map((action) => {
-                      if (action.show && !action.show(item)) return null;
-
-                      const buttonContent = (
-                        <button
-                          className={`rounded-lg p-2 transition-all duration-200 ${
-                            action.variant === "danger"
-                              ? "text-caption hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
-                              : action.variant === "primary"
-                                ? "text-caption hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-950"
-                                : "text-caption hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-950"
-                          } `}
-                          title={action.label}
-                          aria-label={action.label}
-                          onClick={() => action.onClick?.(item)}
+                {renderMobileCard ? (
+                  <>
+                    <div className="block md:hidden p-3.5">
+                      {renderMobileCard(item, {
+                        isSelected,
+                        toggleSelection: () => toggleRowSelection(id),
+                        actions,
+                      })}
+                    </div>
+                    <div
+                      className="hidden md:grid items-center gap-4 px-6 py-4 w-full"
+                      style={{
+                        gridTemplateColumns: `
+                          ${enableRowSelection ? "40px " : ""}
+                          ${columns.map((c) => c.width || "1fr").join(" ")}
+                          ${actions ? " auto" : ""}
+                        `,
+                      }}
+                    >
+                      {enableRowSelection && (
+                        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${String((item as Record<string, unknown>)[columns[0]?.key] ?? id)}`}
+                            checked={isSelected}
+                            onChange={() => toggleRowSelection(id)}
+                            className="rounded border-edge text-[var(--color-brand-primary)] focus:ring-[var(--color-brand-primary)]"
+                          />
+                        </div>
+                      )}
+                      {columns.map((column) => (
+                        <div
+                          key={column.key}
+                          role="gridcell"
+                          className={`${column.align === "right" ? "text-right" : ""} ${column.align === "center" ? "text-center" : ""}`}
                         >
-                          {action.icon}
-                        </button>
-                      );
+                          {column.render(item)}
+                        </div>
+                      ))}
+                      {actions && (
+                        <div
+                          className="flex items-center justify-end gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {actions.map((action) => {
+                            if (action.show && !action.show(item)) return null;
 
-                      if (action.href) {
-                        return (
-                          <Link key={action.key} href={action.href(item)}>
-                            {buttonContent}
-                          </Link>
-                        );
-                      }
+                            const buttonContent = (
+                              <button
+                                className="rounded-lg p-2 transition-all duration-200 text-caption hover:bg-surface-hover hover:text-heading min-w-[36px] min-h-[36px] flex items-center justify-center"
+                                title={action.label}
+                                aria-label={action.label}
+                                onClick={() => action.onClick?.(item)}
+                              >
+                                {action.icon}
+                              </button>
+                            );
 
-                      return <span key={action.key}>{buttonContent}</span>;
-                    })}
-                  </div>
+                            if (action.href) {
+                              return (
+                                <Link key={action.key} href={action.href(item)}>
+                                  {buttonContent}
+                                </Link>
+                              );
+                            }
+
+                            return <span key={action.key}>{buttonContent}</span>;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {enableRowSelection && (
+                      <div className="flex items-center py-1 md:py-0" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${String((item as Record<string, unknown>)[columns[0]?.key] ?? id)}`}
+                          checked={isSelected}
+                          onChange={() => toggleRowSelection(id)}
+                          className="rounded border-edge text-[var(--color-brand-primary)] focus:ring-[var(--color-brand-primary)]"
+                        />
+                      </div>
+                    )}
+                    {columns.map((column) => (
+                      <div
+                        key={column.key}
+                        role="gridcell"
+                        className={`py-1 md:py-0 ${column.align === "right" ? "md:text-right" : ""} ${column.align === "center" ? "md:text-center" : ""}`}
+                      >
+                        {/* Mobile label */}
+                        <span className="text-muted mr-2 text-xs font-medium uppercase md:hidden">
+                          {column.header}:
+                        </span>
+                        {column.render(item)}
+                      </div>
+                    ))}
+                    {actions && (
+                      <div
+                        className="flex items-center justify-end gap-1 py-1 md:py-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {actions.map((action) => {
+                          if (action.show && !action.show(item)) return null;
+
+                          const buttonContent = (
+                            <button
+                              className="rounded-lg p-2 transition-all duration-200 text-caption hover:bg-surface-hover hover:text-heading min-w-[36px] min-h-[36px] flex items-center justify-center"
+                              title={action.label}
+                              aria-label={action.label}
+                              onClick={() => action.onClick?.(item)}
+                            >
+                              {action.icon}
+                            </button>
+                          );
+
+                          if (action.href) {
+                            return (
+                              <Link key={action.key} href={action.href(item)}>
+                                {buttonContent}
+                              </Link>
+                            );
+                          }
+
+                          return <span key={action.key}>{buttonContent}</span>;
+                        })}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             );
@@ -787,8 +873,8 @@ export function DataTable<T>({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
+      {processedData.length > 0 && (
+        <div className="border-edge-subtle flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row">
           <div className="flex items-center gap-2">
             <span className="text-muted text-sm">
               {`Showing ${(pagination.page - 1) * pagination.pageSize + 1} to ${Math.min(
@@ -809,7 +895,7 @@ export function DataTable<T>({
                   pageSize: Number(e.target.value),
                 })
               }
-              className="text-heading bg-surface rounded-lg border-0 px-2 py-1.5 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-cyan-600"
+              className="text-heading bg-surface rounded-lg border-0 px-2 py-1.5 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] ring-inset focus:ring-2 focus:ring-[var(--color-brand-primary)]"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>
@@ -854,7 +940,7 @@ export function DataTable<T>({
                     onClick={() => setPagination((p) => ({ ...p, page: pageNum }))}
                     className={`h-8 min-w-[32px] rounded-lg px-2 text-sm font-medium transition-colors ${
                       pagination.page === pageNum
-                        ? "bg-cyan-600 text-white"
+                        ? "bg-[var(--color-brand-primary)] text-white"
                         : "text-caption hover:text-heading hover:bg-surface-hover"
                     } `}
                   >

@@ -4,7 +4,7 @@ import { User } from "@/app/lib/api";
 
 interface UserInfoCardProps {
   user: User;
-  role?: string;
+  role?: string | null;
 }
 
 export function UserInfoCard({ user, role }: UserInfoCardProps) {

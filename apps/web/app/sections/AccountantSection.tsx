@@ -75,36 +75,23 @@ export function AccountantSection() {
   return (
     <section
       aria-labelledby="accountant-heading"
-      className="relative py-24 sm:py-32 bg-gradient-to-b from-surface to-surface-secondary overflow-hidden"
+      className="relative py-20 sm:py-28 bg-surface border-b border-edge"
     >
-      {/* Decorative elements */}
-      <div
-        className="absolute top-20 right-[8%] w-56 h-56 bg-indigo-100 rounded-full opacity-25 blur-3xl animate-float-slow"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-20 left-[8%] w-48 h-48 bg-cyan-100 rounded-full opacity-25 blur-3xl animate-float"
-        aria-hidden="true"
-      />
-
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <header className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-bold text-indigo-600 tracking-wider uppercase animate-pulse-slow">
-            The engine underneath
+          <p className="text-xs font-bold text-[#087E78] dark:text-teal-400 tracking-wider uppercase">
+            Accounting Engine
           </p>
           <h2
             id="accountant-heading"
-            className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl"
+            className="mt-3 text-3xl font-bold tracking-tight text-heading sm:text-4xl"
           >
-            Real accounting.{" "}
-            <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">
-              Not a toy.
-            </span>
+            Auditable Double-Entry Accounting Core
           </h2>
-          <p className="mt-4 text-lg leading-8 text-body">
-            Every AI agent is powered by a full double-entry accounting engine with 86 API endpoints.
-            Your accountant gets proper books — trial balance, P&L, balance sheet — not a chat transcript.
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            Every workflow produces balanced debits and credits anchored in LedgerForge.
+            Your accountant receives immutable journals and formal financial statements—not loose chat summaries.
           </p>
         </header>
 

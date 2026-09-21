@@ -106,7 +106,6 @@ export default function BillDetailPage({
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title={`Bill ${bill.bill_number || billId.slice(0, 8)}`}
         subtitle={vendorName || undefined}
@@ -148,7 +147,7 @@ export default function BillDetailPage({
               {bill.status !== "void" && parseFloat(bill.balance) > 0 && (
                 <Link
                   href={`/payments/new/bill?billId=${billId}&vendorId=${bill.vendor_id}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

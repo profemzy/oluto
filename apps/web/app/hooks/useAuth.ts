@@ -6,9 +6,9 @@ import { api, User } from "@/app/lib/api";
 import { useAuthContext } from "@/app/components/AuthProvider";
 import {
   resolveRole,
-  canWrite,
-  canAdmin,
-  canManageMemberships,
+  canWrite as checkCanWrite,
+  canAdmin as checkCanAdmin,
+  canManageMemberships as checkCanManageMemberships,
   type UserRole,
 } from "@/app/lib/permissions";
 
@@ -21,13 +21,13 @@ interface UseAuthResult {
   user: User | null;
   loading: boolean;
   timezone: string;
-  /** Resolved canonical or legacy business membership role. */
-  role: UserRole;
-  /** True if the role can create, edit, or delete financial records. */
+  /** Resolved canonical or legacy business membership role, null while loading access. */
+  role: UserRole | null;
+  /** True if the role can create, edit, or delete financial records. Always false while loading. */
   canWrite: boolean;
-  /** True if the role can manage business settings and imports. */
+  /** True if the role can manage business settings and imports. Always false while loading. */
   canAdmin: boolean;
-  /** True for an authoritative owner or administrator membership. */
+  /** True for an authoritative owner or administrator membership. Always false while loading. */
   canManageMemberships: boolean;
 }
 
@@ -42,6 +42,8 @@ interface UseAuthResult {
  * so pages can generate correct local dates.
  *
  * Returns the user, authoritative business role, derived capabilities, and timezone.
+ * Guarantees that while loading, role is null and mutation permissions are false
+ * to eliminate transient role misrepresentation or UI flashing.
  */
 export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
   const { requireBusiness = true } = options;
@@ -52,7 +54,12 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
   const [timezone, setTimezone] = useState("America/Toronto");
   const [businessRole, setBusinessRole] = useState<UserRole | null>(null);
 
-  const role = useMemo(() => businessRole ?? resolveRole(user?.role), [businessRole, user?.role]);
+  const isActuallyLoading = loading || authLoading;
+
+  const role = useMemo<UserRole | null>(() => {
+    if (isActuallyLoading) return null;
+    return businessRole ?? resolveRole(user?.role);
+  }, [isActuallyLoading, businessRole, user?.role]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -105,13 +112,20 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
     };
   }, [authLoading, isAuthenticated, router, requireBusiness, login]);
 
+  const canWrite = useMemo(() => (role ? checkCanWrite(role) : false), [role]);
+  const canAdmin = useMemo(() => (role ? checkCanAdmin(role) : false), [role]);
+  const canManageMemberships = useMemo(
+    () => (role ? checkCanManageMemberships(role) : false),
+    [role]
+  );
+
   return {
     user,
-    loading: loading || authLoading,
+    loading: isActuallyLoading,
     timezone,
     role,
-    canWrite: canWrite(role),
-    canAdmin: canAdmin(role),
-    canManageMemberships: canManageMemberships(role),
+    canWrite,
+    canAdmin,
+    canManageMemberships,
   };
 }

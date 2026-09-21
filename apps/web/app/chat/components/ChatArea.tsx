@@ -109,11 +109,11 @@ function DragOverlay({ isDragging }: { isDragging: boolean }) {
   if (!isDragging) return null;
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm dark:bg-cyan-900/20">
-      <div className="rounded-2xl border-2 border-dashed border-cyan-400 bg-white p-8 text-center shadow-xl dark:border-cyan-600 dark:bg-[#1a1a25]">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 dark:bg-cyan-900/30">
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs">
+      <div className="rounded-2xl border-2 border-dashed border-[var(--color-brand-primary)] bg-surface p-8 text-center shadow-xl">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950/60 text-[var(--color-brand-primary)]">
           <svg
-            className="h-8 w-8 text-cyan-600 dark:text-cyan-400"
+            className="h-8 w-8"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -126,51 +126,37 @@ function DragOverlay({ isDragging }: { isDragging: boolean }) {
             />
           </svg>
         </div>
-        <p className="text-lg font-semibold text-gray-900 dark:text-white">Drop files to upload</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Receipts, statements, or documents
+        <p className="text-base font-bold text-heading">Drop files to upload</p>
+        <p className="mt-1 text-xs text-muted">
+          Receipts, bank statements, or invoices
         </p>
       </div>
     </div>
   );
 }
 
-// Welcome message with quick actions
+// Welcome message with task-oriented quick actions
 function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-8">
-      {/* Logo with glow */}
-      <div className="relative mb-6">
-        <div className="absolute inset-0 animate-pulse rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 opacity-30 blur-xl" />
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-2xl">
-          <span className="text-3xl font-bold text-white">O</span>
+    <div className="flex flex-col items-center justify-center px-4 py-8 max-w-3xl mx-auto w-full">
+      {/* Institutional Tile */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#087E78] text-white shadow-sm font-bold text-lg">
+          O
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-heading">
+            Agent Operations
+          </h2>
+          <p className="text-xs text-muted">
+            Verifiable double-entry accounting runtime backed by LedgerForge
+          </p>
         </div>
       </div>
 
-      {/* Title */}
-      <h2 className="mb-2 text-center text-xl font-bold text-gray-900 dark:text-white">
-        How can I help you today?
-      </h2>
-      <p className="mb-8 max-w-md text-center text-sm text-gray-500 dark:text-gray-400">
-        Ask about your finances, upload receipts, or use a quick action below to get started
-      </p>
-
-      {/* Quick Actions */}
-      <QuickActions variant="welcome" onSelect={onQuickAction} />
-
-      {/* Pro tip */}
-      <div className="mt-6 flex items-center gap-2 text-xs text-gray-400">
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-        <span>
-          Pro tip: Use quick actions anytime by clicking the lightning icon in the chat input
-        </span>
+      {/* Task-oriented empty state */}
+      <div className="w-full mt-4">
+        <QuickActions variant="welcome" onSelect={onQuickAction} />
       </div>
     </div>
   );
@@ -282,33 +268,16 @@ export function ChatArea({
         {isEmpty ? (
           loading ? (
             // Starting conversation state
-            <div className="flex h-full flex-col items-center justify-center">
-              <div className="relative mb-6">
-                <div className="absolute inset-0 animate-pulse rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 opacity-30 blur-xl" />
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-2xl">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                </div>
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-edge bg-surface text-brand-teal shadow-sm">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-teal/20 border-t-brand-teal" />
               </div>
-              <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="mb-1 text-base font-semibold text-heading">
                 Starting conversation...
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Oluto is preparing your financial insights
+              <p className="text-sm text-muted">
+                Oluto is preparing your financial context
               </p>
-              <div className="mt-4 flex items-center gap-1.5">
-                <div
-                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-                  style={{ animationDelay: "0ms" }}
-                />
-                <div
-                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-                  style={{ animationDelay: "150ms" }}
-                />
-                <div
-                  className="h-2 w-2 animate-bounce rounded-full bg-cyan-500"
-                  style={{ animationDelay: "300ms" }}
-                />
-              </div>
             </div>
           ) : (
             <WelcomeMessage onQuickAction={handleQuickAction} />
@@ -341,15 +310,17 @@ export function ChatArea({
       {/* Scroll to bottom button */}
       {showScrollBtn && (
         <button
+          type="button"
           onClick={() => {
             scrollToBottom();
             setAutoScroll(true);
           }}
-          className="absolute right-4 bottom-24 z-20 rounded-full border border-gray-200 bg-white p-2 shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl dark:border-gray-800 dark:bg-[#1a1a25]"
+          className="absolute right-4 bottom-24 z-20 rounded-full border border-edge bg-surface p-2.5 shadow-md text-muted hover:text-heading hover:bg-surface-hover transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
           title="Scroll to bottom"
+          aria-label="Scroll to latest messages"
         >
           <svg
-            className="h-5 w-5 text-gray-600 dark:text-gray-400"
+            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

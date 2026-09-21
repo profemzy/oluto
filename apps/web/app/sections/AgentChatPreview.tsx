@@ -2,78 +2,47 @@
 
 import Image from "next/image";
 
-/**
- * Agent Chat Preview section showcasing the AI interface.
- * Uses <figure> and <figcaption> for the screenshot showcases.
- */
 export function AgentChatPreview() {
   return (
     <section
       id="agents-preview"
       aria-labelledby="preview-heading"
-      className="relative pb-24 sm:pb-32 overflow-hidden"
+      className="relative py-20 sm:py-28 border-b border-edge bg-surface-secondary overflow-hidden"
     >
-      {/* Decorative floating orbs */}
-      <div
-        className="absolute top-10 left-[5%] w-48 h-48 bg-cyan-100 rounded-full opacity-30 blur-3xl animate-float-slow"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-20 right-[5%] w-56 h-56 bg-green-100 rounded-full opacity-30 blur-3xl animate-float"
-        aria-hidden="true"
-      />
-
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         {/* Section header */}
         <header className="mx-auto max-w-2xl text-center mb-12">
-          <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
-            See it in action
+          <p className="text-xs font-bold text-[#087E78] dark:text-teal-400 tracking-wider uppercase">
+            Continuous Financial Intelligence
           </p>
           <h2
             id="preview-heading"
-            className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl"
+            className="mt-3 text-3xl font-bold tracking-tight text-heading sm:text-4xl"
           >
-            Your CFO briefing, delivered{" "}
-            <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-green-600 bg-clip-text text-transparent">
-              every morning
-            </span>
+            Your financial briefing, delivered every morning
           </h2>
-          <p className="mt-4 text-lg leading-8 text-body">
-            AI agents on the Oluto desktop and mobile app analyze your finances and brief you in plain English — proactively, every 30 minutes.
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            Oluto monitors continuous bank feeds and generates daily executive financial briefings, highlighting cash runway, upcoming bills, and items requiring attention.
           </p>
         </header>
 
         {/* Two-panel screenshot showcase */}
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left panel: Daily Briefing screenshot */}
-          <figure className="dashboard-preview group">
-            {/* Browser Chrome */}
+          <figure className="card-financial overflow-hidden bg-surface group">
+            {/* App Chrome */}
             <div
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge"
+              className="flex items-center gap-2 px-4 py-3 bg-surface-secondary border-b border-edge"
               aria-hidden="true"
             >
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-surface border border-edge text-xs text-muted shadow-sm">
-                  <svg
-                    className="w-3.5 h-3.5 text-cyan-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                    />
-                  </svg>
-                  Oluto Desktop
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-surface border border-edge text-xs font-medium text-muted">
+                  Daily Briefing
                 </div>
               </div>
             </div>
@@ -81,57 +50,34 @@ export function AgentChatPreview() {
             <div className="relative aspect-[4/3] bg-surface-secondary">
               <Image
                 src="/screenshots/daily-briefing.png"
-                alt="Daily Briefing Agent delivering a CFO-level morning summary on the Oluto desktop app"
+                alt="Daily Briefing delivering an executive financial summary on Oluto"
                 fill
                 className="object-cover object-top"
-                priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
             {/* Caption */}
-            <figcaption className="px-4 py-3 bg-surface border-t border-edge flex items-center justify-center gap-2">
-              <span className="inline-flex items-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-                <span
-                  className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"
-                  aria-hidden="true"
-                />
-                Live
-              </span>
-              <span className="text-sm font-semibold text-heading">
-                Daily Briefing Agent
-              </span>
+            <figcaption className="px-4 py-3 bg-surface border-t border-edge flex items-center justify-between text-xs text-muted">
+              <span className="font-semibold text-heading">Automated Morning Briefing</span>
+              <span className="font-mono text-[11px]">08:00 AM EST</span>
             </figcaption>
           </figure>
 
           {/* Right panel: Chat Home screenshot */}
-          <figure className="dashboard-preview group">
+          <figure className="card-financial overflow-hidden bg-surface group">
             {/* App Chrome */}
             <div
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-surface-secondary to-surface-tertiary border-b border-edge"
+              className="flex items-center gap-2 px-4 py-3 bg-surface-secondary border-b border-edge"
               aria-hidden="true"
             >
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
+                <div className="w-2.5 h-2.5 rounded-full bg-edge" />
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-surface border border-edge text-xs text-muted shadow-sm">
-                  <svg
-                    className="w-3.5 h-3.5 text-cyan-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                    />
-                  </svg>
-                  Oluto Desktop
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-surface border border-edge text-xs font-medium text-muted">
+                  Agent Operations
                 </div>
               </div>
             </div>
@@ -139,63 +85,48 @@ export function AgentChatPreview() {
             <div className="relative aspect-[4/3] bg-surface-secondary">
               <Image
                 src="/screenshots/chat-home.png"
-                alt="Chat interface with quick action cards for financial queries"
+                alt="Agent operations interface with task-oriented quick actions"
                 fill
                 className="object-cover object-top"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
             {/* Caption */}
-            <figcaption className="px-4 py-3 bg-surface border-t border-edge flex items-center justify-center gap-2">
-              <span className="text-sm font-semibold text-heading">
-                Ask anything about your finances
-              </span>
+            <figcaption className="px-4 py-3 bg-surface border-t border-edge flex items-center justify-between text-xs text-muted">
+              <span className="font-semibold text-heading">Double-Entry Conversational Runtime</span>
+              <span className="font-mono text-[11px]">LedgerForge Core</span>
             </figcaption>
           </figure>
         </div>
 
         {/* Mock conversation */}
         <aside
-          className="mt-16 mx-auto max-w-2xl"
+          className="mt-12 mx-auto max-w-2xl"
           aria-label="Example conversation with Oluto AI"
         >
           <div className="space-y-4">
             {/* User message */}
             <div className="flex justify-end">
-              <div className="max-w-sm rounded-2xl rounded-br-md bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-5 py-3 text-white shadow-lg shadow-cyan-500/20">
-                <p className="text-sm font-medium">Am I profitable this month?</p>
+              <div className="max-w-sm rounded-xl bg-[#087E78] dark:bg-teal-700 px-4 py-2.5 text-white shadow-xs">
+                <p className="text-xs font-semibold">What is our net position and CRA tax liability this month?</p>
               </div>
             </div>
             {/* Agent response */}
             <div className="flex justify-start gap-3">
               <div
-                className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-md"
+                className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface border border-edge flex items-center justify-center font-bold text-xs text-[#087E78]"
                 aria-hidden="true"
               >
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                  />
-                </svg>
+                O
               </div>
-              <div className="max-w-md rounded-2xl rounded-bl-md bg-surface border border-edge px-5 py-4 shadow-lg">
-                <p className="text-sm leading-relaxed text-body">
-                  <span className="font-bold text-heading">Yes!</span> Your net
-                  profit for February is{" "}
-                  <span className="font-bold text-emerald-600">$4,230</span>.
-                  Revenue: $18,400. Expenses: $14,170. You&apos;re up{" "}
-                  <span className="font-bold text-emerald-600">12%</span> compared
-                  to January. Your safe-to-spend after tax obligations is{" "}
-                  <span className="font-bold text-cyan-600">$6,850</span>.
+              <div className="max-w-md card-financial p-4 bg-surface shadow-xs">
+                <p className="text-xs leading-relaxed text-body">
+                  <span className="font-bold text-heading">Net Profit: </span>
+                  <span className="font-bold font-tabular text-[#177245] dark:text-[#34d399]">$4,230.00 CAD</span>.
+                  Revenue: $18,400.00 CAD, Operating Expenses: $14,170.00 CAD.
+                  Estimated CRA net tax liability (GST/HST collected minus ITCs):{" "}
+                  <span className="font-bold font-tabular text-heading">$1,120.00 CAD</span>.
+                  Verified against LedgerForge balanced journals.
                 </p>
               </div>
             </div>
@@ -205,3 +136,5 @@ export function AgentChatPreview() {
     </section>
   );
 }
+
+export default AgentChatPreview;

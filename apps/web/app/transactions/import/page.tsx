@@ -289,11 +289,7 @@ export default function ImportTransactionsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      {/* Decorative background elements */}
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-2xl animate-float" />
-      <div className="absolute bottom-40 left-10 w-32 h-32 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
-
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary">
       <PageHeader
         title="Import Transactions"
         subtitle="Upload a bank or credit card statement"

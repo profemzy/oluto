@@ -292,6 +292,27 @@
       "realmRoles": [
         "admin"
       ]
+    },
+    {
+      "username": "seed-viewer",
+      "email": "viewer@seed.oluto.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Demo",
+      "lastName": "Viewer",
+      "attributes": {
+        "business_id": ["1e472eec-6f3a-4f7f-aa70-e6c0a65f3795"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "OlutoAgent2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "viewer"
+      ]
     }
   ]
 }

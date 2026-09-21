@@ -323,10 +323,10 @@ function NewPaymentForm() {
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           <button type="submit" disabled={loading}
-            className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-glow">
+            className="flex-1 flex justify-center rounded-xl bg-brand-teal px-3 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             {loading ? "Recording..." : "Record Payment"}
           </button>
-          <Link href="/payments" className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
+          <Link href="/payments" className="flex items-center justify-center rounded-xl border border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
             Cancel
           </Link>
         </div>
@@ -346,7 +346,6 @@ export default function NewPaymentPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title="Record Payment"
         subtitle="Record a customer payment"

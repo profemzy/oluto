@@ -41,10 +41,9 @@ export default function ReportsPage() {
   if (authLoading) return <PageLoader />;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary">
       <PageHeader title="Reports" subtitle="Financial reports and analysis" />
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6 relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {REPORTS.map((report) => (
             <Link

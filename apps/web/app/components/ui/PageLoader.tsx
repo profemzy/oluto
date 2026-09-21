@@ -1,16 +1,9 @@
 export function PageLoader() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-surface-secondary relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-cyan-200 dark:bg-cyan-800 rounded-full opacity-20 blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-green-200 dark:bg-green-800 rounded-full opacity-20 blur-3xl animate-float-slow" />
-
-      <div className="relative z-10 flex flex-col items-center gap-4">
-        <div className="relative">
-          <div className="w-14 h-14 rounded-full border-4 border-cyan-100 dark:border-cyan-900" />
-          <div className="absolute inset-0 w-14 h-14 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin" />
-        </div>
-        <p className="text-sm font-medium text-muted animate-pulse">Loading...</p>
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-surface-secondary">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 rounded-full border-2 border-edge border-t-[#087E78] dark:border-t-teal-400 animate-spin" />
+        <p className="text-xs font-semibold text-muted">Loading...</p>
       </div>
     </div>
   );

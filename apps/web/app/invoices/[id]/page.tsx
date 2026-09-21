@@ -108,7 +108,6 @@ export default function InvoiceDetailPage({
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title={`Invoice ${invoice.invoice_number}`}
         subtitle={customerName || undefined}
@@ -159,7 +158,7 @@ export default function InvoiceDetailPage({
               {invoice.status !== "paid" && invoice.status !== "void" && (
                 <Link
                   href={`/payments/new?invoiceId=${invoiceId}&customerId=${invoice.customer_id}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
                 >
                   <svg
                     className="w-4 h-4"

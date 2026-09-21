@@ -82,7 +82,6 @@ export default function EditContactPage({
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title="Edit Contact"
         subtitle={`${contactType}: ${name}`}
@@ -96,7 +95,7 @@ export default function EditContactPage({
         }
       />
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="bg-surface/90 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-gray-900/5 rounded-2xl border border-edge-subtle sm:px-10">
+        <div className="bg-surface py-8 px-4 shadow-sm rounded-2xl border border-edge-subtle sm:px-10">
           <ErrorAlert error={error} className="mb-6" />
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -107,40 +106,40 @@ export default function EditContactPage({
             <div>
               <label htmlFor="name" className="block text-sm font-bold leading-6 text-heading">Name</label>
               <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-brand-teal sm:text-sm transition-all hover:ring-gray-400" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-bold leading-6 text-heading">Email</label>
                 <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-brand-teal sm:text-sm transition-all hover:ring-gray-400" />
               </div>
               <div>
                 <label htmlFor="phone" className="block text-sm font-bold leading-6 text-heading">Phone</label>
                 <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400" />
+                  className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-brand-teal sm:text-sm transition-all hover:ring-gray-400" />
               </div>
             </div>
 
             <div>
               <label htmlFor="billingAddress" className="block text-sm font-bold leading-6 text-heading">Billing Address</label>
               <textarea id="billingAddress" rows={2} value={billingAddress} onChange={(e) => setBillingAddress(e.target.value)}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
+                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-brand-teal sm:text-sm transition-all hover:ring-gray-400 resize-none" />
             </div>
 
             <div>
               <label htmlFor="shippingAddress" className="block text-sm font-bold leading-6 text-heading">Shipping Address</label>
               <textarea id="shippingAddress" rows={2} value={shippingAddress} onChange={(e) => setShippingAddress(e.target.value)}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-cyan-600 sm:text-sm transition-all hover:ring-gray-400 resize-none" />
+                className="mt-2 block w-full rounded-xl border-0 py-3 px-4 text-heading shadow-sm ring-1 ring-inset ring-[var(--color-ring-default)] focus:ring-2 focus:ring-brand-teal sm:text-sm transition-all hover:ring-gray-400 resize-none" />
             </div>
 
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
-                className="flex-1 flex justify-center rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500 px-3 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-glow">
+                className="flex-1 flex justify-center rounded-xl bg-brand-teal px-3 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {saving ? "Saving..." : "Save Changes"}
               </button>
-              <Link href="/contacts" className="flex items-center justify-center rounded-xl border-2 border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
+              <Link href="/contacts" className="flex items-center justify-center rounded-xl border border-edge bg-surface px-6 py-3 text-sm font-bold text-body shadow-sm hover:bg-surface-hover transition-all">
                 Cancel
               </Link>
             </div>

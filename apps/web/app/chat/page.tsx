@@ -317,33 +317,39 @@ export default function ChatPage() {
 
       {/* Main chat area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile header bar */}
-        <div className="flex items-center gap-3 border-b border-gray-200 bg-white px-3 py-2 md:hidden dark:border-gray-800 dark:bg-[#0f0f18]">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          <div className="flex flex-1 items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-cyan-500 to-teal-600">
-              <span className="text-xs font-bold text-white">O</span>
+        {/* Responsive header bar for < 1280px */}
+        <div className="flex items-center justify-between border-b border-edge bg-surface px-3 py-2 xl:hidden">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open conversation history"
+              className="rounded-lg p-2 text-muted hover:text-heading hover:bg-surface-hover transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#087E78] text-white text-xs font-bold shadow-sm">
+                O
+              </div>
+              <span className="text-sm font-bold text-heading">Agent Operations</span>
             </div>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">Oluto Chat</span>
           </div>
           <button
+            type="button"
             onClick={() => {
               setActiveId(null);
             }}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-900/20"
-            title="New chat"
+            className="rounded-lg p-2 text-muted hover:text-heading hover:bg-surface-hover transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+            title="New conversation"
+            aria-label="Start new conversation"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

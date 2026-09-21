@@ -66,7 +66,6 @@ export default function PaymentDetailPage({
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary relative">
-      <div className="absolute top-20 right-10 w-24 h-24 bg-cyan-200 rounded-full opacity-20 blur-2xl animate-float" />
       <PageHeader
         title={`Payment ${payment.payment_number || paymentId.slice(0, 8)}`}
         subtitle={customerName || undefined}

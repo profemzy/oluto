@@ -51,8 +51,8 @@ function FilterChip({
         transition-all duration-200 whitespace-nowrap
         ${
           active
-            ? "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 ring-1 ring-cyan-500"
-            : "bg-surface border border-edge text-body hover:border-cyan-500 hover:text-cyan-600"
+            ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 ring-1 ring-teal-600 font-semibold"
+            : "bg-surface border border-edge text-body hover:border-teal-600 hover:text-teal-700 dark:hover:text-teal-300"
         }
       `}
     >
@@ -61,7 +61,7 @@ function FilterChip({
         <span
           className={`
           text-xs px-1.5 py-0.5 rounded-full
-          ${active ? "bg-cyan-200 dark:bg-cyan-800" : "bg-surface-tertiary"}
+          ${active ? "bg-teal-200 dark:bg-teal-800" : "bg-surface-tertiary"}
         `}
         >
           {count}
@@ -112,8 +112,8 @@ export function FilterBar({
                     transition-all duration-200
                     ${
                       activeFilters[group.key]
-                        ? "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 ring-1 ring-cyan-500"
-                        : "bg-surface border border-edge text-body hover:border-cyan-500"
+                        ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 ring-1 ring-teal-600 font-semibold"
+                        : "bg-surface border border-edge text-body hover:border-teal-600"
                     }
                   `}
                 >
@@ -156,7 +156,7 @@ export function FilterBar({
                         w-full text-left px-4 py-2 text-sm transition-colors
                         ${
                           !activeFilters[group.key]
-                            ? "bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300"
+                            ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-semibold"
                             : "text-body hover:bg-surface-hover"
                         }
                       `}
@@ -174,7 +174,7 @@ export function FilterBar({
                           w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between
                           ${
                             activeFilters[group.key] === option.value
-                              ? "bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300"
+                              ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-semibold"
                               : "text-body hover:bg-surface-hover"
                           }
                         `}

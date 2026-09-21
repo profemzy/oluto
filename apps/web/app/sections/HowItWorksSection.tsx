@@ -13,139 +13,80 @@ interface HowItWorksSectionProps {
   steps?: Step[];
 }
 
-/**
- * Default onboarding steps - demonstrates the user journey
- * from account connection to daily AI interactions.
- */
 const defaultSteps: Step[] = [
   {
     number: "01",
     title: "Connect your accounts",
-    description: "Upload bank statements via CSV or PDF. Your AI agents import every transaction and start learning your patterns.",
+    description: "Upload bank statements via CSV or PDF. Oluto imports transactions and maps accounts to double-entry structures.",
   },
   {
     number: "02",
-    title: "Agents get to work",
-    description: "Receipt Snap categorizes expenses. Daily Briefing analyzes your cash position. The Bookkeeper maps everything to proper double-entry accounts.",
+    title: "Agents structure drafts",
+    description: "Receipt Snap categorizes expenses. The Daily Briefing analyzes cash position. The Bookkeeper maps entries to proper accounts.",
   },
   {
     number: "03",
-    title: "Review the exceptions",
-    description: "Your agents handle 95% automatically. Spend 5 minutes a day confirming the handful of items they flag.",
+    title: "Review and approve",
+    description: "Agents prepare drafts and flag exceptions. You maintain authorization control before any ledger entries are posted.",
   },
   {
     number: "04",
-    title: "Ask anything, anytime",
-    description: "Chat with your Conversational Bookkeeper in plain English on the Oluto desktop or mobile app. Real-time answers, morning briefings, and proactive alerts.",
+    title: "Inspect ledger anytime",
+    description: "Instruct the assistant in English or French. Generate reports, inspect audit trails, and review Canadian tax balances on demand.",
   },
 ];
 
-/**
- * How It Works section with step-by-step process visualization.
- * Uses semantic <ol> for the ordered steps and <article> for each card.
- */
 export function HowItWorksSection({
   title = "How it works",
-  subtitle = "From sign-up to AI-managed books in minutes",
-  description = "No more drowning in receipts or spending weekends on admin. Oluto's AI agents do the heavy lifting so you can focus on your business.",
+  subtitle = "From statement import to verified double-entry books",
+  description = "Oluto provides continuous bookkeeping operations with human approval safeguards. LedgerForge guarantees balanced journal entries.",
   steps = defaultSteps,
 }: HowItWorksSectionProps) {
   return (
     <section
       id="how-it-works"
       aria-labelledby="how-it-works-heading"
-      className="relative py-24 sm:py-32 bg-gradient-to-b from-surface-secondary to-surface overflow-hidden"
+      className="relative py-20 sm:py-28 bg-surface border-b border-edge"
     >
-      {/* Decorative floating orbs */}
-      <div
-        className="absolute top-32 left-[3%] w-56 h-56 bg-cyan-100 rounded-full opacity-40 blur-3xl animate-float"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-32 right-[3%] w-64 h-64 bg-teal-100 rounded-full opacity-35 blur-3xl animate-float-slow"
-        aria-hidden="true"
-      />
-
-      {/* Decorative bouncing elements */}
-      <div
-        className="absolute top-20 right-[15%] w-4 h-4 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full animate-bounce-subtle shadow-lg"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-28 left-[12%] w-3 h-3 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full animate-bounce-gentle shadow-lg [animation-delay:500ms]"
-        aria-hidden="true"
-      />
-
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <header className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-bold text-cyan-600 tracking-wider uppercase animate-pulse-slow">
+          <p className="text-xs font-bold text-[#087E78] dark:text-teal-400 tracking-wider uppercase">
             {title}
           </p>
           <h2
             id="how-it-works-heading"
-            className="mt-3 text-3xl font-black tracking-tight text-heading sm:text-4xl lg:text-5xl"
+            className="mt-3 text-3xl font-bold tracking-tight text-heading sm:text-4xl"
           >
             {subtitle}
           </h2>
-          <p className="mt-4 text-lg leading-8 text-body">
+          <p className="mt-4 text-base leading-relaxed text-muted">
             {description}
           </p>
         </header>
 
-        {/* Steps with connector line on desktop */}
+        {/* Steps */}
         <div className="relative mx-auto mt-16 sm:mt-20">
-          {/* Connector line (visible on lg screens) */}
-          <div
-            className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-cyan-200 via-teal-200 to-green-200"
-            aria-hidden="true"
-          />
-
           <ol
             className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
-            aria-label="Getting started steps"
+            aria-label="Operating steps"
           >
-            {steps.map((step, index) => (
-              <li
-                key={step.number}
-                className="[animation-delay:calc(var(--index)*150ms)]"
-                style={{ "--index": index } as React.CSSProperties}
-              >
-                <article className="step-card group relative h-full">
-                  {/* Background number watermark */}
-                  <span
-                    className="absolute top-4 right-4 text-6xl font-black text-gray-100 dark:text-slate-800 select-none leading-none group-hover:text-cyan-50 transition-colors"
-                    aria-hidden="true"
-                  >
-                    {step.number}
-                  </span>
-
-                  <div className="relative">
+            {steps.map((step) => (
+              <li key={step.number}>
+                <article className="card-financial p-6 bg-surface-secondary h-full flex flex-col justify-between">
+                  <div>
                     {/* Step number badge */}
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-500/40 group-hover:scale-110 transition-all duration-300">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#087E78] text-white text-xs font-bold shadow-xs">
                       {step.number}
                     </div>
 
-                    {/* Connector dot (visible on lg screens) */}
-                    <div
-                      className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-cyan-400 to-teal-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ top: "-2.5rem" }}
-                      aria-hidden="true"
-                    />
-
-                    <h3 className="mt-5 text-lg font-bold text-heading group-hover:text-cyan-700 transition-colors">
+                    <h3 className="mt-4 text-base font-bold text-heading">
                       {step.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-6 text-body">
+                    <p className="mt-2 text-xs leading-relaxed text-muted">
                       {step.description}
                     </p>
                   </div>
-
-                  {/* Hover gradient border effect */}
-                  <div
-                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"
-                    aria-hidden="true"
-                  />
                 </article>
               </li>
             ))}
@@ -155,3 +96,5 @@ export function HowItWorksSection({
     </section>
   );
 }
+
+export default HowItWorksSection;
