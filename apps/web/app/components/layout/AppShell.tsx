@@ -6,19 +6,8 @@ import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useAuthContext } from "@/app/components/AuthProvider";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
-
-interface NavItem {
-  name: string;
-  href: string;
-  icon: (active: boolean) => React.ReactNode;
-  badge?: string;
-  writeOnly?: boolean;
-}
-
-interface NavGroup {
-  title: string;
-  items: NavItem[];
-}
+import { navigationGroups, getSectionTitle } from "@/app/components/layout/navigation";
+import { getRoleDisplay } from "@/app/components/layout/role";
 
 // Crisp financial icons with consistent semantic tokens
 const Icons = {
@@ -90,48 +79,6 @@ const Icons = {
   ),
 };
 
-const navigationGroups: NavGroup[] = [
-  {
-    title: "Overview",
-    items: [
-      { name: "Dashboard", href: "/dashboard", icon: Icons.Dashboard },
-      { name: "Daily Briefing", href: "/daily-briefings", icon: Icons.Briefing },
-      { name: "Agent Operations", href: "/chat", icon: Icons.Agent, badge: "Live" },
-      { name: "Transactions", href: "/transactions", icon: Icons.Transactions },
-    ],
-  },
-  {
-    title: "Money In",
-    items: [
-      { name: "Invoices", href: "/invoices", icon: Icons.Invoices },
-      { name: "Payments Received", href: "/payments", icon: Icons.Payments },
-      { name: "Customers", href: "/contacts", icon: Icons.Contacts },
-    ],
-  },
-  {
-    title: "Money Out",
-    items: [
-      { name: "Bills", href: "/bills", icon: Icons.Bills },
-      { name: "Vendors", href: "/contacts?type=vendor", icon: Icons.Contacts },
-    ],
-  },
-  {
-    title: "Accounting",
-    items: [
-      { name: "Chart of Accounts", href: "/accounts", icon: Icons.Accounts },
-      { name: "Reconciliation", href: "/reconciliation", icon: Icons.Reconciliation },
-      { name: "Financial Reports", href: "/reports", icon: Icons.Reports },
-    ],
-  },
-  {
-    title: "Administration",
-    items: [
-      { name: "Team & Access", href: "/settings/team", icon: Icons.Team },
-      { name: "Settings", href: "/settings", icon: Icons.Settings },
-    ],
-  },
-];
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, role, canWrite, loading } = useAuth({ requireBusiness: false });
@@ -199,55 +146,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Role display formatting — strictly displays neutral loading skeleton when unconfirmed
-  const roleDisplay = useMemo(() => {
-    if (loading || !role) {
-      return {
-        label: "Loading access...",
-        color: "bg-surface-secondary text-muted border-edge animate-pulse",
-      };
-    }
-    switch (role) {
-      case "owner":
-        return {
-          label: "Owner",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
-        };
-      case "administrator":
-      case "admin":
-        return {
-          label: "Admin",
-          color: "bg-blue-50 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
-        };
-      case "accountant":
-        return {
-          label: "Accountant",
-          color: "bg-teal-50 text-teal-800 border-teal-300 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800",
-        };
-      default:
-        return {
-          label: "Viewer",
-          color: "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
-        };
-    }
-  }, [loading, role]);
+  const roleDisplay = useMemo(() => getRoleDisplay(role, loading), [loading, role]);
 
   // Derive section title from pathname
-  const currentTitle = useMemo(() => {
-    if (pathname.startsWith("/dashboard")) return "Dashboard";
-    if (pathname.startsWith("/daily-briefings")) return "Daily Briefing";
-    if (pathname.startsWith("/chat")) return "Agent Operations";
-    if (pathname.startsWith("/transactions")) return "Transactions";
-    if (pathname.startsWith("/invoices")) return "Invoices";
-    if (pathname.startsWith("/bills")) return "Bills";
-    if (pathname.startsWith("/payments")) return "Payments";
-    if (pathname.startsWith("/contacts")) return "Contacts";
-    if (pathname.startsWith("/accounts")) return "Chart of Accounts";
-    if (pathname.startsWith("/reconciliation")) return "Bank Reconciliation";
-    if (pathname.startsWith("/reports")) return "Financial Reports";
-    if (pathname.startsWith("/settings")) return "Settings";
-    if (pathname.startsWith("/onboarding")) return "Setup";
-    return "Oluto Finance";
-  }, [pathname]);
+  const currentTitle = useMemo(() => getSectionTitle(pathname), [pathname]);
 
   // Contextual check: on /dashboard and /transactions, the page headers already have prominent Add Transaction actions
   const showHeaderAddTransaction = canWrite && pathname !== "/dashboard" && pathname !== "/transactions";
@@ -280,7 +182,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   <div className={`flex items-center ${isCollapsedRail ? "justify-center" : "gap-2.5"} min-w-0`}>
-                    {item.icon(active)}
+                    {(Icons as Record<string, (active: boolean) => React.ReactNode>)[item.iconKey]?.(active)}
                     {!isCollapsedRail && <span className="truncate">{item.name}</span>}
                   </div>
                   {!isCollapsedRail && item.badge && (

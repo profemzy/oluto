@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api, Invoice, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, DataTableAction } from "@/app/components";
-import { formatCurrency, formatDate } from "@/app/lib/format";
+import { formatCurrency, formatDate, isPositiveAmount } from "@/app/lib/format";
 import {
   INVOICE_STATUS_COLORS,
   INVOICE_STATUS_OPTIONS,
@@ -136,7 +136,7 @@ export default function InvoicesPage() {
         render: (invoice) => (
           <span
             className={`text-sm font-bold ${
-              parseFloat(invoice.balance) > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"
+              isPositiveAmount(invoice.balance) ? "text-amber-600 dark:text-amber-400" : "text-green-600"
             }`}
           >
             {formatCurrency(invoice.balance)}
@@ -178,6 +178,45 @@ export default function InvoicesPage() {
       },
     ],
     []
+  );
+
+  const renderMobileCard = useCallback(
+    (invoice: Invoice) => {
+      const customerName = customerMap[invoice.customer_id]?.trim();
+      const hasBalance = isPositiveAmount(invoice.balance);
+      return (
+        <div className="space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <span className={`text-sm font-semibold truncate block ${customerName ? "text-heading" : "text-muted italic"}`}>
+                {customerName || "Unlabelled customer"}
+              </span>
+              <span className="text-xs text-muted font-tabular">{invoice.invoice_number}</span>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <span className="text-sm font-bold font-tabular text-heading">{formatCurrency(invoice.total_amount)}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted gap-2">
+            <span>{formatDate(invoice.due_date)}</span>
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ring-1 ring-inset ${
+                INVOICE_STATUS_COLORS[invoice.status] || "bg-surface-tertiary text-body"
+              }`}
+            >
+              {invoice.status}
+            </span>
+          </div>
+          <div className="pt-1 border-t border-edge-subtle flex items-center justify-between text-xs">
+            <span className="text-muted">Balance</span>
+            <span className={`font-bold font-tabular ${hasBalance ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}>
+              {formatCurrency(invoice.balance)}
+            </span>
+          </div>
+        </div>
+      );
+    },
+    [customerMap]
   );
 
   if (loadingState) {
@@ -253,8 +292,10 @@ export default function InvoicesPage() {
         data={filteredInvoices}
         keyExtractor={(invoice) => invoice.id}
         actions={canWrite ? actions : []}
+        renderMobileCard={renderMobileCard}
         searchFields={["invoice_number"]}
         searchPlaceholder="Search by invoice number..."
+        mobileSearchPlaceholder="Search invoices..."
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
         loading={loadingState}

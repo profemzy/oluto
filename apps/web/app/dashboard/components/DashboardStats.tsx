@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardSummary } from "@/app/lib/api";
-import { formatCurrency, isNegativeAmount } from "@/app/lib/format";
+import { formatCurrency, isNegativeAmount, isPositiveAmount, parseAmountSafe } from "@/app/lib/format";
 
 interface DashboardStatsProps {
   summary: DashboardSummary | null;
@@ -10,10 +10,10 @@ interface DashboardStatsProps {
 
 export function DashboardStats({ summary, hasTransactions }: DashboardStatsProps) {
   const safeToSpend = summary?.safe_to_spend ?? "0.00";
-  const isDeficit = isNegativeAmount(safeToSpend) || parseFloat(safeToSpend) < 0;
+  const isDeficit = isNegativeAmount(safeToSpend);
 
-  const revenueNum = parseFloat(summary?.total_revenue || "0");
-  const expenseNum = parseFloat(summary?.total_expenses || "0");
+  const revenueNum = parseAmountSafe(summary?.total_revenue);
+  const expenseNum = parseAmountSafe(summary?.total_expenses);
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
@@ -25,7 +25,14 @@ export function DashboardStats({ summary, hasTransactions }: DashboardStatsProps
             className={`status-badge text-[10px] ${
               isDeficit ? "status-badge-critical" : "status-badge-positive"
             }`}
+            role="status"
+            aria-label={isDeficit ? "Deficit: tax lock and bills exceed cash" : "Available to spend"}
           >
+            {isDeficit && (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            )}
             {isDeficit ? "Deficit" : "Available"}
           </span>
         </div>
@@ -79,7 +86,7 @@ export function DashboardStats({ summary, hasTransactions }: DashboardStatsProps
         </p>
 
         <p className="mt-2 text-xs text-muted">
-          {summary && parseFloat(summary.payments_received || "0") > 0
+          {summary && isPositiveAmount(summary.payments_received)
             ? `Incl. ${formatCurrency(summary.payments_received)} in cash received`
             : `${summary?.transactions_count || 0} total ledger transaction${summary?.transactions_count === 1 ? "" : "s"}`}
         </p>

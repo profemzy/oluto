@@ -16,6 +16,7 @@ import {
   todayInTimezone,
   dateOffsetInTimezone,
   firstOfYearInTimezone,
+  parseAmountSafe,
 } from "@/app/lib/format";
 import { useAuth } from "@/app/hooks/useAuth";
 import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, DataTableAction, FilterBar } from "@/app/components";
@@ -455,7 +456,7 @@ function TransactionsContent() {
     (txn: Transaction, { isSelected, toggleSelection }: { isSelected: boolean; toggleSelection: () => void }) => {
       const hasVendor = Boolean(txn.vendor_name && txn.vendor_name.trim());
       const isIncome = txn.classification === "business_income";
-      const totalTax = parseFloat(txn.gst_amount || "0") + parseFloat(txn.pst_amount || "0");
+      const totalTax = parseAmountSafe(txn.gst_amount) + parseAmountSafe(txn.pst_amount);
       const hasTransitions = (VALID_TRANSITIONS[txn.status]?.length ?? 0) > 0 && canWrite;
 
       return (

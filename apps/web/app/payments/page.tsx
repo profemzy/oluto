@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api, Payment, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, DataTableAction, EmptyState } from "@/app/components";
-import { formatCurrency, formatDate } from "@/app/lib/format";
+import { formatCurrency, formatDate, isPositiveAmount } from "@/app/lib/format";
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -120,7 +120,7 @@ export default function PaymentsPage() {
         width: "130px",
         align: "right",
         render: (pmt) => {
-          const hasUnapplied = pmt.unapplied_amount && parseFloat(pmt.unapplied_amount) > 0;
+          const hasUnapplied = isPositiveAmount(pmt.unapplied_amount);
           return hasUnapplied ? (
             <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 ring-1 ring-inset ring-amber-200 dark:ring-amber-800">
               {formatCurrency(pmt.unapplied_amount || "0")} unapplied
@@ -153,6 +153,43 @@ export default function PaymentsPage() {
       },
     ],
     []
+  );
+
+  const renderMobileCard = useCallback(
+    (pmt: Payment) => {
+      const customerName = customerMap[pmt.customer_id]?.trim();
+      const hasUnapplied = isPositiveAmount(pmt.unapplied_amount);
+      return (
+        <div className="space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <span className={`text-sm font-semibold truncate block ${customerName ? "text-heading" : "text-muted italic"}`}>
+                {customerName || "Unlabelled customer"}
+              </span>
+              <span className="text-xs text-muted font-tabular">{pmt.payment_number || "No payment number"}</span>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <span className="text-sm font-bold font-tabular text-heading">{formatCurrency(pmt.amount)}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted gap-2">
+            <span>{formatDate(pmt.payment_date)}</span>
+            <span className="capitalize">{pmt.payment_method}</span>
+          </div>
+          <div className="pt-1 border-t border-edge-subtle flex items-center justify-between text-xs">
+            <span className="text-muted">Status</span>
+            {hasUnapplied ? (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 ring-1 ring-inset ring-amber-200 dark:ring-amber-800">
+                {formatCurrency(pmt.unapplied_amount || "0")} unapplied
+              </span>
+            ) : (
+              <span className="text-xs font-medium text-green-600">Fully applied</span>
+            )}
+          </div>
+        </div>
+      );
+    },
+    [customerMap]
   );
 
   if (loadingState) {
@@ -191,8 +228,10 @@ export default function PaymentsPage() {
         data={filteredPayments}
         keyExtractor={(pmt) => pmt.id}
         actions={canWrite ? actions : []}
+        renderMobileCard={renderMobileCard}
         searchFields={["payment_number"]}
         searchPlaceholder="Search by payment number or customer..."
+        mobileSearchPlaceholder="Search payments..."
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
         loading={loadingState}

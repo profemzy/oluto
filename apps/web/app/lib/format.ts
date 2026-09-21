@@ -53,12 +53,39 @@ export function firstOfYearInTimezone(timezone = DEFAULT_TIMEZONE): string {
 
 /**
  * Determine whether a monetary amount is negative without float rounding errors.
+ * String-first: checks the sign character before any numeric conversion.
  */
 export function isNegativeAmount(amount: string | number | null | undefined): boolean {
   if (amount == null) return false;
   if (typeof amount === "number") return amount < 0;
   const trimmed = amount.trim();
-  return trimmed.startsWith("-");
+  if (trimmed.startsWith("-")) return true;
+  if (trimmed.startsWith("(") && trimmed.endsWith(")")) return true;
+  return false;
+}
+
+/**
+ * Determine whether a monetary amount is positive without float rounding errors.
+ * Zero, empty, and null are not positive.
+ */
+export function isPositiveAmount(amount: string | number | null | undefined): boolean {
+  if (amount == null) return false;
+  if (typeof amount === "number") return amount > 0;
+  const trimmed = amount.trim().replace(/[$,\s]/g, "");
+  if (trimmed === "" || trimmed === "0" || trimmed === "0.00") return false;
+  if (trimmed.startsWith("-") || trimmed.startsWith("(")) return false;
+  return /[1-9]/.test(trimmed);
+}
+
+/**
+ * Safely parse a monetary string to a number for bar widths and ratios only.
+ * Display must always use formatCurrency with the original string.
+ */
+export function parseAmountSafe(amount: string | number | null | undefined): number {
+  if (amount == null || amount === "") return 0;
+  if (typeof amount === "number") return Number.isFinite(amount) ? amount : 0;
+  const parsed = parseFloat(amount);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 /**

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, Bill, Contact } from "@/app/lib/api";
 import { useAuth } from "@/app/hooks/useAuth";
 import { ListSkeleton, ErrorAlert, ListPageLayout, DataTable, DataTableColumn, DataTableAction } from "@/app/components";
-import { formatCurrency, formatDate } from "@/app/lib/format";
+import { formatCurrency, formatDate, isPositiveAmount } from "@/app/lib/format";
 import { toastError, toastSuccess } from "@/app/lib/toast";
 import { BILL_STATUS_COLORS, BILL_STATUS_OPTIONS } from "@/app/lib/status";
 
@@ -148,7 +148,7 @@ export default function BillsPage() {
         render: (bill) => (
           <span
             className={`text-sm font-bold ${
-              parseFloat(bill.balance) > 0 ? "text-amber-600 dark:text-amber-400" : "text-green-600"
+              isPositiveAmount(bill.balance) ? "text-amber-600 dark:text-amber-400" : "text-green-600"
             }`}
           >
             {formatCurrency(bill.balance)}
@@ -206,6 +206,45 @@ export default function BillsPage() {
       },
     ],
     [deleteMutation]
+  );
+
+  const renderMobileCard = useCallback(
+    (bill: Bill) => {
+      const vendorName = vendorMap[bill.vendor_id]?.trim();
+      const hasBalance = isPositiveAmount(bill.balance);
+      return (
+        <div className="space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <span className={`text-sm font-semibold truncate block ${vendorName ? "text-heading" : "text-muted italic"}`}>
+                {vendorName || "Unlabelled vendor"}
+              </span>
+              <span className="text-xs text-muted font-tabular">{bill.bill_number || "No bill number"}</span>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <span className="text-sm font-bold font-tabular text-heading">{formatCurrency(bill.total_amount)}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted gap-2">
+            <span>{formatDate(bill.due_date)}</span>
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ring-1 ring-inset ${
+                BILL_STATUS_COLORS[bill.status] || "bg-surface-tertiary text-body"
+              }`}
+            >
+              {bill.status}
+            </span>
+          </div>
+          <div className="pt-1 border-t border-edge-subtle flex items-center justify-between text-xs">
+            <span className="text-muted">Balance</span>
+            <span className={`font-bold font-tabular ${hasBalance ? "text-amber-600 dark:text-amber-400" : "text-green-600"}`}>
+              {formatCurrency(bill.balance)}
+            </span>
+          </div>
+        </div>
+      );
+    },
+    [vendorMap]
   );
 
   if (loadingState) {
@@ -275,8 +314,10 @@ export default function BillsPage() {
         data={filteredBills}
         keyExtractor={(bill) => bill.id}
         actions={canWrite ? actions : []}
+        renderMobileCard={renderMobileCard}
         searchFields={["bill_number"]}
         searchPlaceholder="Search by bill number or vendor..."
+        mobileSearchPlaceholder="Search bills..."
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
         loading={loadingState}
