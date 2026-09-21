@@ -55,13 +55,16 @@ export class ChatApi {
     return page.items.map(toConversation);
   }
 
-  async createConversation(businessId: string, title?: string): Promise<Conversation> {
+  async createConversation(
+    businessId: string,
+    locale: "en-CA" | "fr-CA" = "en-CA"
+  ): Promise<Conversation> {
     const conversation = await this.client.request("createConversation", {
       path: { business_id: businessId },
       headers: { "Idempotency-Key": crypto.randomUUID() },
       body: {
-        title: title?.trim() || "New chat",
-        locale: "en-CA",
+        title: locale === "fr-CA" ? "Nouvelle conversation" : "New conversation",
+        locale,
         visibility: "private",
       },
     });

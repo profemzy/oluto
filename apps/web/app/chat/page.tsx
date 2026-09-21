@@ -32,11 +32,28 @@ export default function ChatPage() {
   const [receiptReview, setReceiptReview] = useState<PendingReceiptReview | null>(null);
   const [receiptApproval, setReceiptApproval] = useState<PendingReceiptApproval | null>(null);
   const [submittingReceiptAction, setSubmittingReceiptAction] = useState(false);
+  const [locale, setLocale] = useState<"en-CA" | "fr-CA">("en-CA");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingQuickActionRef = useRef<QuickAction | null>(null);
   const observedRunsRef = useRef(new Set<string>());
 
   const businessId = user?.business_id;
+
+  useEffect(() => {
+    const savedLocale = window.localStorage.getItem("oluto-agent-locale");
+    if (savedLocale === "en-CA" || savedLocale === "fr-CA") {
+      setLocale(savedLocale);
+      return;
+    }
+    if (window.navigator.language.toLowerCase().startsWith("fr")) {
+      setLocale("fr-CA");
+    }
+  }, []);
+
+  const changeLocale = useCallback((nextLocale: "en-CA" | "fr-CA") => {
+    window.localStorage.setItem("oluto-agent-locale", nextLocale);
+    setLocale(nextLocale);
+  }, []);
 
   // --- Queries ---
 
@@ -53,16 +70,6 @@ export default function ChatPage() {
   });
 
   // --- Mutations ---
-
-  const createConversation = useMutation({
-    mutationFn: (title?: string) => api.createConversation(businessId!, title),
-    onSuccess: (conv) => {
-      queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
-      setActiveId(conv.id);
-    },
-    onError: (err) =>
-      toastError(err instanceof Error ? err.message : "Failed to create conversation"),
-  });
 
   const renameConversation = useMutation({
     mutationFn: ({ id, title }: { id: string; title: string }) =>
@@ -163,7 +170,7 @@ export default function ChatPage() {
       // Create conversation if none active
       if (!convId) {
         try {
-          const conv = await api.createConversation(businessId, content.slice(0, 60));
+          const conv = await api.createConversation(businessId, locale);
           queryClient.invalidateQueries({ queryKey: ["conversations", businessId] });
           convId = conv.id;
           setActiveId(conv.id);
@@ -175,15 +182,15 @@ export default function ChatPage() {
 
       try {
         const accepted = file
-          ? await api.chat.uploadReceipt(businessId, convId, file)
-          : await api.chat.postUserMessage(businessId, convId, content);
+          ? await api.chat.uploadReceipt(businessId, convId, file, locale)
+          : await api.chat.postUserMessage(businessId, convId, content, locale);
         await queryClient.invalidateQueries({ queryKey: ["messages", businessId, convId] });
         await observeRun(convId, accepted.run_id);
       } catch (err) {
         toastError(err instanceof Error ? err.message : "Failed to start the agent Run");
       }
     },
-    [businessId, activeId, sending, queryClient, observeRun]
+    [businessId, activeId, sending, queryClient, observeRun, locale]
   );
 
   const cancelRun = useCallback(async () => {
@@ -280,6 +287,8 @@ export default function ChatPage() {
         onToggle={() => setCollapsed((v) => !v)}
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
+        locale={locale}
+        onLocaleChange={changeLocale}
       />
 
       {/* Main chat area */}
