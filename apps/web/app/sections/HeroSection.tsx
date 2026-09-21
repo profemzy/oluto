@@ -37,7 +37,7 @@ export function HeroSection() {
         {/* Subheadline */}
         <p className="mt-6 text-base sm:text-lg text-muted max-w-3xl mx-auto leading-relaxed">
           Oluto unifies your Canadian bank feeds, matches receipts, models GST/HST liabilities,
-          and delivers executive cashflow briefings with immutable ledger precision.
+          and delivers executive cashflow briefings with verified double-entry precision.
         </p>
 
         {/* CTAs */}

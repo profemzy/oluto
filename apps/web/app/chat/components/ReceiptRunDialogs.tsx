@@ -172,7 +172,8 @@ export function ReceiptApprovalDialog({
           type="button"
           disabled={submitting}
           onClick={() => onDecide("reject")}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200"
+          aria-label="Reject journal proposal"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
         >
           Reject
         </button>
@@ -180,7 +181,8 @@ export function ReceiptApprovalDialog({
           type="button"
           disabled={submitting}
           onClick={() => onDecide("approve")}
-          className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-700 disabled:opacity-50"
+          aria-label="Approve and record journal entry"
+          className="rounded-lg bg-[#087E78] dark:bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-[#066762] dark:hover:bg-teal-500 disabled:opacity-50 min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
         >
           Approve and record
         </button>
@@ -215,8 +217,8 @@ function Dialog({
             <button
               type="button"
               onClick={onCancel}
-              aria-label="Cancel receipt Run"
-              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Close dialog"
+              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[36px] min-w-[36px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
             >
               ✕
             </button>
@@ -244,7 +246,8 @@ function DialogActions({
       <button
         type="button"
         onClick={onCancel}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold dark:border-gray-700"
+        aria-label="Cancel receipt run"
+        className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold dark:border-gray-700 min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
       >
         Cancel Run
       </button>
@@ -252,7 +255,8 @@ function DialogActions({
         type="button"
         disabled={primaryDisabled}
         onClick={onPrimary}
-        className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-700 disabled:opacity-50"
+        aria-label={primaryLabel}
+        className="rounded-lg bg-[#087E78] dark:bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-[#066762] dark:hover:bg-teal-500 disabled:opacity-50 min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
       >
         {primaryLabel}
       </button>

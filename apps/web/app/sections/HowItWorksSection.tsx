@@ -39,7 +39,7 @@ const defaultSteps: Step[] = [
 export function HowItWorksSection({
   title = "How it works",
   subtitle = "From statement import to verified double-entry books",
-  description = "Oluto provides continuous bookkeeping operations with human approval safeguards. LedgerForge guarantees balanced journal entries.",
+  description = "Oluto provides continuous bookkeeping operations with human approval safeguards. LedgerForge validates balanced debits and credits before committing journal entries.",
   steps = defaultSteps,
 }: HowItWorksSectionProps) {
   return (

@@ -14,6 +14,7 @@ interface ChatAreaProps {
   onQuickAction: (action: QuickAction) => void;
   onCancel?: () => void;
   unavailableReason?: string;
+  canWrite?: boolean;
 }
 
 // Group messages by date
@@ -80,7 +81,8 @@ function LoadingBanner({ onCancel }: { onCancel?: () => void }) {
           <button
             type="button"
             onClick={onCancel}
-            className="text-xs font-semibold px-2.5 py-1 rounded border border-edge text-muted hover:text-heading hover:bg-surface-hover transition-colors"
+            aria-label="Cancel active agent run"
+            className="text-xs font-semibold px-2.5 py-1 rounded border border-edge text-muted hover:text-heading hover:bg-surface-hover transition-colors min-h-[36px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
           >
             Cancel Run
           </button>
@@ -136,7 +138,13 @@ function DragOverlay({ isDragging }: { isDragging: boolean }) {
 }
 
 // Welcome message with task-oriented quick actions
-function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction) => void }) {
+function WelcomeMessage({
+  onQuickAction,
+  canWrite = true,
+}: {
+  onQuickAction: (action: QuickAction) => void;
+  canWrite?: boolean;
+}) {
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 max-w-3xl mx-auto w-full">
       {/* Institutional Tile */}
@@ -156,7 +164,7 @@ function WelcomeMessage({ onQuickAction }: { onQuickAction: (action: QuickAction
 
       {/* Task-oriented empty state */}
       <div className="w-full mt-4">
-        <QuickActions variant="welcome" onSelect={onQuickAction} />
+        <QuickActions variant="welcome" onSelect={onQuickAction} canWrite={canWrite} />
       </div>
     </div>
   );
@@ -169,6 +177,7 @@ export function ChatArea({
   onQuickAction,
   onCancel,
   unavailableReason,
+  canWrite = true,
 }: ChatAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -280,7 +289,7 @@ export function ChatArea({
               </p>
             </div>
           ) : (
-            <WelcomeMessage onQuickAction={handleQuickAction} />
+            <WelcomeMessage onQuickAction={handleQuickAction} canWrite={canWrite} />
           )
         ) : (
           <>
@@ -338,7 +347,7 @@ export function ChatArea({
       {/* Quick actions bar */}
       {showQuickActions && (
         <div className="border-t border-gray-200 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-900/20">
-          <QuickActions variant="compact" onSelect={handleQuickAction} />
+          <QuickActions variant="compact" onSelect={handleQuickAction} canWrite={canWrite} />
         </div>
       )}
 

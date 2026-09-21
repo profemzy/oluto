@@ -167,9 +167,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 interface QuickActionsProps {
   variant: "welcome" | "compact";
   onSelect: (action: QuickAction) => void;
+  canWrite?: boolean;
 }
 
-export function QuickActions({ variant, onSelect }: QuickActionsProps) {
+export function QuickActions({ variant, onSelect, canWrite = true }: QuickActionsProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = ["cash", "payables", "receivables", "compliance"] as const;
 
@@ -180,17 +181,22 @@ export function QuickActions({ variant, onSelect }: QuickActionsProps) {
   if (variant === "compact") {
     return (
       <div className="flex flex-wrap gap-1.5 p-2">
-        {QUICK_ACTIONS.slice(0, 5).map((action) => (
-          <button
-            key={action.label}
-            type="button"
-            onClick={() => onSelect(action)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface border border-edge hover:bg-surface-secondary text-body transition-colors"
-          >
-            <span className="text-muted">{action.icon}</span>
-            <span>{action.label}</span>
-          </button>
-        ))}
+        {QUICK_ACTIONS.slice(0, 5).map((action) => {
+          const isDisabled = !canWrite && action.badge !== "Read Data";
+          return (
+            <button
+              key={action.label}
+              type="button"
+              disabled={isDisabled}
+              aria-label={isDisabled ? `${action.label} (Requires edit permission)` : action.label}
+              onClick={() => onSelect(action)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface border border-edge hover:bg-surface-secondary text-body transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)]"
+            >
+              <span className="text-muted">{action.icon}</span>
+              <span>{action.label}</span>
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -212,7 +218,8 @@ export function QuickActions({ variant, onSelect }: QuickActionsProps) {
         <button
           type="button"
           onClick={() => setSelectedCategory(null)}
-          className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+          aria-label="Filter tasks by All Tasks"
+          className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] ${
             selectedCategory === null
               ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 ring-1 ring-teal-600"
               : "bg-surface border border-edge text-muted hover:text-heading hover:bg-surface-hover"
@@ -225,7 +232,8 @@ export function QuickActions({ variant, onSelect }: QuickActionsProps) {
             key={cat}
             type="button"
             onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+            aria-label={`Filter tasks by ${CATEGORY_LABELS[cat]}`}
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] ${
               selectedCategory === cat
                 ? "bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 ring-1 ring-teal-600"
                 : "bg-surface border border-edge text-muted hover:text-heading hover:bg-surface-hover"
@@ -238,46 +246,60 @@ export function QuickActions({ variant, onSelect }: QuickActionsProps) {
 
       {/* Tasks grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {filteredActions.map((action) => (
-          <button
-            key={action.label}
-            type="button"
-            onClick={() => onSelect(action)}
-            className="group flex items-start gap-3 w-full p-3 rounded-xl bg-surface border border-edge hover:bg-surface-secondary hover:border-edge-hover transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] min-h-[44px]"
-          >
-            <div className="p-2 rounded-lg bg-surface-secondary text-muted group-hover:text-heading border border-edge-subtle flex-shrink-0 transition-colors">
-              {action.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1 mb-0.5">
-                <p className="text-xs font-semibold text-heading truncate">
-                  {action.label}
+        {filteredActions.map((action) => {
+          const isDisabled = !canWrite && action.badge !== "Read Data";
+          return (
+            <button
+              key={action.label}
+              type="button"
+              disabled={isDisabled}
+              aria-label={isDisabled ? `${action.label} (Disabled: viewer role cannot draft records)` : action.label}
+              onClick={() => onSelect(action)}
+              className={`group flex items-start gap-3 w-full p-3 rounded-xl bg-surface border transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] min-h-[44px] ${
+                isDisabled
+                  ? "opacity-50 cursor-not-allowed border-edge"
+                  : "border-edge hover:bg-surface-secondary hover:border-edge-hover"
+              }`}
+            >
+              <div className="p-2 rounded-lg bg-surface-secondary text-muted group-hover:text-heading border border-edge-subtle flex-shrink-0 transition-colors">
+                {action.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <p className="text-xs font-semibold text-heading truncate">
+                    {action.label}
+                  </p>
+                </div>
+                <p className="text-[11px] text-muted line-clamp-2 leading-relaxed">
+                  {action.description}
                 </p>
-              </div>
-              <p className="text-[11px] text-muted line-clamp-2 leading-relaxed">
-                {action.description}
-              </p>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span
-                  className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                    action.badge === "Draft - Requires Approval"
-                      ? "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
-                      : action.badge === "Draft"
-                        ? "bg-blue-50 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800"
-                        : "bg-surface-secondary text-muted border-edge"
-                  }`}
-                >
-                  {action.badge}
-                </span>
-                {action.needsFile && (
-                  <span className="text-[9px] font-semibold text-muted px-1 rounded border border-edge">
-                    File required
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <span
+                    className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                      action.badge === "Draft - Requires Approval"
+                        ? "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                        : action.badge === "Draft"
+                          ? "bg-blue-50 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800"
+                          : "bg-surface-secondary text-muted border-edge"
+                    }`}
+                  >
+                    {action.badge}
                   </span>
-                )}
+                  {action.needsFile && (
+                    <span className="text-[9px] font-semibold text-muted px-1 rounded border border-edge">
+                      File required
+                    </span>
+                  )}
+                  {isDisabled && (
+                    <span className="text-[9px] font-medium text-muted px-1 rounded border border-edge">
+                      Requires Edit Role
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

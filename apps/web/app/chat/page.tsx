@@ -21,7 +21,7 @@ type PendingReceiptReview = { request: InputRequestResponse; accounts: Account[]
 type PendingReceiptApproval = { request: ApprovalRequestResponse; artifact: ArtifactResponse };
 
 export default function ChatPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, canWrite } = useAuth();
   const queryClient = useQueryClient();
 
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -373,6 +373,7 @@ export default function ChatPage() {
               ? undefined
               : "The financial assistant is temporarily unavailable. Your existing conversations remain readable."
           }
+          canWrite={canWrite}
         />
       </div>
 

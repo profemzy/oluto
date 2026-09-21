@@ -5,7 +5,7 @@ import Link from "next/link";
 const trustIndicators = [
   { label: "LedgerForge Double-Entry Engine" },
   { label: "Strict Multi-Tenant Isolation" },
-  { label: "Canadian CRA Tax Compliance" },
+  { label: "Canadian Sales Tax Calculations (GST/HST/PST/QST)" },
 ];
 
 export function CTASection() {

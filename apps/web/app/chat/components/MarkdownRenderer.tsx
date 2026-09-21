@@ -21,8 +21,10 @@ function CopyableCodeBlock({ content, lang }: { content: string; lang?: string }
       <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 text-xs">
         <span className="text-gray-500 dark:text-gray-400 font-mono">{lang || "text"}</span>
         <button
+          type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors opacity-0 group-hover:opacity-100"
+          aria-label={copied ? "Copied code block" : "Copy code block"}
+          className="flex items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] rounded px-1.5 py-0.5 min-h-[28px]"
         >
           {copied ? (
             <>

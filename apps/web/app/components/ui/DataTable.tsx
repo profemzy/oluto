@@ -1,7 +1,20 @@
 "use client";
 
-import { useState, useMemo, ReactNode, useCallback } from "react";
+import { useState, useMemo, ReactNode, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
+
+function useIsMobile(): boolean {
+  return useSyncExternalStore(
+    (callback) => {
+      if (typeof window === "undefined") return () => {};
+      const mq = window.matchMedia("(max-width: 767px)");
+      mq.addEventListener("change", callback);
+      return () => mq.removeEventListener("change", callback);
+    },
+    () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false),
+    () => false
+  );
+}
 
 // ============================================================================
 // TYPES
@@ -65,6 +78,7 @@ interface DataTableProps<T> {
   }[];
   searchFields?: (keyof T)[];
   searchPlaceholder?: string;
+  mobileSearchPlaceholder?: string;
   searchQuery?: string;
   onSearch?: (query: string) => void;
   onSort?: (sort: SortState) => void;
@@ -150,6 +164,7 @@ export function DataTable<T>({
   bulkActions,
   searchFields,
   searchPlaceholder = "Search...",
+  mobileSearchPlaceholder,
   searchQuery: controlledSearchQuery,
   onSearch,
   onSort,
@@ -172,6 +187,8 @@ export function DataTable<T>({
   const [sort, setSort] = useState<SortState | null>(defaultSort || null);
   const [filters, setFilters] = useState<FilterState>({});
   const [internalSearchQuery, setInternalSearchQuery] = useState("");
+  const isMobile = useIsMobile();
+
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     pageSize,
@@ -466,7 +483,7 @@ export function DataTable<T>({
             </svg>
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={isMobile && mobileSearchPlaceholder ? mobileSearchPlaceholder : searchPlaceholder}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="text-heading bg-surface placeholder:text-muted w-full rounded-xl border-0 py-2.5 pr-10 pl-10 text-sm shadow-sm ring-1 ring-[var(--color-ring-default)] transition-all ring-inset focus:ring-2 focus:ring-[var(--color-brand-primary)] focus:ring-inset"

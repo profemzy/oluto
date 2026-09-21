@@ -329,7 +329,7 @@ function TransactionsContent() {
         header: "Status",
         width: "130px",
         render: (txn) => {
-          const hasTransitions = (VALID_TRANSITIONS[txn.status]?.length ?? 0) > 0;
+          const hasTransitions = (VALID_TRANSITIONS[txn.status]?.length ?? 0) > 0 && canWrite;
           
           if (hasTransitions) {
             return (
@@ -341,6 +341,7 @@ function TransactionsContent() {
                   }
                 }}
                 disabled={updateStatusMutation.isPending}
+                aria-label={`Update status for transaction ${txn.vendor_name || txn.id}`}
                 className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-[var(--color-brand-primary)] transition-all ${
                   TRANSACTION_STATUS_COLORS[txn.status] || "bg-surface-tertiary text-body"
                 } ${updateStatusMutation.isPending ? "opacity-50" : "hover:shadow-md"}`}
@@ -366,7 +367,7 @@ function TransactionsContent() {
         },
       },
     ],
-    [updateStatusMutation, user?.business_id]
+    [updateStatusMutation, user?.business_id, canWrite]
   );
 
   // Define table actions
@@ -772,7 +773,8 @@ function TransactionsContent() {
         bulkActions={canWrite ? bulkActions : []}
         renderMobileCard={renderMobileCard}
         searchFields={["vendor_name", "description", "category"]}
-        searchPlaceholder="Search by vendor, description, or category..."
+        searchPlaceholder="Search transactions..."
+        mobileSearchPlaceholder="Search transactions..."
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
         loading={loading}

@@ -34,7 +34,7 @@ export default function InvoiceDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: invoiceId } = use(params);
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [invoice, setInvoice] = useState<InvoiceWithLineItems | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -154,39 +154,42 @@ export default function InvoiceDetailPage({
                 <p className="text-sm text-body">{customerName}</p>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {invoice.status !== "paid" && invoice.status !== "void" && (
-                <Link
-                  href={`/payments/new?invoiceId=${invoiceId}&customerId=${invoice.customer_id}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            {canWrite && (
+              <div className="flex flex-wrap gap-2">
+                {invoice.status !== "paid" && invoice.status !== "void" && (
+                  <Link
+                    href={`/payments/new?invoiceId=${invoiceId}&customerId=${invoice.customer_id}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Record Payment
-                </Link>
-              )}
-              {actions.map((action) => (
-                <button
-                  key={action.status}
-                  onClick={() => handleStatusChange(action.status)}
-                  disabled={updating}
-                  className={`inline-flex items-center rounded-xl bg-gradient-to-r ${action.color} px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50`}
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Record Payment
+                  </Link>
+                )}
+                {actions.map((action) => (
+                  <button
+                    key={action.status}
+                    type="button"
+                    onClick={() => handleStatusChange(action.status)}
+                    disabled={updating}
+                    className={`inline-flex items-center rounded-xl bg-gradient-to-r ${action.color} px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50`}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -353,7 +356,7 @@ export default function InvoiceDetailPage({
                     <div className="col-span-2 flex justify-end">
                       <Link
                         href={`/payments/${pmt.id}`}
-                        className="text-xs font-medium text-cyan-600 hover:text-cyan-800"
+                        className="text-xs font-semibold text-brand-teal hover:underline"
                       >
                         View
                       </Link>

@@ -36,7 +36,7 @@ export default function BillDetailPage({
 }) {
   const { id: billId } = use(params);
   const router = useRouter();
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, user, canWrite } = useAuth();
   const [bill, setBill] = useState<BillWithLineItems | null>(null);
   const [vendorName, setVendorName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -95,7 +95,7 @@ export default function BillDetailPage({
       <div className="min-h-[calc(100vh-4rem)] bg-surface-secondary flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-lg font-bold text-heading mb-2">Bill not found</h2>
-          <Link href="/bills" className="text-sm text-cyan-600 hover:text-cyan-800 font-medium">Back to Bills</Link>
+          <Link href="/bills" className="text-sm text-brand-teal hover:underline font-semibold">Back to Bills</Link>
         </div>
       </div>
     );
@@ -133,37 +133,41 @@ export default function BillDetailPage({
               </div>
               {vendorName && <p className="text-sm text-body">{vendorName}</p>}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {actions.map((action) => (
-                <button
-                  key={action.status}
-                  onClick={() => handleStatusChange(action.status)}
-                  disabled={updating}
-                  className={`inline-flex items-center rounded-xl bg-gradient-to-r ${action.color} px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50`}
-                >
-                  {action.label}
-                </button>
-              ))}
-              {bill.status !== "void" && parseFloat(bill.balance) > 0 && (
-                <Link
-                  href={`/payments/new/bill?billId=${billId}&vendorId=${bill.vendor_id}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Record Payment
-                </Link>
-              )}
-              {canDelete && (
-                <button
-                  onClick={handleDelete}
-                  className="inline-flex items-center rounded-xl border-2 border-red-200 dark:border-red-800 bg-surface px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
+            {canWrite && (
+              <div className="flex flex-wrap gap-2">
+                {actions.map((action) => (
+                  <button
+                    key={action.status}
+                    type="button"
+                    onClick={() => handleStatusChange(action.status)}
+                    disabled={updating}
+                    className={`inline-flex items-center rounded-xl bg-gradient-to-r ${action.color} px-4 py-2 text-sm font-bold text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50`}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+                {bill.status !== "void" && parseFloat(bill.balance) > 0 && (
+                  <Link
+                    href={`/payments/new/bill?billId=${billId}&vendorId=${bill.vendor_id}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand-teal px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-teal-hover transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Record Payment
+                  </Link>
+                )}
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="inline-flex items-center rounded-xl border-2 border-red-200 dark:border-red-800 bg-surface px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

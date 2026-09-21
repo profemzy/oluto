@@ -159,8 +159,10 @@ function AssistantBubble({
 
             {/* Copy button */}
             <button
+              type="button"
               onClick={onCopy}
-              className={`ml-auto p-1 rounded text-xs transition-colors ${
+              aria-label={copied ? "Copied message to clipboard" : "Copy message to clipboard"}
+              className={`ml-auto p-1.5 rounded text-xs transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-primary)] ${
                 copied
                   ? "text-[#177245] bg-[var(--color-positive-bg)]"
                   : "text-muted hover:text-heading hover:bg-surface-hover"

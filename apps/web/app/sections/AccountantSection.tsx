@@ -91,7 +91,7 @@ export function AccountantSection() {
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted">
             Every workflow produces balanced debits and credits anchored in LedgerForge.
-            Your accountant receives immutable journals and formal financial statements—not loose chat summaries.
+            Your accountant receives formal financial statements and complete double-entry journals—not loose chat summaries.
           </p>
         </header>
 

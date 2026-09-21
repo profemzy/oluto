@@ -15,14 +15,14 @@ const capabilities: Capability[] = [
     status: "Active",
   },
   {
-    title: "Autonomous Receipt Matching",
-    description: "Extracts vendor, line items, and GST/HST/QST tax components, automatically matching paper or digital receipts to bank transactions.",
+    title: "Assisted Receipt Extraction & Matching",
+    description: "Extracts vendor, line items, and GST/HST/QST tax components, staging proposals for user approval before matching to bank transactions.",
     category: "Bookkeeping",
     status: "Active",
   },
   {
     title: "Verifiable Ledger Queries",
-    description: "Ask plain-language questions grounded strictly in your immutable LedgerForge books without hallucinated accounting entries.",
+    description: "Ask plain-language questions grounded in verified double-entry books, with financial data retrieved directly from the ledger.",
     category: "Intelligence",
     status: "Active",
   },
@@ -87,7 +87,7 @@ export function AgentsSection() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-edge-subtle flex items-center justify-between text-[11px] text-[#087E78] font-semibold">
-                <span>Production Qualified</span>
+                <span>Operational Capability</span>
                 <span>&rarr;</span>
               </div>
             </div>
