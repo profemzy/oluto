@@ -12,6 +12,10 @@ spec:
       targetPort: 3000
       protocol: TCP
       name: http
+    - port: 3002
+      targetPort: 3002
+      protocol: TCP
+      name: delegated-http
   selector:
     app: oluto-backend
 ---
@@ -33,12 +37,12 @@ spec:
     app: oluto-frontend
 ---
 # =============================================================================
-# Agent Service (ZeroClaw gateway on port 18790)
+# Oluto Finance Agent API
 # =============================================================================
 apiVersion: v1
 kind: Service
 metadata:
-  name: oluto-agent
+  name: oluto-finance-api
   namespace: oluto
 spec:
   type: ClusterIP
@@ -48,7 +52,7 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: oluto-agent
+    app: oluto-finance-api
 ---
 # =============================================================================
 # Keycloak Service (OIDC identity provider on port 8080)

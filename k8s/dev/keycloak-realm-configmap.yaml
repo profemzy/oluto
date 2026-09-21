@@ -110,23 +110,6 @@ data:
             "email",
             "oluto-claims"
           ]
-        },
-        {
-          "clientId": "oluto-agent-service",
-          "name": "ZeroClaw Agent Service Account",
-          "description": "Service-to-service communication for the AI agent gateway",
-          "enabled": true,
-          "publicClient": false,
-          "serviceAccountsEnabled": true,
-          "standardFlowEnabled": false,
-          "directAccessGrantsEnabled": false,
-          "secret": "change-me-in-production",
-          "defaultClientScopes": [
-            "basic",
-            "profile",
-            "email",
-            "oluto-claims"
-          ]
         }
       ],
       "clientScopes": [
