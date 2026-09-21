@@ -27,8 +27,8 @@ const capabilities: Capability[] = [
     status: "Active",
   },
   {
-    title: "CRA Tax Lockbox Modeling",
-    description: "Automatically reserves collected GST/HST net of input tax credits (ITCs), ensuring you never spend tax remittance funds.",
+    title: "CRA Sales Tax Modeling",
+    description: "Calculates collected GST/HST net of input tax credits (ITCs) to project estimated tax remittance liabilities.",
     category: "Compliance",
     status: "Active",
   },
