@@ -326,8 +326,8 @@ class UnifiedApiClient {
   async listConversations(businessId: string) {
     return this.chat.listConversations(businessId);
   }
-  async createConversation(businessId: string, title?: string) {
-    return this.chat.createConversation(businessId, title);
+  async createConversation(businessId: string, locale: "en-CA" | "fr-CA" = "en-CA") {
+    return this.chat.createConversation(businessId, locale);
   }
   async updateConversation(businessId: string, convId: string, data: any) {
     return this.chat.updateConversation(businessId, convId, data);

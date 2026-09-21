@@ -46,6 +46,29 @@ describe("ChatApi", () => {
     expect(new Headers(options?.headers).get("authorization")).toBe("Bearer agent-token");
   });
 
+  it("creates a placeholder conversation in the selected agent language", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      Response.json({
+        id: conversationId,
+        business_id: businessId,
+        title: "Nouvelle conversation",
+        locale: "fr-CA",
+        visibility: "private",
+        status: "active",
+        version: 1,
+      })
+    );
+
+    await chat.createConversation(businessId, "fr-CA");
+
+    const [, options] = vi.mocked(global.fetch).mock.calls[0];
+    expect(JSON.parse(String(options?.body))).toEqual({
+      title: "Nouvelle conversation",
+      locale: "fr-CA",
+      visibility: "private",
+    });
+  });
+
   it("consumes split SSE frames until a terminal Run event", async () => {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
