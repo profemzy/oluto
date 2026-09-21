@@ -172,9 +172,15 @@ body.oluto-body {
 .oluto-card {
     background: var(--bg-primary);
     border: 1px solid var(--border-primary);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px var(--shadow-base);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px var(--shadow-base), 0 8px 24px var(--shadow-base);
     padding: 2rem;
+}
+
+@media (max-width: 480px) {
+    .oluto-card {
+        padding: 1.5rem 1.25rem;
+    }
 }
 
 .oluto-card-header {
@@ -263,6 +269,7 @@ body.oluto-body {
 
 .oluto-input {
     width: 100%;
+    min-height: 42px;
     padding: 0.625rem 0.75rem;
     font-size: 0.875rem;
     font-family: inherit;
@@ -405,6 +412,21 @@ body.oluto-body {
     background: var(--brand-hover);
 }
 
+.oluto-btn-primary:active {
+    background: var(--brand-hover);
+    transform: translateY(1px);
+}
+
+.oluto-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button.oluto-btn {
+    min-height: 44px;
+}
+
 .oluto-btn-primary:focus-visible {
     box-shadow: 0 0 0 3px rgba(8, 126, 120, 0.35);
     outline: none;
@@ -468,4 +490,91 @@ body.oluto-body {
     text-align: center;
     font-size: 0.8rem;
     color: var(--text-tertiary);
+}
+
+.oluto-footer-text {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.825rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+/* ---------- Form Rows ---------- */
+.oluto-form-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.oluto-form-half {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+@media (max-width: 420px) {
+    .oluto-form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+.oluto-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.oluto-label-row .oluto-label {
+    margin-bottom: 0;
+}
+
+.oluto-link-small {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--link-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.oluto-link-small:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.oluto-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------- Trust Strip ---------- */
+.oluto-trust {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding: 0;
+}
+
+.oluto-trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+}
+
+.oluto-trust svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+    color: var(--brand-primary);
 }

@@ -1,8 +1,8 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username'); section>
     <#if section = "header">
-        <h1 class="oluto-heading">Reset your password</h1>
-        <p class="oluto-subheading">Enter your email and we'll send you a reset link.</p>
+        <h1 class="oluto-title">Reset your password</h1>
+        <p class="oluto-subtitle">Enter your email and we'll send you a reset link.</p>
     <#elseif section = "form">
         <form id="kc-reset-password-form" action="${url.loginAction}" method="post">
             <div class="oluto-form-group">
@@ -12,11 +12,11 @@
                        aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"
                        placeholder="you@company.com" />
                 <#if messagesPerField.existsError('username')>
-                    <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('username'))?no_esc}</span>
+                    <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('username'))?no_esc}</span>
                 </#if>
             </div>
 
-            <button type="submit" class="oluto-btn-primary">
+            <button type="submit" class="oluto-btn oluto-btn-primary">
                 Send reset link
             </button>
         </form>

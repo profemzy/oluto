@@ -1,8 +1,8 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password'); section>
     <#if section = "header">
-        <h1 class="oluto-heading">Sign in to your account</h1>
-        <p class="oluto-subheading">Welcome back. Enter your credentials to continue.</p>
+        <h1 class="oluto-title">Sign in to your account</h1>
+        <p class="oluto-subtitle">Welcome back. Enter your credentials to continue.</p>
     <#elseif section = "form">
         <form id="kc-form-login" action="${url.loginAction}" method="post">
             <div class="oluto-form-group">
@@ -13,7 +13,7 @@
                        aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"
                        placeholder="you@company.com" />
                 <#if messagesPerField.existsError('username','password')>
-                    <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('username','password'))?no_esc}</span>
+                    <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('username','password'))?no_esc}</span>
                 </#if>
             </div>
 
@@ -47,9 +47,9 @@
             <div class="oluto-divider">
                 <span>or continue with</span>
             </div>
-            <div class="oluto-social-providers">
+            <div class="oluto-social-buttons">
                 <#list social.providers as p>
-                    <a id="social-${p.alias}" href="${p.loginUrl}" class="oluto-btn-social">
+                    <a id="social-${p.alias}" href="${p.loginUrl}" class="oluto-social-btn">
                         <#if p.iconClasses?has_content>
                             <i class="${p.iconClasses!}" aria-hidden="true"></i>
                         </#if>

@@ -1,8 +1,8 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm'); section>
     <#if section = "header">
-        <h1 class="oluto-heading">Create your account</h1>
-        <p class="oluto-subheading">Start managing your finances with Oluto.</p>
+        <h1 class="oluto-title">Create your account</h1>
+        <p class="oluto-subtitle">Start managing your finances with Oluto.</p>
     <#elseif section = "form">
         <form id="kc-register-form" action="${url.registrationAction}" method="post">
             <div class="oluto-form-row">
@@ -13,7 +13,7 @@
                            class="oluto-input <#if messagesPerField.existsError('firstName')>oluto-input-error</#if>"
                            aria-invalid="<#if messagesPerField.existsError('firstName')>true</#if>" />
                     <#if messagesPerField.existsError('firstName')>
-                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('firstName'))?no_esc}</span>
+                        <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('firstName'))?no_esc}</span>
                     </#if>
                 </div>
                 <div class="oluto-form-group oluto-form-half">
@@ -23,7 +23,7 @@
                            class="oluto-input <#if messagesPerField.existsError('lastName')>oluto-input-error</#if>"
                            aria-invalid="<#if messagesPerField.existsError('lastName')>true</#if>" />
                     <#if messagesPerField.existsError('lastName')>
-                        <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('lastName'))?no_esc}</span>
+                        <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('lastName'))?no_esc}</span>
                     </#if>
                 </div>
             </div>
@@ -36,7 +36,7 @@
                        aria-invalid="<#if messagesPerField.existsError('email')>true</#if>"
                        placeholder="you@company.com" />
                 <#if messagesPerField.existsError('email')>
-                    <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('email'))?no_esc}</span>
+                    <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('email'))?no_esc}</span>
                 </#if>
             </div>
 
@@ -46,7 +46,7 @@
                        class="oluto-input <#if messagesPerField.existsError('password')>oluto-input-error</#if>"
                        aria-invalid="<#if messagesPerField.existsError('password')>true</#if>" />
                 <#if messagesPerField.existsError('password')>
-                    <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('password'))?no_esc}</span>
+                    <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('password'))?no_esc}</span>
                 </#if>
             </div>
 
@@ -56,11 +56,11 @@
                        class="oluto-input <#if messagesPerField.existsError('password-confirm')>oluto-input-error</#if>"
                        aria-invalid="<#if messagesPerField.existsError('password-confirm')>true</#if>" />
                 <#if messagesPerField.existsError('password-confirm')>
-                    <span class="oluto-field-error">${kcSanitize(messagesPerField.getFirstError('password-confirm'))?no_esc}</span>
+                    <span class="oluto-input-error-msg">${kcSanitize(messagesPerField.getFirstError('password-confirm'))?no_esc}</span>
                 </#if>
             </div>
 
-            <button type="submit" class="oluto-btn-primary">
+            <button type="submit" class="oluto-btn oluto-btn-primary">
                 Create account
             </button>
         </form>
