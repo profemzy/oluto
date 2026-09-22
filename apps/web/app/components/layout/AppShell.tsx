@@ -81,7 +81,9 @@ const Icons = {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, role, canWrite, loading } = useAuth({ requireBusiness: false });
+  const { user, role, canWrite, loading, businessName } = useAuth({ requireBusiness: false });
+  const displayBusinessName = businessName ?? (loading ? "Loading business…" : "No business selected");
+  const businessInitial = businessName?.charAt(0)?.toUpperCase() ?? "O";
   const { logout } = useAuthContext();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
@@ -264,7 +266,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="mt-3 p-2 rounded bg-surface-secondary dark:bg-[#121F2D] border border-edge dark:border-[#1E2C3A] flex items-center justify-between">
               <div className="min-w-0 flex-1 pr-2">
                 <p className="text-xs font-semibold text-heading dark:text-slate-200 truncate">
-                  Oluto Demo Business
+                  {displayBusinessName}
                 </p>
                 <p className="text-[10px] text-muted dark:text-slate-400 font-mono">
                   CAD &middot; Canada
@@ -277,11 +279,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ) : (
             <div
               className="mt-2 flex justify-center"
-              title={`Oluto Demo Business (CAD) - ${roleDisplay.label}`}
-              aria-label={`Oluto Demo Business (CAD) - ${roleDisplay.label}`}
+              title={`${displayBusinessName} (CAD) - ${roleDisplay.label}`}
+              aria-label={`${displayBusinessName} (CAD) - ${roleDisplay.label}`}
             >
               <div className="h-6 w-6 rounded bg-surface-secondary dark:bg-[#121F2D] border border-edge dark:border-[#1E2C3A] flex items-center justify-center text-[10px] font-bold text-heading dark:text-slate-300">
-                O
+                {businessInitial}
               </div>
             </div>
           )}

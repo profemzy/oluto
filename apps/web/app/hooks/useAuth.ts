@@ -20,6 +20,8 @@ interface UseAuthOptions {
 interface UseAuthResult {
   user: User | null;
   loading: boolean;
+  /** Authoritative current business name, null while loading or without business. */
+  businessName: string | null;
   timezone: string;
   /** Resolved canonical or legacy business membership role, null while loading access. */
   role: UserRole | null;
@@ -51,6 +53,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [businessName, setBusinessName] = useState<string | null>(null);
   const [timezone, setTimezone] = useState("America/Toronto");
   const [businessRole, setBusinessRole] = useState<UserRole | null>(null);
 
@@ -89,13 +92,19 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
           ]);
           if (abortController.signal.aborted) return;
 
-          if (businessResult.status === "fulfilled" && businessResult.value.timezone) {
-            setTimezone(businessResult.value.timezone);
+          if (businessResult.status === "fulfilled") {
+            setBusinessName(businessResult.value.name ?? null);
+            if (businessResult.value.timezone) {
+              setTimezone(businessResult.value.timezone);
+            }
+          } else {
+            setBusinessName(null);
           }
           setBusinessRole(
             contextResult.status === "fulfilled" ? resolveRole(contextResult.value.role) : "viewer"
           );
         } else {
+          setBusinessName(null);
           setBusinessRole(resolveRole(currentUser.role));
         }
         setLoading(false);
@@ -122,6 +131,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthResult {
   return {
     user,
     loading: isActuallyLoading,
+    businessName,
     timezone,
     role,
     canWrite,

@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   role: "accountant",
   canWrite: true,
   loading: false,
+  businessName: "InfoTitans LTD",
   logout: vi.fn(),
 }));
 
@@ -30,6 +31,7 @@ vi.mock("@/app/hooks/useAuth", () => ({
     role: mocks.role,
     canWrite: mocks.canWrite,
     loading: mocks.loading,
+    businessName: mocks.businessName,
     timezone: "America/Toronto",
   }),
 }));
@@ -50,7 +52,15 @@ describe("AppShell", () => {
     mocks.role = "accountant";
     mocks.canWrite = true;
     mocks.loading = false;
+    mocks.businessName = "InfoTitans LTD";
     vi.clearAllMocks();
+  });
+
+  it("displays the authoritative business name instead of a demo label", () => {
+    render(<AppShell><div>Dashboard Content</div></AppShell>);
+
+    expect(screen.getByText("InfoTitans LTD")).toBeInTheDocument();
+    expect(screen.queryByText("Oluto Demo Business")).not.toBeInTheDocument();
   });
 
   it("renders desktop sidebar navigation groups and branding", () => {

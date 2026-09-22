@@ -92,6 +92,7 @@ describe("useAuth Hook", () => {
 
     expect(result.current.user).toEqual(mockUser);
     expect(result.current.timezone).toBe("America/Toronto");
+    expect(result.current.businessName).toBe("Test Business");
   });
 
   it("should use default timezone when business timezone is not available", async () => {
